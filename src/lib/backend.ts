@@ -1605,6 +1605,8 @@ export class PartnerSearchError extends Error {
 async function invokeTravelSearch<T>(body: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke("travel-search", { body });
   if (error) {
+    // The function is not deployed (or unreachable): the same "not connected yet" state as missing keys.
+    if ((error as { name?: string }).name === "FunctionsFetchError") throw new PartnerSearchError("not_configured", error.message);
     let code: PartnerSearchErrorCode = "upstream";
     let message = error.message;
     const ctx = (error as { context?: Response }).context;
@@ -1612,6 +1614,7 @@ async function invokeTravelSearch<T>(body: Record<string, unknown>): Promise<T> 
       try {
         const payload = (await ctx.json()) as { error?: PartnerSearchErrorCode; message?: string };
         if (payload.error) code = payload.error;
+        else if ((ctx as Response).status === 404) code = "not_configured";
         if (payload.message) message = payload.message;
       } catch {
         // keep the generic upstream error
