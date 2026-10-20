@@ -636,6 +636,54 @@ export async function listCardsForUser(userId: string): Promise<AppCard[]> {
   }));
 }
 
+// ---- Migration 0065/0066: open a wallet, issue and manage cards, see which wallet a remittance will use ----
+
+export async function createMyWallet(args: { userId: string; currency: string }): Promise<AppWallet> {
+  const res = await supabase.rpc("create_my_wallet", { p_user_id: args.userId, p_currency: args.currency });
+  return toAppWallet(mustHaveData(res, "createMyWallet") as Record<string, unknown>);
+}
+
+/** Currencies PayRus can open a wallet in (they have a reference rate). */
+export async function listWalletCurrencies(): Promise<{ code: string; ratePerUsd: number }[]> {
+  const res = await supabase.from("currencies").select("code, rate_per_usd").not("rate_per_usd", "is", null).order("code");
+  return mustHaveData(res, "listWalletCurrencies").map((r) => ({ code: r.code as string, ratePerUsd: Number(r.rate_per_usd) }));
+}
+
+function toAppCard(r: Record<string, unknown>): AppCard {
+  return {
+    id: r.id as string, userId: r.user_id as string, tier: r.tier as string, brand: r.brand as string, last4: r.last4 as string, holder: r.holder as string,
+    expiry: r.expiry as string, balance: Number(r.balance), currency: r.currency as string, type: r.type as string, network: r.network as string,
+    contactless: Boolean(r.contactless), gradient: r.gradient as string, shimmer: r.shimmer as string, accentColor: r.accent_color as string,
+    locked: Boolean(r.locked), monthlySpend: Number(r.monthly_spend), monthlyLimit: Number(r.monthly_limit),
+  };
+}
+
+export async function issueCard(args: { userId: string; currency: string; monthlyLimit: number }): Promise<AppCard> {
+  const res = await supabase.rpc("issue_card", { p_user_id: args.userId, p_currency: args.currency, p_monthly_limit: args.monthlyLimit });
+  return toAppCard(mustHaveData(res, "issueCard") as Record<string, unknown>);
+}
+
+export async function setCardLocked(args: { userId: string; cardId: string; locked: boolean }): Promise<AppCard> {
+  const res = await supabase.rpc("set_card_locked", { p_user_id: args.userId, p_card_id: args.cardId, p_locked: args.locked });
+  return toAppCard(mustHaveData(res, "setCardLocked") as Record<string, unknown>);
+}
+
+export async function updateCardSettings(args: { userId: string; cardId: string; monthlyLimit: number; contactless: boolean }): Promise<AppCard> {
+  const res = await supabase.rpc("update_card_settings", { p_user_id: args.userId, p_card_id: args.cardId, p_monthly_limit: args.monthlyLimit, p_contactless: args.contactless });
+  return toAppCard(mustHaveData(res, "updateCardSettings") as Record<string, unknown>);
+}
+
+export interface RemittancePayFrom { walletCurrency: string; balance: number; debit: number; sufficient: boolean; sameCurrency: boolean; fee: number }
+
+/** Which wallet a remittance would be debited from, how much, and whether the balance covers it (same selection as the send). */
+export async function getRemittancePayFrom(args: { userId: string; from: string; to: string; amount: number }): Promise<RemittancePayFrom | null> {
+  const res = await supabase.rpc("remittance_pay_from", { p_user_id: args.userId, p_from: args.from, p_to: args.to, p_amount: args.amount });
+  if (res.error) throw new Error(res.error.message);
+  const r = ((res.data ?? [])[0] ?? null) as Record<string, unknown> | null;
+  if (!r) return null;
+  return { walletCurrency: r.wallet_currency as string, balance: Number(r.balance), debit: Number(r.debit), sufficient: Boolean(r.sufficient), sameCurrency: Boolean(r.same_currency), fee: Number(r.fee) };
+}
+
 // ============================================================================
 // Linked payment methods (replaces convex/linkedPaymentMethods.ts) — direct
 // table access, RLS's "owner_key or user" policy handles both the
@@ -1881,6 +1929,10 @@ export async function listPitchRepayments(investmentId: string): Promise<AppPitc
 }
 
 export async function investInPitch(args: { userId: string; pitchId: string; amount: number }): Promise<AppPitchInvestment> {
+  // PRS-INV-005: the standard risk disclosure is logged as accepted before the position is created.
+  const ack = await supabase.rpc("accept_risk_disclosure", { p_user_id: args.userId, p_kind: "pitch", p_object_id: args.pitchId, p_version: "risk-v1" });
+  // PGRST202 = migration 0067 not applied yet on this project: keep working (the server then has no disclosure log to enforce).
+  if (ack.error && ack.error.code !== "PGRST202") throw new Error(ack.error.message);
   const res = await supabase.rpc("invest_in_pitch", { p_user_id: args.userId, p_pitch_id: args.pitchId, p_amount: args.amount });
   const row = mustHaveData(res, "investInPitch") as Record<string, unknown>;
   return {
@@ -1952,6 +2004,11 @@ export async function linkLoyaltyVenue(args: {
     p_spend_limit: args.spendLimit ?? 50000, p_cashback_rate: args.cashbackRate ?? 8,
   });
   return toAppLoyaltyAccount(mustHaveData(res, "linkLoyaltyVenue") as Record<string, unknown>);
+}
+
+export async function setLoyaltySpendLimit(args: { userId: string; accountId: string; spendLimit: number }): Promise<AppLoyaltyAccount> {
+  const res = await supabase.rpc("set_loyalty_spend_limit", { p_user_id: args.userId, p_account_id: args.accountId, p_spend_limit: args.spendLimit });
+  return toAppLoyaltyAccount(mustHaveData(res, "setLoyaltySpendLimit") as Record<string, unknown>);
 }
 
 export async function recordVenueSpend(args: { userId: string; accountId: string; amount: number }): Promise<AppLoyaltyAccount> {

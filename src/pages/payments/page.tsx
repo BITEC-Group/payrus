@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
 import CapabilityBadge from "@/components/ui/capability-badge.tsx";
 import { motion, AnimatePresence } from "motion/react";
 import { CreditCard, QrCode, Smartphone, Banknote, ChevronRight, NfcIcon, ArrowLeft, Wallet } from "lucide-react";
@@ -60,8 +61,8 @@ export default function Payments() {
       await applyTransaction({ userId: currentUser.id, amount: numAmt, currency: "USD", type: "payment" });
       setStep("success");
       toast.success(t("common.success"));
-    } catch {
-      toast.error(t("payments.paymentFailed"));
+    } catch (e) {
+      toast.error(transactionErrorMessage(e, t, "payments.paymentFailed"));
     } finally {
       setPaying(false);
     }

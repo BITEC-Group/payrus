@@ -3,7 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useFeatureAccess } from "@/hooks/use-feature-access.ts";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
-import { useAddLinkedPaymentMethodMutation, useCardsForUser, useLinkedPaymentMethods, useSeedDefaultLinkedPaymentMethodsMutation } from "@/hooks/use-backend.ts";
+import { useAddLinkedPaymentMethodMutation, useCardsForUser, useLinkedPaymentMethods, useSeedDefaultLinkedPaymentMethodsMutation, useSetCardLockedMutation, useWalletViewsForUser } from "@/hooks/use-backend.ts";
+import { CardDetailsDialog, CardSettingsDialog, IssueCardDialog, LinkedAccountDialog } from "./card-dialogs.tsx";
+import type { LinkedPaymentMethod } from "@/lib/backend.ts";
 import { useCurrentAppUser } from "@/hooks/use-current-app-user.ts";
 import CapabilityBadge from "@/components/ui/capability-badge.tsx";
 import PageHeader from "@/components/ui/page-header.tsx";
@@ -109,6 +111,8 @@ const CARDS = [
 
 type CardData = {
   id: number;
+  /** Database id of a real (signed-in) card; the demo deck has none. */
+  realId?: string;
   tier: string;
   brand: string;
   last4: string;
@@ -290,6 +294,8 @@ export default function Cards() {
   const [activeCard, setActiveCard] = useState(0);
   const [activeTab, setActiveTab] = useState<"details" | "linked">("details");
   const [addMethodOpen, setAddMethodOpen] = useState(false);
+  const [dialog, setDialog] = useState<null | "details" | "settings" | "issue">(null);
+  const [accountDetails, setAccountDetails] = useState<LinkedPaymentMethod | null>(null);
   const ownerKey = useState(getAnonId)[0];
   const linkedAccounts = useLinkedPaymentMethods(ownerKey);
   const addLinkedMethod = useAddLinkedPaymentMethodMutation();
@@ -299,6 +305,8 @@ export default function Cards() {
   // deck above for anonymous/no-account preview visitors.
   const currentUser = useCurrentAppUser();
   const realCards = useCardsForUser(currentUser?.id);
+  const setCardLocked = useSetCardLockedMutation();
+  const wallets = useWalletViewsForUser(currentUser?.id);
 
   const card = cards[activeCard];
 
@@ -310,12 +318,14 @@ export default function Cards() {
     if (realCards && realCards.length > 0) {
       setCards(realCards.map((c, i) => ({
         id: i,
+        realId: c.id,
         tier: c.tier, brand: c.brand, last4: c.last4, holder: c.holder, expiry: c.expiry,
         cvv: "***", balance: c.balance, currency: c.currency, type: c.type, network: c.network,
         contactless: c.contactless, gradient: c.gradient, shimmer: c.shimmer, accentColor: c.accentColor,
         locked: c.locked, monthlySpend: c.monthlySpend, monthlyLimit: c.monthlyLimit,
       })));
-      setActiveCard(0);
+      // Keep the card the customer is looking at when the list refreshes (after a lock or a settings change).
+      setActiveCard((prev) => Math.min(prev, realCards.length - 1));
     }
   }, [realCards]);
 
@@ -326,13 +336,25 @@ export default function Cards() {
     toast.success(t("cards.toast.methodLinked", { name: label }));
   };
 
-  const toggleLock = () => {
-    setCards(prev => prev.map(c => c.id === card.id ? { ...c, locked: !c.locked } : c));
-    toast.success(card.locked ? t("cards.toast.unlocked") : t("cards.toast.locked"));
+  // A real card's lock is stored in the database (it used to flip in browser memory only, so a reload put the card back in service).
+  const toggleLock = async () => {
+    const nextLocked = !card.locked;
+    if (card.realId && currentUser) {
+      try {
+        await setCardLocked({ userId: currentUser.id, cardId: card.realId, locked: nextLocked });
+      } catch {
+        toast.error(t("cards.toast.lockFailed"));
+        return;
+      }
+    } else {
+      setCards(prev => prev.map(c => c.id === card.id ? { ...c, locked: nextLocked } : c));
+    }
+    toast.success(nextLocked ? t("cards.toast.locked") : t("cards.toast.unlocked"));
   };
 
   const copyNumber = () => {
-    navigator.clipboard.writeText(`•••• •••• •••• ${card.last4}`).catch(() => {});
+    // Only the last four digits exist in the database, so copy the card's identifying details rather than a fake number.
+    navigator.clipboard.writeText(`${card.brand} •••• ${card.last4} · ${card.expiry} · ${card.holder}`).catch(() => {});
     toast.success(t("cards.toast.numberCopied"));
   };
 
@@ -400,7 +422,7 @@ export default function Cards() {
         ))}
         {/* Add card */}
         <button
-          onClick={() => toast.info(t("cards.toast.issuanceSoon"))}
+          onClick={() => setDialog("issue")} data-testid="issue-card-button"
           className="shrink-0 w-40 h-48 rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-3 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors cursor-pointer snap-start"
         >
           <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
@@ -475,9 +497,9 @@ export default function Cards() {
               <div className="grid grid-cols-4 gap-2">
                 {[
                   { label: card.locked ? t("cards.unlock") : t("cards.lock"), icon: card.locked ? Unlock : Lock, action: toggleLock, variant: card.locked ? "destructive" : "secondary" },
-                  { label: t("cards.details"), icon: Eye, action: () => toast.info(t("cards.toast.secureViewSoon")), variant: "secondary" },
+                  { label: t("cards.details"), icon: Eye, action: () => setDialog("details"), variant: "secondary" },
                   { label: t("cards.copy"), icon: Copy, action: copyNumber, variant: "secondary" },
-                  { label: t("cards.settings"), icon: Settings2, action: () => toast.info(t("cards.toast.settingsSoon")), variant: "secondary" },
+                  { label: t("cards.settings"), icon: Settings2, action: () => setDialog("settings"), variant: "secondary" },
                 ].map(({ label, icon: Icon, action, variant }) => (
                   <button
                     key={label}
@@ -544,7 +566,7 @@ export default function Cards() {
                     <button
                       key={acc.id}
                       type="button"
-                      onClick={() => toast.info(t("cards.toast.accountDetailsSoon"))}
+                      onClick={() => setAccountDetails(acc)}
                       className="w-full flex items-center gap-3 p-3 rounded-2xl bg-secondary border border-border hover:bg-primary/5 transition-colors cursor-pointer text-left"
                     >
                       <div className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center shrink-0">
@@ -603,6 +625,14 @@ export default function Cards() {
       </div>
 
       <AddPaymentMethodSheet open={addMethodOpen} onOpenChange={setAddMethodOpen} onAdd={addLinkedAccount} />
+      {dialog === "details" && <CardDetailsDialog card={card} onClose={() => setDialog(null)} />}
+      {dialog === "settings" && <CardSettingsDialog card={card} userId={currentUser?.id} onClose={() => setDialog(null)} />}
+      {dialog === "issue" && (
+        <IssueCardDialog userId={currentUser?.id} currencies={Array.from(new Set((wallets ?? []).map((w) => w.currency)))} defaultCurrency={currentUser?.transactionCurrency ?? "USD"} onClose={() => setDialog(null)} />
+      )}
+      {accountDetails && (
+        <LinkedAccountDialog account={accountDetails} providerLabel={PAYMENT_PROVIDERS.find((p) => p.id === accountDetails.provider) ? t(PAYMENT_PROVIDERS.find((p) => p.id === accountDetails.provider)!.labelKey) : accountDetails.provider} onClose={() => setAccountDetails(null)} />
+      )}
     </div>
   );
 }

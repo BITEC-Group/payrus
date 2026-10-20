@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import PageHeader from "@/components/ui/page-header.tsx";
@@ -254,8 +255,8 @@ export default function GroupTransfers() {
       }
       setActiveView("success");
       toast.success(t("groups.groupPaymentSentToast"));
-    } catch {
-      toast.error(t("groups.paymentFailed"));
+    } catch (e) {
+      toast.error(transactionErrorMessage(e, t, "groups.paymentFailed"));
     } finally {
       setSendingPayment(false);
     }
@@ -277,7 +278,7 @@ export default function GroupTransfers() {
           <p className="text-xs text-muted-foreground">{t("groups.subtitle")}</p>
         </div>
         <button
-          onClick={() => currentUser ? setShowNewGroup(true) : toast.info(t("groups.createGroupSoonToast"))}
+          onClick={() => currentUser ? setShowNewGroup(true) : toast.info(t("groups.signInToCreate"))}
           className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/30 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors cursor-pointer"
         >
           <Plus size={13} /> {t("groups.newGroup")}
@@ -363,7 +364,7 @@ export default function GroupTransfers() {
 
               {/* Add group button */}
               <button
-                onClick={() => currentUser ? setShowNewGroup(true) : toast.info(t("groups.createGroupSoonToast"))}
+                onClick={() => currentUser ? setShowNewGroup(true) : toast.info(t("groups.signInToCreate"))}
                 className="text-left p-4 rounded-2xl border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 min-h-[120px]"
               >
                 <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">

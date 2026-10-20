@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { ArrowLeft, Smartphone, Landmark, Banknote, BadgeCheck, Wallet, Copy, MapPin, Store } from "lucide-react";
@@ -201,7 +202,8 @@ export default function NewReceiverFlow({ senderId, wallets, defaultCurrency, on
       setReceipt(r); setStep("success");
     } catch (e) {
       const m = /corridor_blocked:(\w+)/.exec(e instanceof Error ? e.message : "");
-      toast.error(m ? (m[1] === "not_offered" ? t("p2p.new.noRoute", { from, to: toCurrency }) : t(`remittance.blocked.${m[1]}`)) : errText(e) || t("p2p.new.failed"));
+      // not_offered keeps its route-specific wording; every other failure gets the central, translated explanation.
+      toast.error(m && m[1] === "not_offered" ? t("p2p.new.noRoute", { from, to: toCurrency }) : transactionErrorMessage(e, t, "p2p.new.failed"));
     } finally { setBusy(false); }
   };
 

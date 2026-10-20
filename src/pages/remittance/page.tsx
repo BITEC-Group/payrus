@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeftRight, Globe, TrendingUp, ArrowLeft, ChevronDown, Smartphone, Landmark, Banknote, Wallet, Zap, Star, Trash2, Clock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
@@ -12,8 +14,10 @@ import { useCurrentAppUser } from "@/hooks/use-current-app-user.ts";
 import {
   useSavedRecipients, useSaveRecipientMutation, useTouchSavedRecipientMutation,
   useDeleteSavedRecipientMutation, useRecentTransfersForUser, useCurrentFxMarginConfig, useRemittanceQuote, useOpenCorridors, useSendRemittanceMutation,
+  useRemittancePayFrom, useWalletViewsForUser,
 } from "@/hooks/use-backend.ts";
 import type { DeliveryMethod } from "@/lib/backend.ts";
+import AddWalletDialog from "@/components/wallet/add-wallet-dialog.tsx";
 import { requireStepUp } from "@/lib/mfa.ts";
 
 // Launch-phase priority corridors lead the list: XAF (CEMAC — Cameroon, Congo-Brazzaville,
@@ -77,6 +81,11 @@ export default function Remittance() {
   const [recipientAccount, setRecipientAccount] = useState("");
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
+  const [showAddWallet, setShowAddWallet] = useState(false);
+  // The reason the last send failed, kept on screen (a toast alone disappears before it can be read).
+  const [sendError, setSendError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { lng } = useParams<{ lng: string }>();
 
   const [method, setMethod] = useState<DeliveryMethod>("mobile_money");
   const [provider, setProvider] = useState("");
@@ -112,7 +121,13 @@ export default function Remittance() {
   // All-in cost as a share of the amount sent: fee + FX margin (the measure the World Bank and Wise/Remitly comparisons use).
   const totalCostPct = numAmt > 0 ? (fee + numAmt * marginRate) / numAmt : 0;
   const delivery = DELIVERY.find(d => d.id === method)!;
-  const canReview = !blockedReason && numAmt > 0 && recipient.trim().length >= 2 && recipientAccount.trim().length >= 3;
+  // Which wallet will be debited (migration 0066): the wallet in the send currency, else one that can cover it. Shown before the
+  // customer confirms, so a short balance or a missing wallet is explained up front instead of failing at the last step.
+  const wallets = useWalletViewsForUser(currentUser?.id);
+  const { data: payFrom } = useRemittancePayFrom(currentUser?.id, fromCurrency, toCurrency, blockedReason ? 0 : numAmt);
+  const noWalletAtAll = !!currentUser && wallets !== undefined && wallets.length === 0;
+  const shortOfFunds = !!payFrom && !payFrom.sufficient;
+  const canReview = !blockedReason && numAmt > 0 && recipient.trim().length >= 2 && recipientAccount.trim().length >= 3 && !shortOfFunds && !noWalletAtAll;
 
   const pickRecipient = (r: NonNullable<typeof savedRecipients>[number]) => {
     setPickedId(r.id); setRecipient(r.fullName); setRecipientAccount(r.account);
@@ -147,6 +162,7 @@ export default function Remittance() {
     }
     if (!(await requireStepUp())) { toast.error(t("mfa.codeInvalid")); return; }
     setSending(true);
+    setSendError(null);
     try {
       const via = [t(`remittance.method.${method}`), provider].filter(Boolean).join(" · ");
       const note = `${recipient} · ${via} · ${maskAccount(recipientAccount)} · ${fromCurrency}→${toCurrency}`;
@@ -163,8 +179,9 @@ export default function Remittance() {
       setStep("success");
       toast.success(t("common.success"));
     } catch (e) {
-      const m = /corridor_blocked:(\w+)/.exec(e instanceof Error ? e.message : "");
-      toast.error(m ? t(`remittance.blocked.${m[1]}`) : t("common.error"));
+      const message = transactionErrorMessage(e, t, "common.error");
+      setSendError(message);
+      toast.error(message);
     } finally {
       setSending(false);
     }
@@ -348,7 +365,24 @@ export default function Remittance() {
                 <p className="text-[11px] text-muted-foreground flex items-center gap-1"><Clock size={11} />{t("remittance.arrives")}: {t(delivery.eta)}</p>
               </div>
             )}
+            {currentUser && numAmt > 0 && !blockedReason && (noWalletAtAll || payFrom) && (
+              <div className={cn("rounded-xl border p-3 text-xs space-y-2", shortOfFunds || noWalletAtAll ? "border-destructive/40 bg-destructive/10 text-destructive" : "border-border bg-secondary/40 text-muted-foreground")} data-testid="pay-from" role={shortOfFunds || noWalletAtAll ? "alert" : undefined}>
+                {noWalletAtAll && <p>{t("remittance.payFrom.none")}</p>}
+                {payFrom && payFrom.sameCurrency && !shortOfFunds && <p>{t("remittance.payFrom.same", { currency: payFrom.walletCurrency, balance: payFrom.balance.toLocaleString() })}</p>}
+                {payFrom && !payFrom.sameCurrency && !shortOfFunds && <p>{t("remittance.payFrom.convert", { from: fromCurrency, debit: payFrom.debit.toLocaleString(), currency: payFrom.walletCurrency, balance: payFrom.balance.toLocaleString() })}</p>}
+                {shortOfFunds && payFrom && <p>{t("remittance.payFrom.short", { need: payFrom.debit.toLocaleString(), currency: payFrom.walletCurrency, have: payFrom.balance.toLocaleString() })}</p>}
+                {(noWalletAtAll || shortOfFunds || (payFrom && !payFrom.sameCurrency)) && (
+                  <div className="flex gap-3">
+                    {(noWalletAtAll || (payFrom && !payFrom.sameCurrency)) && (
+                      <button type="button" onClick={() => setShowAddWallet(true)} className="font-semibold underline cursor-pointer">{t("remittance.payFrom.openWallet", { currency: fromCurrency })}</button>
+                    )}
+                    <button type="button" onClick={() => navigate(`/${lng ?? "en"}/wallet`)} className="font-semibold underline cursor-pointer">{t("remittance.payFrom.topUp")}</button>
+                  </div>
+                )}
+              </div>
+            )}
             <Button onClick={handleSend} disabled={!canReview} className="w-full h-12 text-base font-semibold rounded-xl">{t("remittance.reviewTransfer")}</Button>
+            {showAddWallet && <AddWalletDialog userId={currentUser?.id} held={(wallets ?? []).map((w) => w.currency)} suggested={fromCurrency} onClose={() => setShowAddWallet(false)} />}
             {myRemittances.length > 0 && (
               <div className="rounded-2xl bg-card border border-border p-4 space-y-3">
                 <h2 className="font-semibold text-foreground">{t("remittance.trackTitle")}</h2>
@@ -391,6 +425,7 @@ export default function Remittance() {
                 ))}
               </div>
             </div>
+            {sendError && <div role="alert" data-testid="send-error" className="w-full rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{sendError}</div>}
             <div className="flex gap-3">
               <Button variant="secondary" onClick={reset} className="flex-1 h-12 rounded-xl">{t("common.cancel")}</Button>
               <Button onClick={() => void handleConfirm()} disabled={sending} className="flex-1 h-12 text-base font-semibold rounded-xl">{sending ? t("signin.checking") : t("remittance.confirmSend")}</Button>

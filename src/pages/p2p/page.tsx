@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
@@ -269,8 +270,8 @@ export default function P2PTransfer() {
       setCommitted(result);
       setStep("success");
       toast.success(t("p2p.sendConfirmedToast", { currency, amount: numAmt.toLocaleString() }));
-    } catch {
-      toast.error(t("p2p.transferFailed"));
+    } catch (e) {
+      toast.error(transactionErrorMessage(e, t, "p2p.transferFailed"));
     } finally {
       setSending(false);
     }

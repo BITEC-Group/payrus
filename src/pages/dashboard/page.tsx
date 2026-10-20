@@ -148,7 +148,7 @@ export default function Dashboard() {
   const primaryCard = realCards && realCards.length > 0 ? realCards[0] : null;
   const linkedMethods = useLinkedPaymentMethods(getAnonId());
   const walletsToShow = realWallets && realWallets.length > 0
-    ? realWallets.map(w => ({ name: w.provider, balance: `${w.currency} ${w.balance.toLocaleString()}`, flag: w.flag, color: w.colorClass }))
+    ? realWallets.map(w => ({ name: w.provider, balance: `${w.currency} ${w.balance.toLocaleString()}`, flag: w.flag, color: w.colorClass, currency: w.currency as string | undefined }))
     : wallets;
 
   // Format balance for display — compact for very large numbers
@@ -322,7 +322,7 @@ export default function Dashboard() {
                 <button
                   key={w.name}
                   type="button"
-                  onClick={() => toast.info(t("dashboard.walletTapSoon"))}
+                  onClick={() => navigate(`${base}/wallet${(w as { currency?: string }).currency ? `?currency=${(w as { currency?: string }).currency}` : ""}`)}
                   className={cn("shrink-0 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border cursor-pointer hover:opacity-80 transition-opacity text-left", w.color)}
                 >
                   <span className="text-lg leading-none">{w.flag}</span>
@@ -390,7 +390,7 @@ export default function Dashboard() {
           {contacts.map((c, i) => (
             <motion.button key={c.name} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.15 + i * 0.04 }}
-              onClick={() => { toast.info(t("dashboard.contactSoon", { name: c.name.split(" ")[0] })); navigate(`${base}/remittance`); }}
+              onClick={() => navigate(`${base}/p2p`)}
               className="flex flex-col items-center gap-1.5 cursor-pointer group shrink-0">
               <div className={cn("w-11 h-11 rounded-full flex items-center justify-center text-white text-xs font-bold transition-all group-hover:scale-105 group-hover:ring-2 group-hover:ring-primary/50", c.color)}>
                 {c.initials}
@@ -400,7 +400,7 @@ export default function Dashboard() {
           ))}
           <motion.button initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15 + contacts.length * 0.04 }}
-            onClick={() => toast.info(t("dashboard.addContactSoon"))}
+            onClick={() => navigate(`${base}/p2p`)}
             className="flex flex-col items-center gap-1.5 cursor-pointer group shrink-0">
             <div className="w-11 h-11 rounded-full border-2 border-dashed border-border flex items-center justify-center group-hover:border-primary/50 transition-colors">
               <Plus size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
@@ -411,7 +411,7 @@ export default function Dashboard() {
       </div>
 
       {/* AI / Profile insight */}
-      <motion.button type="button" onClick={() => toast.info(t("dashboard.insightSoon"))}
+      <motion.button type="button" onClick={() => navigate(profileInsight ? `${base}/modules` : `${base}/savings`)}
         initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
         className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-[linear-gradient(135deg,rgba(10,47,92,0.05),rgba(14,127,176,0.04))] border border-primary/15 cursor-pointer hover:bg-primary/8 transition-colors shadow-sm text-left">
         <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
@@ -462,7 +462,7 @@ export default function Dashboard() {
       </div>
 
       {/* Agent banking promo */}
-      <motion.button type="button" onClick={() => toast.info(t("dashboard.agentSoon"))}
+      <motion.button type="button" onClick={() => navigate(`${base}/profile`)}
         initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
         className="relative w-full overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#f8fbff_0%,#edf4fa_100%)] border border-border p-4 cursor-pointer hover:border-primary/30 transition-colors shadow-sm text-left">
         <div className="absolute inset-0 bg-gradient-to-r from-accent/4 to-transparent pointer-events-none" />

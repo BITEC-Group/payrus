@@ -17,6 +17,7 @@ import { useProfile } from "@/contexts/profile-context.tsx";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
+import EditLimitDialog from "./edit-limit-dialog.tsx";
 import { useCurrentAppUser } from "@/hooks/use-current-app-user.ts";
 import {
   useContributeToPotMutation, useContributeToTontineMutation, useCreateSavingsPotMutation, useInvestInProductMutation,
@@ -893,8 +894,8 @@ const EXPENSE_CATEGORIES: Record<ExpenseReport["category"], { labelKey: string; 
 
 /* ─── Loyalty sub-components ─────────────────────────────────── */
 
-function LoyaltyCard({ pot, index, isReal, onSpend, onRedeem }: {
-  pot: LoyaltyPot; index: number; isReal: boolean;
+function LoyaltyCard({ pot, index, isReal, onSpend, onRedeem, onEditLimit }: {
+  pot: LoyaltyPot; index: number; isReal: boolean; onEditLimit: (pot: LoyaltyPot) => void;
   onSpend: (pot: LoyaltyPot) => void; onRedeem: (pot: LoyaltyPot, reward: LoyaltyPot["rewardOptions"][number]) => void;
 }) {
   const { t } = useTranslation("common");
@@ -1045,7 +1046,7 @@ function LoyaltyCard({ pot, index, isReal, onSpend, onRedeem }: {
                     <div className="text-xs font-bold font-mono">{pot.currency} {pot.spendLimit.toLocaleString()}</div>
                   </div>
                   <button
-                    onClick={() => toast.info(t("savings.editLimitComingSoon"))}
+                    onClick={() => onEditLimit(pot)}
                     className="text-[10px] text-primary font-bold hover:underline cursor-pointer"
                   >
                     {t("savings.edit")}
@@ -1293,6 +1294,8 @@ export default function SavingsPage() {
   }
 
   const [spendingAt, setSpendingAt] = useState<LoyaltyPot | null>(null);
+  const [editingLimit, setEditingLimit] = useState<LoyaltyPot | null>(null);
+  const [showCompare, setShowCompare] = useState(false);
   const [spending, setSpending] = useState(false);
   async function handleConfirmSpend(amount: number) {
     if (!spendingAt) return;
@@ -1570,10 +1573,10 @@ export default function SavingsPage() {
               </div>
               <button
                 type="button"
-                onClick={() => toast.info(t("savings.compareSoon"))}
+                onClick={() => setShowCompare((v) => !v)} aria-expanded={showCompare}
                 className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-secondary border border-border text-[10px] text-muted-foreground cursor-pointer hover:bg-secondary/80 transition-colors"
               >
-                <BarChart3 size={11} /> {t("savings.compare")} <ChevronDown size={11} />
+                <BarChart3 size={11} /> {t("savings.compare")} <ChevronDown size={11} className={cn("transition-transform", showCompare && "rotate-180")} />
               </button>
             </div>
 
@@ -1588,6 +1591,33 @@ export default function SavingsPage() {
               </div>
               <ChevronRight size={13} className="text-muted-foreground" />
             </div>
+
+            {showCompare && (
+              <div className="rounded-2xl border border-border bg-card overflow-x-auto" data-testid="compare-products">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-left text-[10px] text-muted-foreground border-b border-border">
+                      <th className="px-3 py-2 font-semibold">{t("savings.investProducts")}</th>
+                      <th className="px-3 py-2 font-semibold">{t("savings.apyReturn")}</th>
+                      <th className="px-3 py-2 font-semibold">{t("savings.minimum")}</th>
+                      <th className="px-3 py-2 font-semibold">{t("savings.duration")}</th>
+                      <th className="px-3 py-2 font-semibold">{t("savings.compareRisk")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...displayProducts].sort((a, b) => b.apy - a.apy).map((p, i) => (
+                      <tr key={p.id} className={cn("border-b border-border/50 last:border-0 cursor-pointer hover:bg-secondary/40", i === 0 && "bg-lime-500/5")} onClick={() => setContributing({ kind: "product", item: p })}>
+                        <td className="px-3 py-2 font-semibold">{p.flag} {t(p.name)}</td>
+                        <td className="px-3 py-2 font-mono font-bold">{p.apy}%</td>
+                        <td className="px-3 py-2 font-mono">{p.currency} {p.minAmount.toLocaleString()}</td>
+                        <td className="px-3 py-2">{p.duration}</td>
+                        <td className="px-3 py-2">{t(p.risk === "low" ? "savings.riskLow" : p.risk === "medium" ? "savings.riskMedium" : "savings.riskHigh")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             <div className="grid md:grid-cols-2 gap-3">
               {displayProducts.map((prod, i) => <InvestCard key={prod.id} prod={prod} index={i} onInvest={(p) => setContributing({ kind: "product", item: p })} />)}
@@ -1663,7 +1693,7 @@ export default function SavingsPage() {
             </div>
 
             {displayLoyalty.map((pot, i) => (
-              <LoyaltyCard key={pot.id} pot={pot} index={i} isReal={hasRealLoyalty} onSpend={(p) => setSpendingAt(p)} onRedeem={handleRedeem} />
+              <LoyaltyCard key={pot.id} pot={pot} index={i} isReal={hasRealLoyalty} onSpend={(p) => setSpendingAt(p)} onRedeem={handleRedeem} onEditLimit={(p) => setEditingLimit(p)} />
             ))}
 
             {/* Tip */}
@@ -1801,6 +1831,9 @@ export default function SavingsPage() {
         <LinkVenueModal creating={linkingVenue} onCreate={handleLinkVenue} onClose={() => setLinkVenueOpen(false)} />
       )}
 
+      {editingLimit && (
+        <EditLimitDialog userId={currentUser?.id} accountId={hasRealLoyalty ? editingLimit.id : undefined} venueName={editingLimit.venueName} currency={editingLimit.currency} current={editingLimit.spendLimit} onClose={() => setEditingLimit(null)} />
+      )}
       {spendingAt && (
         <ContributeModal
           title={`${t("savings.spendHere")} — ${spendingAt.venueName}`}

@@ -94,14 +94,14 @@ export default function Index() {
         up: true,
         accent: "#0E7FB0",
       }))
-    : wallets.map((w) => ({ ...w, id: null }));
+    : currentUser ? [] : wallets.map((w) => ({ ...w, id: null })); // sample wallets only for the anonymous preview (PRS-BR-006)
   const primaryCard = realCards && realCards.length > 0 ? realCards[0] : null;
   const channelsToShow = linkedMethods && linkedMethods.length > 0
     ? linkedMethods.slice(0, 3).map((m) => {
         const providerMeta = PAYMENT_PROVIDERS.find((p) => p.id === m.provider);
         return { label: providerMeta ? t(providerMeta.labelKey) : m.label, emoji: "💳", icon: providerMeta?.icon };
       })
-    : channels.map((c) => ({ ...c, icon: undefined }));
+    : currentUser ? [] : channels.map((c) => ({ ...c, icon: undefined }));
 
   return (
     <div
@@ -159,14 +159,17 @@ export default function Index() {
                 {showBalance
                   ? (totalBalance != null
                       ? `${displayCurrency} ${totalBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
-                      : "$12,480.65")
+                      : currentUser ? `${displayCurrency} 0` : "$12,480.65")
                   : "•••••••••"}
               </div>
               <div className="relative mt-3.5 flex flex-wrap items-center gap-2">
                 {hasRealWallets ? (
                   <span className="text-xs opacity-80">across {walletsToShow.length} wallet{walletsToShow.length === 1 ? "" : "s"} · {channelsToShow.length} linked</span>
+                ) : currentUser ? (
+                  <span className="text-xs opacity-80">No wallets yet</span>
                 ) : (
                   <>
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.2)" }}>Sample data</span>
                     <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(120,183,46,0.25)", color: "#B9E88F" }}>▲ 3.2% this month</span>
                     <span className="text-xs opacity-80">across 7 wallets · 3 mobile money · 1 bank</span>
                   </>

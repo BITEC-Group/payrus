@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
 import { useTranslation } from "react-i18next";
 import { Droplet, Tv, Smartphone, Wifi, Pause } from "lucide-react";
 import { cn } from "@/lib/utils.ts";
@@ -55,8 +56,8 @@ export default function Bills() {
       await applyTransaction({ userId: currentUser!.id, amount, currency: biller.currency, type: "payment", note: `Bill: ${biller.name}` });
       setReference(`BILL-${Date.now().toString().slice(-10)}`);
       setPaying({ id: biller.id, name: biller.name, amount: amount.toLocaleString(), currency: biller.currency });
-    } catch {
-      toast.error(t("bills.payFailed"));
+    } catch (e) {
+      toast.error(transactionErrorMessage(e, t, "bills.payFailed"));
     } finally {
       setPayingReal(false);
     }

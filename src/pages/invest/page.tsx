@@ -651,6 +651,7 @@ function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
   const [amount, setAmount] = useState("");
   const [done, setDone] = useState(false);
   const [investing, setInvesting] = useState(false);
+  const [riskAccepted, setRiskAccepted] = useState(false);
   const presets = [5000, 10000, 25000, 50000, 100000];
 
   const numAmount = Number(amount);
@@ -661,6 +662,10 @@ function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
   async function handleInvest() {
     if (!amount || isNaN(numAmount) || numAmount < 5000) {
       toast.error("Minimum investment is 5,000 " + pitch.currency);
+      return;
+    }
+    if (!riskAccepted) {
+      toast.error("Please accept the risk disclosure first");
       return;
     }
     if (!currentUserId || typeof pitch.id !== "string") {
@@ -735,6 +740,11 @@ function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
                   className="font-mono text-base"
                 />
               </div>
+
+              <label className="flex items-start gap-2 text-[11px] text-muted-foreground cursor-pointer">
+                <input type="checkbox" checked={riskAccepted} onChange={(e) => setRiskAccepted(e.target.checked)} className="mt-0.5" />
+                <span>I understand my capital is at risk, this investment is illiquid and no return is guaranteed.</span>
+              </label>
 
               {/* Return projection */}
               {numAmount >= 5000 && (

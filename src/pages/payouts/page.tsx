@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Banknote, Plus, X } from "lucide-react";
@@ -67,8 +68,8 @@ export default function Payouts() {
       toast.success(t("payouts.createdToast"));
       setShowForm(false);
       setLabel(""); setRows([{ recipientLabel: "", amount: "" }]);
-    } catch {
-      toast.error(t("payouts.createFailed"));
+    } catch (e) {
+      toast.error(transactionErrorMessage(e, t, "payouts.createFailed"));
     } finally {
       setCreating(false);
     }

@@ -231,6 +231,54 @@ export function useCardsForUser(userId: string | undefined) {
   }).data;
 }
 
+// Migration 0065/0066: open a wallet, issue and manage cards, preview which wallet pays a remittance.
+export function useWalletCurrencies() {
+  return useReactQuery({ queryKey: ["walletCurrencies"], queryFn: backend.listWalletCurrencies, staleTime: 5 * 60_000 }).data;
+}
+
+export function useCreateMyWalletMutation() {
+  const invalidate = useInvalidateWalletQueries();
+  return useReactMutation({
+    mutationFn: backend.createMyWallet,
+    onSuccess: (_d, v) => invalidate(v.userId),
+  }).mutateAsync;
+}
+
+export function useIssueCardMutation() {
+  const queryClient = useQueryClient();
+  return useReactMutation({
+    mutationFn: backend.issueCard,
+    onSuccess: (_d, v) => void queryClient.invalidateQueries({ queryKey: ["cards", v.userId] }),
+  }).mutateAsync;
+}
+
+export function useSetCardLockedMutation() {
+  const queryClient = useQueryClient();
+  return useReactMutation({
+    mutationFn: backend.setCardLocked,
+    onSuccess: (_d, v) => void queryClient.invalidateQueries({ queryKey: ["cards", v.userId] }),
+  }).mutateAsync;
+}
+
+export function useUpdateCardSettingsMutation() {
+  const queryClient = useQueryClient();
+  return useReactMutation({
+    mutationFn: backend.updateCardSettings,
+    onSuccess: (_d, v) => void queryClient.invalidateQueries({ queryKey: ["cards", v.userId] }),
+  }).mutateAsync;
+}
+
+export function useRemittancePayFrom(userId: string | undefined, from: string, to: string, amount: number) {
+  return useReactQuery({
+    queryKey: ["remittancePayFrom", userId, from, to, amount],
+    queryFn: () => backend.getRemittancePayFrom({ userId: userId!, from, to, amount }),
+    enabled: !!userId && amount > 0 && from !== to,
+    staleTime: 10_000,
+    retry: false,
+    placeholderData: (prev) => prev,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Linked payment methods
 // ---------------------------------------------------------------------------
@@ -980,6 +1028,15 @@ export function useLinkLoyaltyVenueMutation() {
   const queryClient = useQueryClient();
   const mutation = useReactMutation({
     mutationFn: backend.linkLoyaltyVenue,
+    onSuccess: (_data, variables) => void queryClient.invalidateQueries({ queryKey: ["loyaltyAccounts", variables.userId] }),
+  });
+  return mutation.mutateAsync;
+}
+
+export function useSetLoyaltySpendLimitMutation() {
+  const queryClient = useQueryClient();
+  const mutation = useReactMutation({
+    mutationFn: backend.setLoyaltySpendLimit,
     onSuccess: (_data, variables) => void queryClient.invalidateQueries({ queryKey: ["loyaltyAccounts", variables.userId] }),
   });
   return mutation.mutateAsync;

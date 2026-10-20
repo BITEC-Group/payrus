@@ -20,7 +20,7 @@ export function toAirportCode(input: string): string | null {
 
 export function formatMoney(amount: number, currency: string, locale?: string): string {
   try {
-    return new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: amount % 1 === 0 ? 0 : 2 }).format(amount);
+    return new Intl.NumberFormat(locale, { style: "currency", currency, currencyDisplay: "code", maximumFractionDigits: amount % 1 === 0 ? 0 : 2 }).format(amount);
   } catch {
     return `${amount.toLocaleString(locale)} ${currency}`;
   }

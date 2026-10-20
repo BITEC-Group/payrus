@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -12,6 +13,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import PageHeader from "@/components/ui/page-header.tsx";
 import TransactionReceipt from "@/components/ui/transaction-receipt.tsx";
+import AddWalletDialog from "@/components/wallet/add-wallet-dialog.tsx";
 import { RATES_PER_USD, convertWithMargin, depositFeeFor } from "@/convex/fx.ts";
 import { useCurrentAppUser } from "@/hooks/use-current-app-user.ts";
 import { useDepositMutation, useConvertBetweenWalletsMutation, useRecentTransfersForUser, useWalletViewsForUser } from "@/hooks/use-backend.ts";
@@ -46,8 +48,9 @@ export default function WalletPage() {
   const [method, setMethod] = useState<TopUpMethod | null>(null);
   const [mobileOp, setMobileOp] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
-  const [currency, setCurrency] = useState(defaultCurrency);
+  const [currency, setCurrency] = useState(searchParams.get("currency") ?? defaultCurrency);
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const [showAddWallet, setShowAddWallet] = useState(searchParams.get("add") === "1");
   const [depositing, setDepositing] = useState(false);
   const [lastDeposit, setLastDeposit] = useState<{ credited: number; fee: number } | null>(null);
   const [txReference, setTxReference] = useState(() => `TOP-${Date.now().toString().slice(-10)}`);
@@ -85,8 +88,8 @@ export default function WalletPage() {
       setTxReference(result.reference);
       setStep("success");
       toast.success(t("common.success"));
-    } catch {
-      toast.error(t("wallet.topUpFailed", "Top-up failed"));
+    } catch (e) {
+      toast.error(transactionErrorMessage(e, t, "wallet.topUpFailed"));
     } finally {
       setDepositing(false);
     }
@@ -132,7 +135,7 @@ export default function WalletPage() {
 
   const handleConvertReview = () => {
     if (!convertAmount || convertNumAmt <= 0) { toast.error(t("wallet.enterValidAmount")); return; }
-    if (currentUser && fromWallet && convertNumAmt > fromWallet.balance) { toast.error(t("p2p.invalidAmount")); return; }
+    if (currentUser && fromWallet && convertNumAmt > fromWallet.balance) { toast.error(t("txerror.insufficient_balance", { need: convertNumAmt.toLocaleString(), have: fromWallet.balance.toLocaleString(), currency: fromWallet.currency })); return; }
     setConvertStep("confirm");
   };
 
@@ -150,8 +153,8 @@ export default function WalletPage() {
       setConvertRef(result.fromTransfer.reference);
       setConvertStep("success");
       toast.success(t("common.success"));
-    } catch {
-      toast.error(t("wallet.convertFailed", "Conversion failed"));
+    } catch (e) {
+      toast.error(transactionErrorMessage(e, t, "wallet.convertFailed"));
     } finally {
       setConverting(false);
     }
@@ -244,6 +247,32 @@ export default function WalletPage() {
                   <Wallet size={18} className="mr-2" />
                   {t("wallet.topUp")}
                 </Button>
+
+                {currentUser && (
+                  <div className="rounded-2xl bg-card border border-border p-4" data-testid="my-wallets">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-sm text-foreground">{t("wallet.myWallets")}</h3>
+                      <button type="button" onClick={() => setShowAddWallet(true)} data-testid="add-wallet-button"
+                        className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline cursor-pointer">
+                        <Plus size={12} /> {t("wallet.add.button")}
+                      </button>
+                    </div>
+                    {realWallets && realWallets.length > 0 ? (
+                      <div className="space-y-2">
+                        {realWallets.map((w) => (
+                          <button key={w.id} type="button" onClick={() => setCurrency(w.currency)}
+                            className={cn("w-full flex items-center justify-between rounded-xl border px-3 py-2 text-left cursor-pointer transition-colors",
+                              w.currency === currency ? "border-primary bg-primary/5" : "border-border hover:border-primary/40")}>
+                            <span className="text-sm font-medium">{w.flag} {w.provider ?? w.currency} <span className="text-xs text-muted-foreground">· {w.currency}</span></span>
+                            <span className="text-sm font-bold font-mono">{w.balance.toLocaleString()}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">{t("wallet.noWalletsYet")}</p>
+                    )}
+                  </div>
+                )}
 
                 <div className="rounded-2xl bg-card border border-border p-4">
                   <h3 className="font-semibold text-sm text-foreground mb-3">{t("wallet.recentTopUps")}</h3>
@@ -677,6 +706,9 @@ export default function WalletPage() {
             </motion.div>
           )}
         </AnimatePresence>
+      )}
+    {showAddWallet && (
+        <AddWalletDialog userId={currentUser?.id} held={heldCurrencies} onClose={() => setShowAddWallet(false)} onCreated={(c) => setCurrency(c)} />
       )}
     </div>
   );
