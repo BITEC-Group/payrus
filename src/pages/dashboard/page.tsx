@@ -1,3 +1,4 @@
+import { formatCompact } from "@/lib/format-compact.ts";
 import { motion } from "motion/react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useCurrentAppUser } from "@/hooks/use-current-app-user.ts";
@@ -154,8 +155,8 @@ export default function Dashboard() {
 
   // Format balance for display — compact for very large numbers
   const formatBalance = (n: number, currency: string) => {
-    if (n >= 1_000_000_000) return `${currency} ${(n / 1_000_000_000).toFixed(2)}B`;
-    if (n >= 1_000_000) return `${currency} ${(n / 1_000_000).toFixed(3).replace(/\.?0+$/, "")}M`;
+    if (n >= 1_000_000_000) return `${currency} ${formatCompact(n, 2)}`;
+    if (n >= 1_000_000) return `${currency} ${formatCompact(n, 3)}`;
     return `${currency} ${n.toLocaleString()}`;
   };
 

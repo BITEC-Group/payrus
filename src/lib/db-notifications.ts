@@ -59,6 +59,16 @@ const NOTES: Array<[RegExp, string, (m: RegExpMatchArray) => Record<string, stri
   [/^Refund: (.+)$/, "dbnote.refund", (m) => ({ item: m[1] })],
   [/^Fundraise: (.+)$/, "dbnote.fundraise", (m) => ({ title: m[1] })],
   [/^Payout to (.+)$/, "dbnote.payoutTo", (m) => ({ name: m[1] })],
+  [/^Tontine payout: (.+)$/, "dbnote.tontinePayout", (m) => ({ x: m[1] })],
+  [/^Tontine: (.+)$/, "dbnote.tontine", (m) => ({ x: m[1] })],
+  [/^Invest: (.+)$/, "dbnote.invest", (m) => ({ x: m[1] })],
+  [/^Savings: (.+)$/, "dbnote.savings", (m) => ({ x: m[1] })],
+  [/^Bill: (.+)$/, "dbnote.bill", (m) => ({ x: m[1] })],
+  [/^Bills$/, "dbnote.bills", () => ({})],
+  [/^Loyalty spend: (.+)$/, "dbnote.loyaltySpend", (m) => ({ x: m[1] })],
+  [/^Expense reimbursement: (.+)$/, "dbnote.expenseReimbursement", (m) => ({ x: m[1] })],
+  [/^Sandbox test funds$/, "dbnote.sandboxFunds", () => ({})],
+  [/^Pitch repayment$/, "dbnote.pitchRepayment", () => ({})],
 ];
 
 export function localizeTransferNote(note: string, t: TFunction): string {

@@ -3965,5 +3965,20 @@
   "Smooth connection in Addis and the crew were great. Paid in three instalments with no hassle.": "Smooth connection in Addis and the crew were great. Paid in three instalments with no hassle.",
   "Fantastic pool and breakfast. The PayRus member price was the best I found.": "Fantastic pool and breakfast. The PayRus member price was the best I found.",
   "Comfortable overnight flight, good meal service. Boarding was a little slow.": "Comfortable overnight flight, good meal service. Boarding was a little slow.",
-  "On time both ways and the member discount applied automatically at checkout.": "On time both ways and the member discount applied automatically at checkout."
+  "On time both ways and the member discount applied automatically at checkout.": "On time both ways and the member discount applied automatically at checkout.",
+  "fundraise.totalRaisedEquiv": "{{amount}} XAF equiv.",
+  "dbnote.tontinePayout": "Tontine payout: {{x}}",
+  "dbnote.tontine": "Tontine: {{x}}",
+  "dbnote.invest": "Invest: {{x}}",
+  "dbnote.savings": "Savings: {{x}}",
+  "dbnote.bill": "Bill: {{x}}",
+  "dbnote.bills": "Bills",
+  "dbnote.loyaltySpend": "Loyalty spend: {{x}}",
+  "dbnote.expenseReimbursement": "Expense reimbursement: {{x}}",
+  "dbnote.sandboxFunds": "Sandbox test funds",
+  "dbnote.pitchRepayment": "Pitch repayment",
+  "500K – 5M XAF deployed": "500K – 5M XAF deployed",
+  "5M – 10M XAF deployed": "5M – 10M XAF deployed",
+  "< 500K XAF deployed": "< 500K XAF deployed",
+  "10M+ XAF deployed": "10M+ XAF deployed"
 }

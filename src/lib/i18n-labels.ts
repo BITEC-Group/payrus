@@ -53,3 +53,9 @@ export function potDueLabel(t: TFunction, due: string, lng: string | undefined):
   if (/^\d{4}-\d{2}-\d{2}/.test(due)) { const d = new Date(due); if (!Number.isNaN(d.getTime())) return new Intl.DateTimeFormat(lng ?? "en", { month: "short", year: "numeric" }).format(d); }
   return due;
 }
+
+/** The name of a weekday (0 = Sunday) in the active language, capitalised: "Wednesday", "Mercredi", "Quarta-feira". */
+export function weekdayName(weekday: number, lng: string | undefined): string {
+  const name = new Intl.DateTimeFormat(lng ?? "en", { weekday: "long" }).format(new Date(2026, 0, 4 + weekday)); // 4 Jan 2026 is a Sunday
+  return name.charAt(0).toLocaleUpperCase(lng ?? "en") + name.slice(1);
+}

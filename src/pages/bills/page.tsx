@@ -111,7 +111,7 @@ export default function Bills() {
         <h2 className="text-sm font-semibold text-foreground">{t("bills.autoPayTitle")}</h2>
         {displayBillers.filter(b => !b.paused).map(b => (
           <div key={b.id} className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{b.name}</span>
+            <span className="text-sm text-muted-foreground">{t(b.name)}</span>
             <Switch checked={hasReal ? b.autoPay : demoAutoPay[b.id]} onCheckedChange={v => handleToggleAutoPay(b.id, v)} />
           </div>
         ))}
@@ -122,7 +122,7 @@ export default function Bills() {
           type="bill"
           amount={paying.amount}
           currency={paying.currency}
-          recipient={paying.name}
+          recipient={t(paying.name)}
           reference={reference}
           date={new Date().toLocaleString()}
           onClose={() => setPaying(null)}

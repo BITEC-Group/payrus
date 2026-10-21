@@ -1,3 +1,4 @@
+import { formatCompact } from "@/lib/format-compact.ts";
 import { useState, useEffect, useRef } from "react";
 import type { TFunction } from "i18next";
 import { labelWithPercent } from "@/lib/i18n-labels.ts";
@@ -460,13 +461,13 @@ const PORTFOLIO_CATEGORIES = [
 
 // Leaderboard
 const LEADERBOARD = [
-  { rank: 1, name: "Diallo K.", country: "🇫🇷", badge: "🏆", total: "12.4M XAF", pitches: 8, avgReturn: "19%", level: "Anchor" },
-  { rank: 2, name: "Nkemdirim A.", country: "🇧🇪", badge: "🥈", total: "8.1M XAF", pitches: 5, avgReturn: "21%", level: "Senior" },
-  { rank: 3, name: "Biyogo M.", country: "🇨🇲", badge: "🥉", total: "6.8M XAF", pitches: 11, avgReturn: "18%", level: "Senior" },
-  { rank: 4, name: "Ouédraogo F.", country: "🇨🇮", badge: "⭐", total: "4.2M XAF", pitches: 4, avgReturn: "22%", level: "Growth" },
-  { rank: 5, name: "Keza I.", country: "🇷🇼", badge: "⭐", total: "3.9M XAF", pitches: 7, avgReturn: "16%", level: "Growth" },
-  { rank: 6, name: "Mensah B.", country: "🇬🇧", badge: "⭐", total: "3.1M XAF", pitches: 3, avgReturn: "20%", level: "Growth" },
-  { rank: 7, name: "You", country: "🌍", badge: "👤", total: "150K XAF", pitches: 2, avgReturn: "17%", level: "Starter" },
+  { rank: 1, name: "Diallo K.", country: "🇫🇷", badge: "🏆", total: 12_400_000, pitches: 8, avgReturn: "19%", level: "Anchor" },
+  { rank: 2, name: "Nkemdirim A.", country: "🇧🇪", badge: "🥈", total: 8_100_000, pitches: 5, avgReturn: "21%", level: "Senior" },
+  { rank: 3, name: "Biyogo M.", country: "🇨🇲", badge: "🥉", total: 6_800_000, pitches: 11, avgReturn: "18%", level: "Senior" },
+  { rank: 4, name: "Ouédraogo F.", country: "🇨🇮", badge: "⭐", total: 4_200_000, pitches: 4, avgReturn: "22%", level: "Growth" },
+  { rank: 5, name: "Keza I.", country: "🇷🇼", badge: "⭐", total: 3_900_000, pitches: 7, avgReturn: "16%", level: "Growth" },
+  { rank: 6, name: "Mensah B.", country: "🇬🇧", badge: "⭐", total: 3_100_000, pitches: 3, avgReturn: "20%", level: "Growth" },
+  { rank: 7, name: "You", country: "🌍", badge: "👤", total: 150_000, pitches: 2, avgReturn: "17%", level: "Starter" },
 ];
 
 // Live activity ticker items
@@ -500,9 +501,7 @@ function pct(raised: number, goal: number) {
 }
 
 function fmt(n: number, currency: string) {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M ${currency}`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K ${currency}`;
-  return `${n.toLocaleString()} ${currency}`;
+  return `${formatCompact(n)} ${currency}`;
 }
 
 function catLabel(t: TFunction, cat: PitchCategory) {
@@ -1148,8 +1147,8 @@ function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Invested", value: `${(totalInvested / 1000).toFixed(0)}K`, icon: Wallet, color: "text-foreground" },
-          { label: "Repaid", value: `${(totalRepaid / 1000).toFixed(0)}K`, icon: ArrowUpRight, color: "text-emerald-700" },
+          { label: "Invested", value: formatCompact(totalInvested), icon: Wallet, color: "text-foreground" },
+          { label: "Repaid", value: formatCompact(totalRepaid), icon: ArrowUpRight, color: "text-emerald-700" },
           { label: "Expected", value: `${(totalExpected / 1000).toFixed(0)}K`, icon: Trophy, color: "text-primary" },
         ].map(s => (
           <div key={s.label} className="bg-card border border-border rounded-2xl p-3 text-center">
@@ -1310,9 +1309,7 @@ function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }
 // ─── LEADERBOARD ──────────────────────────────────────────────────────────────
 
 function formatXafTotal(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M XAF`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K XAF`;
-  return `${n.toLocaleString()} XAF`;
+  return `${formatCompact(n)} XAF`;
 }
 
 // Same thresholds the "Investor Levels" card below already states in XAF.
@@ -1352,7 +1349,7 @@ function LeaderboardView({ realLeaderboard, currentUserId, realSectorPopularity,
     ? realLeaderboard.map((r, i) => ({
         rank: i + 1, name: r.username ?? "Investor", country: r.userId === currentUserId ? "🌍" : "🌍",
         badge: r.userId === currentUserId ? "👤" : i === 0 ? "🏆" : i === 1 ? "🥈" : i === 2 ? "🥉" : "⭐",
-        total: formatXafTotal(r.totalXaf), pitches: r.pitchesCount, avgReturn: `${r.avgReturnPct}%`, level: levelForXaf(r.totalXaf),
+        total: r.totalXaf, pitches: r.pitchesCount, avgReturn: `${r.avgReturnPct}%`, level: levelForXaf(r.totalXaf),
         isYou: r.userId === currentUserId,
       }))
     : LEADERBOARD.map(r => ({ ...r, isYou: r.name === "You" }));
@@ -1375,7 +1372,7 @@ function LeaderboardView({ realLeaderboard, currentUserId, realSectorPopularity,
         { label: "CO₂ saved", value: `${realPlatformImpact.totalCo2.toLocaleString()}t/yr`, icon: Leaf },
       ]
     : [
-        { label: "Total raised", value: "183.3M XAF", icon: CircleDollarSign },
+        { label: "Total raised", value: `${formatCompact(183_300_000)} XAF`, icon: CircleDollarSign },
         { label: "Jobs created", value: "3,655", icon: Briefcase },
         { label: "Households", value: "42,750", icon: Heart },
         { label: "CO₂ saved", value: "1,805t/yr", icon: Leaf },
@@ -1413,7 +1410,7 @@ function LeaderboardView({ realLeaderboard, currentUserId, realSectorPopularity,
               <div className="text-[10px] text-muted-foreground">{t("invest.venturesBackedAvgReturn", { pitches: inv.pitches, avgReturn: inv.avgReturn })}</div>
             </div>
             <div className="text-right shrink-0">
-              <div className="font-black text-sm font-mono text-foreground">{inv.total}</div>
+              <div className="font-black text-sm font-mono text-foreground">{formatXafTotal(inv.total)}</div>
               <span className={cn("text-[9px] font-black px-2 py-0.5 rounded-full border", levelColor[inv.level] ?? "")}>
                 {inv.level}
               </span>
@@ -1464,7 +1461,7 @@ function LeaderboardView({ realLeaderboard, currentUserId, realSectorPopularity,
           ].map(l => (
             <div key={l.level} className="flex items-center justify-between text-xs">
               <span className={cn("font-bold", l.color)}>{l.level}</span>
-              <span className="text-muted-foreground">{l.req}</span>
+              <span className="text-muted-foreground">{t(l.req)}</span>
             </div>
           ))}
         </div>
@@ -1800,7 +1797,7 @@ export default function InvestPage() {
         <div className="flex gap-2 mb-4">
           {[
             { label: "Active pitches", value: `${displayPitches.length}` },
-            { label: "Total raised", value: `${(totalRaised / 1_000_000).toFixed(0)}M XAF` },
+            { label: "Total raised", value: `${formatCompact(totalRaised)} XAF` },
             { label: "Avg return", value: t("invest.pctPerYear", { pct: Math.round(displayPitches.reduce((s, p) => s + p.returnPct, 0) / displayPitches.length) }) },
             { label: "Total backers", value: totalBackers.toLocaleString() },
           ].map(s => (
