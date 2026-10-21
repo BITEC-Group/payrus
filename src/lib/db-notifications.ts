@@ -54,6 +54,7 @@ const NOTES: Array<[RegExp, string, (m: RegExpMatchArray) => Record<string, stri
   [/^Game bet: (.+)$/, "dbnote.gameBet", (m) => ({ kind: m[1] })],
   [/^Game bet win: (.+)$/, "dbnote.gameBetWin", (m) => ({ kind: m[1] })],
   [/^Travel installment charge$/, "dbnote.travelInstallment", () => ({})],
+  [/^(.+) \(instalment (\d+)\/(\d+)\)$/, "dbnote.instalment", (m) => ({ item: m[1], n: m[2], total: m[3] })],
   [/^Travel demo funds$/, "dbnote.travelDemoFunds", () => ({})],
   [/^Refund: (.+)$/, "dbnote.refund", (m) => ({ item: m[1] })],
   [/^Fundraise: (.+)$/, "dbnote.fundraise", (m) => ({ title: m[1] })],

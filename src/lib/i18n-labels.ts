@@ -44,3 +44,12 @@ export function labelWithPercent(t: TFunction, item: string): string {
   const m = item.match(/^(.*) \((\d+%)\)$/);
   return m ? `${t(m[1])} (${m[2]})` : t(item);
 }
+
+/** A savings-goal date written in English ("Sep 2026"), "Ongoing" or an ISO date, in the active language. */
+export function potDueLabel(t: TFunction, due: string, lng: string | undefined): string {
+  if (due === "Ongoing") return t("savings.ongoing");
+  const m = due.match(/^([A-Z][a-z]{2}) (\d{4})$/);
+  if (m && MONTHS.includes(m[1])) return `${monthLabel(m[1], lng)} ${m[2]}`;
+  if (/^\d{4}-\d{2}-\d{2}/.test(due)) { const d = new Date(due); if (!Number.isNaN(d.getTime())) return new Intl.DateTimeFormat(lng ?? "en", { month: "short", year: "numeric" }).format(d); }
+  return due;
+}

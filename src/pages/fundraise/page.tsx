@@ -191,7 +191,7 @@ function CampaignCard({ campaign, onSelect, onDonate }: {
           )}
         </div>
         <div className="absolute top-2 right-2 text-[9px] font-black bg-black/40 backdrop-blur-sm border border-white/10 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">
-          {campaign.category}
+          {t(CATEGORIES.find((c) => c.key === campaign.category)?.label ?? campaign.category)}
         </div>
       </div>
 
@@ -406,7 +406,7 @@ function CampaignDetail({ campaign, onBack, onDonate }: {
           <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
             <span className="flex items-center gap-1"><Users size={11} />{campaign.creator}</span>
             <span className="flex items-center gap-1"><MapPin size={11} />{campaign.location}</span>
-            <span className="uppercase text-[9px] font-black bg-secondary px-2 py-0.5 rounded-full border border-border">{campaign.category}</span>
+            <span className="uppercase text-[9px] font-black bg-secondary px-2 py-0.5 rounded-full border border-border">{t(CATEGORIES.find((c) => c.key === campaign.category)?.label ?? campaign.category)}</span>
           </div>
         </div>
 
