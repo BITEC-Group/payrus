@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils.ts";
 import { resolveUserByIdentifier } from "@/lib/backend.ts";
 import { parseStatementCsv } from "@/lib/institutional-ops.ts";
 import type { RecordKind, InstModule } from "@/lib/institutional.ts";
+import { catText } from "@/lib/catalog-i18n.ts";
 import {
   useAgeing, useApproverLimits, useBankLines, useBudgets, useDeleteBudget, useDeletePolicy, useFollowups, useIgnoreLine, useImportStatement,
   usePolicies, useReconcileLine, useSendFollowup, useSetApproverLimit, useSetBudget, useSetPolicy, useSuggestions,
@@ -239,7 +240,7 @@ export function PolicyPanel({ userId, kinds }: { userId: string; kinds: RecordKi
         {policies.length === 0 && <p className="text-sm text-muted-foreground">{t("policy.none", "Default: one second approver above each type's threshold.")}</p>}
         {policies.map((x) => (
           <div key={x.id} className="flex items-center justify-between text-sm rounded-lg border border-border px-3 py-2">
-            <span>{x.requiredApprovers} {t("policy.approvers", "approver(s)")} · {x.kindLabel ?? t("policy.every", "every approval type")} · ≥ {money(x.minAmount)}</span>
+            <span>{x.requiredApprovers} {t("policy.approvers", "approver(s)")} · {x.kindLabel ? catText(t, x.kindLabel) : t("policy.every", "every approval type")} · ≥ {money(x.minAmount)}</span>
             <button className="text-muted-foreground hover:text-destructive cursor-pointer" aria-label={t("webhooks.delete")} onClick={() => void delPolicy.mutateAsync({ userId, id: x.id })}><Trash2 size={14} /></button>
           </div>
         ))}
