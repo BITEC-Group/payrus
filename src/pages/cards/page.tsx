@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFeatureAccess } from "@/hooks/use-feature-access.ts";
 import { useTranslation } from "react-i18next";
@@ -292,6 +292,7 @@ export default function Cards() {
   const [cards, setCards] = useState<CardData[]>(CARDS.map(c => ({ ...c })));
   const [showBalances, setShowBalances] = useState(true);
   const [activeCard, setActiveCard] = useState(0);
+  const selectedCardId = useRef<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<"details" | "linked">("details");
   const [addMethodOpen, setAddMethodOpen] = useState(false);
   const [dialog, setDialog] = useState<null | "details" | "settings" | "issue">(null);
@@ -324,8 +325,9 @@ export default function Cards() {
         contactless: c.contactless, gradient: c.gradient, shimmer: c.shimmer, accentColor: c.accentColor,
         locked: c.locked, monthlySpend: c.monthlySpend, monthlyLimit: c.monthlyLimit,
       })));
-      // Keep the card the customer is looking at when the list refreshes (after a lock or a settings change).
-      setActiveCard((prev) => Math.min(prev, realCards.length - 1));
+      // Keep the card the customer is looking at when the list refreshes (after a lock or a settings change): by its id, not its position.
+      const keep = realCards.findIndex((c) => c.id === selectedCardId.current);
+      setActiveCard((prev) => (keep >= 0 ? keep : Math.min(prev, realCards.length - 1)));
     }
   }, [realCards]);
 
@@ -417,7 +419,7 @@ export default function Cards() {
       <div className="flex gap-4 overflow-x-auto pb-3 mb-5 snap-x snap-mandatory">
         {cards.map((c, i) => (
           <div key={c.id} className="snap-start">
-            <CardFace card={c} showBalances={showBalances} selected={activeCard === i} onClick={() => setActiveCard(i)} />
+            <CardFace card={c} showBalances={showBalances} selected={activeCard === i} onClick={() => { selectedCardId.current = c.realId; setActiveCard(i); }} />
           </div>
         ))}
         {/* Add card */}

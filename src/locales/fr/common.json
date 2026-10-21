@@ -2304,5 +2304,6 @@
   "savings.editLimit.saved": "Plafond mensuel mis à jour",
   "savings.editLimit.failed": "Impossible de mettre à jour le plafond — réessayez",
   "savings.editLimit.save": "Enregistrer le plafond",
-  "savings.editLimit.demo": "Connectez-vous et liez un établissement pour définir votre propre plafond."
+  "savings.editLimit.demo": "Connectez-vous et liez un établissement pour définir votre propre plafond.",
+  "register.welcomeName": "Bienvenue sur PayRus, {{name}} !"
 }

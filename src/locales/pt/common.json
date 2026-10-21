@@ -2304,5 +2304,6 @@
   "savings.editLimit.saved": "Limite mensal atualizado",
   "savings.editLimit.failed": "Não foi possível atualizar o limite — tente novamente",
   "savings.editLimit.save": "Guardar limite",
-  "savings.editLimit.demo": "Inicie sessão e associe um estabelecimento para definir o seu próprio limite."
+  "savings.editLimit.demo": "Inicie sessão e associe um estabelecimento para definir o seu próprio limite.",
+  "register.welcomeName": "Bem-vindo à PayRus, {{name}}!"
 }

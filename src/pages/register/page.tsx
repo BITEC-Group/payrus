@@ -16,7 +16,7 @@ import { useProfile } from "@/contexts/profile-context.tsx";
 import { routeAfterIdentity } from "@/lib/post-auth-routing.ts";
 import { supabase } from "@/lib/supabase-client.ts";
 import { OAUTH_PROVIDERS, signInWithOAuthProvider, type OAuthProviderId } from "@/lib/supabase-providers.ts";
-import { completeRegistrationProfile as callCompleteRegistrationProfile, upsertSupabaseUser as callUpsertSupabaseUser } from "@/lib/backend.ts";
+import { completeRegistrationProfile as callCompleteRegistrationProfile, sendWelcomeEmail, upsertSupabaseUser as callUpsertSupabaseUser } from "@/lib/backend.ts";
 
 // suggestStreets/suggestPostalCodes below stay on Convex (convex/
 // addressSuggestions.ts, an AI feature calling Claude) — porting that to a
@@ -255,7 +255,8 @@ export default function Register() {
         // Email confirmation is off for this project — Supabase already
         // signed them in, so skip straight to onboarding like a login would.
         setLocalUserId(userId);
-        toast.success(t("signin.welcomeBack"));
+        void sendWelcomeEmail(lng);
+        toast.success(t("register.welcomeName", { name: firstName.trim() || name }));
         routeAfterIdentity({ userId, roles: [], navigate, base, setProfile, displayName: name });
         return;
       }

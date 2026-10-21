@@ -31,6 +31,8 @@ interface Notification {
   currency?: string;
   category: NotifCategory;
   emoji: string;
+  /** Text written by the database (already in sentence form): shown as is, never looked up as a translation key. */
+  literal?: boolean;
 }
 
 // ── Mock data (profile-adaptive) ──────────────────────────────────────────────
@@ -137,6 +139,7 @@ const REAL_NOTIF_TYPE: Record<string, NotifType> = {
 };
 const REAL_NOTIF_EMOJI: Record<string, string> = {
   deposit: "➕", transfer: "↔️", payment: "💳", remittance: "🌍", convert: "🔁", payment_link: "🔗",
+  welcome: "👋", wallet: "👛", card: "💳",
 };
 
 function toDisplayNotification(n: { id: string; kind: string; title: string; body: string; read: boolean; createdAt: string }): Notification {
@@ -149,6 +152,7 @@ function toDisplayNotification(n: { id: string; kind: string; title: string; bod
     minutesAgo: Math.max(0, Math.round((Date.now() - new Date(n.createdAt).getTime()) / 60000)),
     read: n.read,
     emoji: REAL_NOTIF_EMOJI[n.kind] ?? "🔔",
+    literal: true,
   };
 }
 
@@ -366,10 +370,10 @@ export default function NotificationsPage() {
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
-                            <div className="text-sm font-semibold text-foreground leading-snug">{t(notif.titleKey)}</div>
+                            <div className="text-sm font-semibold text-foreground leading-snug">{notif.literal ? notif.titleKey : t(notif.titleKey)}</div>
                             <div className="text-[10px] text-muted-foreground shrink-0 mt-0.5">{formatRelativeTime(notif.minutesAgo, t)}</div>
                           </div>
-                          <p className="text-[12px] text-muted-foreground mt-0.5 leading-relaxed">{t(notif.bodyKey)}</p>
+                          <p className="text-[12px] text-muted-foreground mt-0.5 leading-relaxed">{notif.literal ? notif.bodyKey : t(notif.bodyKey)}</p>
                           {notif.amount !== undefined && (
                             <div className={cn(
                               "mt-1.5 text-xs font-black font-mono",

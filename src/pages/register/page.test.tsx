@@ -14,6 +14,7 @@ const mockCompleteRegistrationProfile = vi.fn();
 vi.mock("@/lib/backend.ts", () => ({
   upsertSupabaseUser: (...args: unknown[]) => mockUpsertSupabaseUser(...args),
   completeRegistrationProfile: (...args: unknown[]) => mockCompleteRegistrationProfile(...args),
+  sendWelcomeEmail: () => Promise.resolve(),
 }));
 
 // Street- and postal-code-autosuggest useAction() calls — both default to no

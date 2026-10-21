@@ -627,13 +627,26 @@ export async function convertBetweenWallets(args: {
 // ============================================================================
 
 export async function listCardsForUser(userId: string): Promise<AppCard[]> {
-  const res = await supabase.from("cards").select("*").eq("user_id", userId);
+  // Ordered: without it Postgres returns storage order, which shifts after every update (lock, settings) and moved the selected card.
+  const res = await supabase.from("cards").select("*").eq("user_id", userId).order("id");
   return mustHaveData(res, "listCardsForUser").map((r) => ({
     id: r.id, userId: r.user_id, tier: r.tier, brand: r.brand, last4: r.last4, holder: r.holder, expiry: r.expiry,
     balance: Number(r.balance), currency: r.currency, type: r.type, network: r.network, contactless: r.contactless,
     gradient: r.gradient, shimmer: r.shimmer, accentColor: r.accent_color, locked: r.locked,
     monthlySpend: Number(r.monthly_spend), monthlyLimit: Number(r.monthly_limit),
   }));
+}
+
+/**
+ * Asks the welcome-email Edge Function to send the signed-in tester one informational email. Best effort: it does
+ * nothing until an email provider is configured, and a failure here must never affect registration.
+ */
+export async function sendWelcomeEmail(locale: string): Promise<void> {
+  try {
+    await supabase.functions.invoke("welcome-email", { body: { locale } });
+  } catch {
+    /* informational only */
+  }
 }
 
 // ---- Migration 0065/0066: open a wallet, issue and manage cards, see which wallet a remittance will use ----

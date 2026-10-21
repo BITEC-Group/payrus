@@ -2304,5 +2304,6 @@
   "savings.editLimit.saved": "Monthly limit updated",
   "savings.editLimit.failed": "Couldn't update the limit — try again",
   "savings.editLimit.save": "Save limit",
-  "savings.editLimit.demo": "Sign in and link a venue to set your own limit."
+  "savings.editLimit.demo": "Sign in and link a venue to set your own limit.",
+  "register.welcomeName": "Welcome to PayRus, {{name}}!"
 }
