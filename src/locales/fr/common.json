@@ -3911,5 +3911,12 @@
   "install.step1": "Touchez le bouton Partager dans la barre d'outils du navigateur.",
   "install.step2": "Choisissez « Sur l'écran d'accueil ».",
   "install.step3": "Touchez Ajouter. PayRus s'ouvre ensuite comme une application depuis votre écran d'accueil.",
-  "install.close": "Fermer"
+  "install.close": "Fermer",
+  "cat.unmatched": "non rapproché",
+  "cat.matched": "rapproché",
+  "cat.ignored": "ignoré",
+  "cat.queued": "en file d'attente",
+  "cat.sending": "en cours d'envoi",
+  "cat.dead": "abandonné",
+  "cat.failed": "échoué"
 }

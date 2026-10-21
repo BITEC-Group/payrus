@@ -5,6 +5,7 @@ import { Copy, KeyRound, PlugZap, RotateCw, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { cn } from "@/lib/utils.ts";
+import { catText } from "@/lib/catalog-i18n.ts";
 import { WEBHOOK_EVENTS } from "@/lib/institutional-webhooks.ts";
 import {
   useCreateWebhook, useDeleteWebhook, useRetryWebhookDelivery, useRotateWebhookSecret, useSetWebhookActive, useTestWebhook, useWebhookDeliveries, useWebhooks,
@@ -109,7 +110,7 @@ export function WebhooksPanel({ userId }: { userId: string }) {
             {deliveries.map((d) => (
               <div key={d.id} className="flex flex-wrap items-center justify-between gap-2 text-xs rounded border border-border px-2 py-1.5">
                 <div className="min-w-0">
-                  <span className={cn("px-1.5 py-0.5 rounded-full mr-2", STATUS_TONE[d.status])}>{d.status}</span>
+                  <span className={cn("px-1.5 py-0.5 rounded-full mr-2", STATUS_TONE[d.status])}>{catText(t, d.status)}</span>
                   <span className="font-medium">{d.event}</span>
                   <span className="text-muted-foreground"> · {new Date(d.createdAt).toLocaleString()} · {d.attempts} {t("webhooks.attempts", "attempt(s)")}{d.responseCode ? ` · HTTP ${d.responseCode}` : ""}{d.lastError ? ` · ${d.lastError}` : ""}</span>
                 </div>
