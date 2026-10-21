@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils.ts";
@@ -17,6 +18,7 @@ const isLocked = (resource: string, action: string) => UNAVAILABLE.has(`${resour
 // matrix; only a superadmin can change it or assign roles (enforced by the
 // database, gate-password confirmed).
 export default function StaffPanel() {
+  const { t } = useTranslation("common");
   const perms = useMyPermissions();
   const roles = useSupportRoles();
   const matrix = useSupportPermissions();
@@ -44,7 +46,7 @@ export default function StaffPanel() {
     if (password === null) return;
     try {
       await setPermission({ roleSlug: slug, resource, ...next, password });
-      toast.success("Permission updated");
+      toast.success(t("admin.staffpanel.permissionUpdated"));
     } catch (e) {
       fail(e);
     }
@@ -56,7 +58,7 @@ export default function StaffPanel() {
     if (password === null) return;
     try {
       await assign({ userId, roleSlug, password });
-      toast.success("Staff role assigned");
+      toast.success(t("admin.staffpanel.staffRoleAssigned"));
     } catch (e) {
       fail(e);
     }
@@ -67,7 +69,7 @@ export default function StaffPanel() {
     if (password === null) return;
     try {
       await revoke({ userId: uid, roleSlug: slug, password });
-      toast.success("Staff role revoked");
+      toast.success(t("admin.staffpanel.staffRoleRevoked"));
     } catch (e) {
       fail(e);
     }
@@ -81,18 +83,18 @@ export default function StaffPanel() {
     <div className="space-y-5">
       {!isSuper && (
         <div className="text-[11px] text-muted-foreground bg-secondary/50 rounded-xl px-3 py-2">
-          Read-only: only a superadmin can change permissions or assign staff roles.
+          {t("admin.staffpanel.readOnlyOnlyA")}
         </div>
       )}
 
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-        <div className="text-xs font-bold">Permission matrix (Create · Read · Update · Delete)</div>
+        <div className="text-xs font-bold">{t("admin.staffpanel.permissionMatrixCreateRead")}</div>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-[10px] uppercase text-muted-foreground">
-                <th className="py-1 pr-3">Role</th>
-                <th className="py-1 pr-3">Resource</th>
+                <th className="py-1 pr-3">{t("savings.cardRoleLabel")}</th>
+                <th className="py-1 pr-3">{t("admin.staffpanel.resource")}</th>
                 {ACTIONS.map((a) => <th key={a} className="py-1 px-2 text-center">{a}</th>)}
               </tr>
             </thead>
@@ -129,16 +131,16 @@ export default function StaffPanel() {
           </table>
         </div>
         <div className="text-[10px] text-muted-foreground">
-          Superadmin bypasses the matrix and is the only tier that can delete: voiding an unexecuted (draft/quoted) transaction needs the admin password and a written reason. Executed transactions are never removed.
+          {t("admin.staffpanel.superadminBypassesTheMatrix")}
         </div>
       </div>
 
       {isSuper && (
         <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-          <div className="text-xs font-bold">Assign a staff role</div>
+          <div className="text-xs font-bold">{t("admin.staffpanel.assignAStaffRole")}</div>
           <div className="flex gap-2 flex-wrap">
             <select value={userId} onChange={(e) => setUserId(e.target.value)} className="flex-1 min-w-[180px] rounded-lg border border-border bg-card px-2 py-1.5 text-xs">
-              <option value="">Select a user…</option>
+              <option value="">{t("admin.staffpanel.selectAUser")}</option>
               {(users ?? []).map((row) => (
                 <option key={row.user.id} value={row.user.id}>{row.user.name ?? row.user.email ?? row.user.id}{row.user.email ? ` (${row.user.email})` : ""}</option>
               ))}
@@ -147,7 +149,7 @@ export default function StaffPanel() {
               {(roles ?? []).map((r) => <option key={r.slug} value={r.slug}>{r.label}</option>)}
             </select>
             <button onClick={() => void handleAssign()} disabled={!userId} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground cursor-pointer disabled:opacity-60">
-              Assign
+              {t("admin.staffpanel.assign")}
             </button>
           </div>
         </div>
@@ -155,25 +157,25 @@ export default function StaffPanel() {
 
       {isSuper && (
         <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-          <div className="text-xs font-bold">Change the admin password</div>
-          <div className="text-[10px] text-muted-foreground">The shared gate password asked for by voids, role changes, permission edits and expense approvals. Stored only as a salted hash.</div>
+          <div className="text-xs font-bold">{t("admin.staffpanel.changeTheAdminPassword")}</div>
+          <div className="text-[10px] text-muted-foreground">{t("admin.staffpanel.theSharedGatePassword")}</div>
           <div className="flex gap-2 flex-wrap">
-            <input type="password" aria-label="Current admin password" placeholder="Current password" value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} className="flex-1 min-w-[150px] rounded-lg border border-border bg-card px-2 py-1.5 text-xs" />
-            <input type="password" aria-label="New admin password" placeholder="New password (4+ characters)" value={nextPw} onChange={(e) => setNextPw(e.target.value)} className="flex-1 min-w-[150px] rounded-lg border border-border bg-card px-2 py-1.5 text-xs" />
+            <input type="password" aria-label={t("admin.staffpanel.currentAdminPassword")} placeholder={t("admin.staffpanel.currentPassword")} value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} className="flex-1 min-w-[150px] rounded-lg border border-border bg-card px-2 py-1.5 text-xs" />
+            <input type="password" aria-label={t("admin.staffpanel.newAdminPassword")} placeholder={t("admin.staffpanel.newPassword4Characters")} value={nextPw} onChange={(e) => setNextPw(e.target.value)} className="flex-1 min-w-[150px] rounded-lg border border-border bg-card px-2 py-1.5 text-xs" />
             <button
               disabled={!currentPw || nextPw.length < 4}
-              onClick={() => void setGatePassword({ current: currentPw, next: nextPw }).then(() => { toast.success("Admin password changed"); setCurrentPw(""); setNextPw(""); }).catch(fail)}
+              onClick={() => void setGatePassword({ current: currentPw, next: nextPw }).then(() => { toast.success(t("admin.staffpanel.adminPasswordChanged")); setCurrentPw(""); setNextPw(""); }).catch(fail)}
               className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground cursor-pointer disabled:opacity-60"
             >
-              Change
+              {t("admin.staffpanel.change")}
             </button>
           </div>
         </div>
       )}
 
       <div className="bg-card border border-border rounded-2xl p-4 space-y-2">
-        <div className="text-xs font-bold">Current staff ({staffRows.length})</div>
-        {staffRows.length === 0 && <div className="text-[11px] text-muted-foreground">No staff roles assigned yet.</div>}
+        <div className="text-xs font-bold">{t("admin.staffpanel.currentStaff", { count: staffRows.length })}</div>
+        {staffRows.length === 0 && <div className="text-[11px] text-muted-foreground">{t("admin.staffpanel.noStaffRolesAssigned")}</div>}
         {staffRows.map(({ user, role }) => (
           <div key={`${user.id}:${role}`} className="flex items-center justify-between gap-2 bg-secondary/30 rounded-lg px-3 py-2">
             <div className="min-w-0 text-xs">
@@ -181,7 +183,7 @@ export default function StaffPanel() {
               <span className="text-muted-foreground"> · {(roles ?? []).find((r) => r.slug === role)?.label ?? role}</span>
             </div>
             {isSuper && (
-              <button onClick={() => void handleRevoke(user.id, role)} className="text-[10px] font-semibold text-destructive cursor-pointer shrink-0">Revoke</button>
+              <button onClick={() => void handleRevoke(user.id, role)} className="text-[10px] font-semibold text-destructive cursor-pointer shrink-0">{t("admin.staffpanel.revoke")}</button>
             )}
           </div>
         ))}

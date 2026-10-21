@@ -196,11 +196,12 @@ const POT_CATEGORIES: { id: SavingsPotCategory; labelKey: string; icon: React.Co
 
 interface TooltipProps { active?: boolean; payload?: Array<{ value: number }>; label?: string; }
 function ChartTip({ active, payload, label }: TooltipProps) {
+  const { t } = useTranslation("common");
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-card border border-border rounded-xl px-3 py-2 text-xs shadow-xl">
       <p className="text-muted-foreground">{label}</p>
-      <p className="font-bold font-mono text-primary">XAF {payload[0].value.toLocaleString()}</p>
+      <p className="font-bold font-mono text-primary">{t("fundraise.xaf")} {payload[0].value.toLocaleString()}</p>
     </div>
   );
 }
@@ -357,7 +358,7 @@ function InvestCard({ prod, index, onInvest }: { prod: InvestmentProduct; index:
       {prod.badge && (
         <div className="absolute top-3 right-3">
           <span className={cn("text-[9px] font-bold px-2 py-0.5 rounded-full", prod.badge === "Most Popular" ? "bg-primary/20 text-primary" : prod.badge === "Capital Guaranteed" ? "bg-accent/20 text-accent" : "bg-lime-50 text-lime-700")}>
-            {prod.badge}
+            {t(prod.badge)}
           </span>
         </div>
       )}
@@ -368,7 +369,7 @@ function InvestCard({ prod, index, onInvest }: { prod: InvestmentProduct; index:
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-bold text-foreground truncate pr-16">{t(prod.name)}</div>
-            <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{prod.description}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{t(prod.description)}</div>
           </div>
         </div>
 
@@ -536,7 +537,7 @@ function NewPotModal({ open, onClose, onCreate }: {
                 </div>
                 <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/8 border border-primary/20">
                   <Sparkles size={13} className="text-primary shrink-0" />
-                  <p className="text-[11px] text-muted-foreground">{t("savings.guaranteedReturnPrefix")} <span className="text-primary font-bold">5.2% APY</span> {t("savings.guaranteedReturnSuffix")}</p>
+                  <p className="text-[11px] text-muted-foreground">{t("savings.guaranteedReturnPrefix")} <span className="text-primary font-bold">{t("savings.52Apy")}</span> {t("savings.guaranteedReturnSuffix")}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <button onClick={() => setStep(1)} className="py-3 rounded-xl border border-border text-sm font-semibold text-muted-foreground hover:bg-secondary transition-colors cursor-pointer">
@@ -974,7 +975,7 @@ function LoyaltyCard({ pot, index, isReal, onSpend, onRedeem, onEditLimit }: {
         <div className="space-y-1 mb-3">
           <div className="flex justify-between text-[10px]">
             <span className="text-muted-foreground">{t("savings.nextTier")}</span>
-            <span className="font-semibold text-foreground">{pot.points.toLocaleString()} / {pot.nextReward.toLocaleString()} pts</span>
+            <span className="font-semibold text-foreground">{t("savings.pts2", { points: pot.points.toLocaleString(), next: pot.nextReward.toLocaleString() })}</span>
           </div>
           <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
             <motion.div
@@ -1010,7 +1011,7 @@ function LoyaltyCard({ pot, index, isReal, onSpend, onRedeem, onEditLimit }: {
             >
               <r.icon size={10} />
               {t(r.label)}
-              <span className="font-mono text-[9px] opacity-80">{r.points.toLocaleString()}pts</span>
+              <span className="font-mono text-[9px] opacity-80">{r.points.toLocaleString()}{t("savings.pts")}</span>
             </button>
           ))}
         </div>
@@ -1587,7 +1588,7 @@ export default function SavingsPage() {
               </div>
               <div className="flex-1">
                 <div className="text-xs font-bold text-foreground">{t("savings.bestRateNow")}</div>
-                <div className="text-[11px] text-muted-foreground">Micro-Equity Agricole · <span className="text-lime-700 font-bold">18.5% APY</span> · {t("savings.investInFarmers")}</div>
+                <div className="text-[11px] text-muted-foreground">Micro-Equity Agricole · <span className="text-lime-700 font-bold">{t("savings.185Apy")}</span> · {t("savings.investInFarmers")}</div>
               </div>
               <ChevronRight size={13} className="text-muted-foreground" />
             </div>
@@ -1775,7 +1776,7 @@ export default function SavingsPage() {
                       <CatIcon size={12} className={c.color} />
                       <div>
                         <div className="text-[10px] text-muted-foreground">{t(c.labelKey)}</div>
-                        <div className="text-xs font-bold font-mono">XAF {total.toLocaleString()}</div>
+                        <div className="text-xs font-bold font-mono">{t("fundraise.xaf")} {total.toLocaleString()}</div>
                       </div>
                     </div>
                   );

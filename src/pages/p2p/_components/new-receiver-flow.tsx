@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { countryName } from "@/lib/i18n-labels.ts";
 import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -35,7 +36,7 @@ export default function NewReceiverFlow({ senderId, wallets, defaultCurrency, on
   onExit: () => void;
   onSendToMember: (m: ResolvedRecipient) => void;
 }) {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const [step, setStep] = useState<Step>("who");
   const receiversData = useMyReceivers(true).data;
   const receivers = useMemo(() => receiversData ?? [], [receiversData]);
@@ -262,7 +263,7 @@ export default function NewReceiverFlow({ senderId, wallets, defaultCurrency, on
                 <label className={label} htmlFor="nr-country">{t("p2p.new.country")}</label>
                 <select id="nr-country" className={field} value={country} onChange={(e) => setCountry(e.target.value)}>
                   <option value="">—</option>
-                  {COUNTRY_OPTIONS.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
+                  {COUNTRY_OPTIONS.map((c) => <option key={c.code} value={c.code}>{countryName(c.code, i18n.language, c.name)}</option>)}
                 </select>
               </div>
               <div>

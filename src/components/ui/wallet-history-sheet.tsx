@@ -1,6 +1,8 @@
 import { ArrowUpRight, ArrowDownLeft, Send, CreditCard, Repeat, Globe, Plus } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet.tsx";
 import { useTransfersForWallet } from "@/hooks/use-backend.ts";
+import { useTranslation } from "react-i18next";
+import { txTypeLabel } from "@/lib/i18n-labels.ts";
 
 export interface WalletSummary {
   id: string | null;
@@ -32,6 +34,7 @@ export default function WalletHistorySheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation("common");
   const history = useTransfersForWallet(wallet?.id ?? undefined);
 
   return (
@@ -48,30 +51,26 @@ export default function WalletHistorySheet({
         <div className="px-4 pb-6 space-y-2">
           {!wallet?.id && (
             <p className="text-xs text-muted-foreground py-6 text-center">
-              This is a demo wallet preview — transaction history is only tracked for real, signed-in wallets.
+              {t("wallethistorysheet.thisIsADemo")}
             </p>
           )}
           {wallet?.id && history === undefined && (
-            <p className="text-xs text-muted-foreground py-6 text-center">Loading transaction history...</p>
+            <p className="text-xs text-muted-foreground py-6 text-center">{t("wallethistorysheet.loadingTransactionHistory")}</p>
           )}
           {wallet?.id && history && history.length === 0 && (
-            <p className="text-xs text-muted-foreground py-6 text-center">No transactions on this wallet yet.</p>
+            <p className="text-xs text-muted-foreground py-6 text-center">{t("wallethistorysheet.noTransactionsOnThis")}</p>
           )}
           {history?.map((tx) => {
             const isCredit = CREDIT_TYPES.has(tx.type);
             const icons = { transfer: Send, payment: CreditCard, remittance: Globe, deposit: Plus, convert_out: Repeat, convert_in: Repeat } as const;
             const Icon = icons[tx.type as keyof typeof icons] ?? CreditCard;
-            const labels: Record<string, string> = {
-              transfer: "Transfer", payment: "Payment", remittance: "Remittance",
-              deposit: "Deposit", convert_out: "Conversion out", convert_in: "Conversion in",
-            };
             return (
               <div key={tx.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
                 <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center shrink-0 text-foreground">
                   <Icon size={15} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold truncate">{labels[tx.type] ?? tx.type} · {tx.reference}</div>
+                  <div className="text-sm font-semibold truncate">{txTypeLabel(t, tx.type)} · {tx.reference}</div>
                   <div className="text-[11px] text-muted-foreground truncate">
                     {new Date(tx.createdAt).toLocaleString()} · {tx.state}
                   </div>
@@ -83,7 +82,7 @@ export default function WalletHistorySheet({
                         <ArrowDownLeft size={12} /> +{tx.currency} {tx.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       </div>
                       {!!tx.fee && tx.fee > 0 && (
-                        <div className="text-[10px] text-muted-foreground">fee {tx.currency} {tx.fee.toFixed(2)}</div>
+                        <div className="text-[10px] text-muted-foreground">{t("wallethistorysheet.fee")} {tx.currency} {tx.fee.toFixed(2)}</div>
                       )}
                     </>
                   ) : (
@@ -92,7 +91,7 @@ export default function WalletHistorySheet({
                         <ArrowUpRight size={12} /> -{tx.currency} {tx.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       </div>
                       {!!tx.fee && tx.fee > 0 && (
-                        <div className="text-[10px] text-muted-foreground">commission {tx.currency} {tx.fee.toFixed(2)}</div>
+                        <div className="text-[10px] text-muted-foreground">{t("wallethistorysheet.commission")} {tx.currency} {tx.fee.toFixed(2)}</div>
                       )}
                     </>
                   )}

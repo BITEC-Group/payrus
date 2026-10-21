@@ -50,10 +50,10 @@ function PlanGrid({ plans, rows, currentSlug, canChange, busy, onChoose }: {
           <div key={p.slug} className={cn("rounded-xl border p-4 flex flex-col gap-3 bg-card min-w-0", mine ? "border-primary ring-1 ring-primary" : "border-border")}>
             <div>
               <div className="flex items-center justify-between gap-2">
-                <h3 className="font-semibold">{p.label}</h3>
+                <h3 className="font-semibold">{t(p.label)}</h3>
                 {mine && <span className="text-[11px] rounded-full bg-primary/10 text-primary px-2 py-0.5">{t("plans.current", "Current")}</span>}
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">{p.tagline}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t(p.tagline)}</p>
               <p className="mt-2 text-lg font-semibold">
                 {p.monthlyFeeEur === null ? t("plans.onRequest", "On request") : p.monthlyFeeEur === 0 ? t("plans.free", "Free") : `€${p.monthlyFeeEur.toFixed(2)}`}
                 {p.monthlyFeeEur ? <span className="text-xs font-normal text-muted-foreground"> /{t("plans.month", "month")}</span> : null}
@@ -62,7 +62,7 @@ function PlanGrid({ plans, rows, currentSlug, canChange, busy, onChoose }: {
             <ul className="space-y-1.5 text-xs">
               {rows.map((r) => (
                 <li key={r.key} className="flex items-center justify-between gap-2">
-                  <span className="text-muted-foreground">{t(`plans.row.${r.key}`, r.label)}</span>
+                  <span className="text-muted-foreground">{t(r.label)}</span>
                   <span className="font-medium shrink-0"><Value v={p.entitlements[r.key]} /></span>
                 </li>
               ))}

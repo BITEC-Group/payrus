@@ -164,7 +164,7 @@ export default function TravelPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg font-bold text-foreground">{t("travel.heading")}</h1>
-                <span className="text-[10px] font-bold text-primary bg-primary/10 border border-primary/25 px-2 py-0.5 rounded-full">PayRus Travel</span>
+                <span className="text-[10px] font-bold text-primary bg-primary/10 border border-primary/25 px-2 py-0.5 rounded-full">{t("travel.payrusTravel")}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">{t("travel.subheading")}</p>
             </div>
@@ -252,7 +252,7 @@ export default function TravelPage() {
                 {showAdvanced && (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 pt-3 border-t border-border" data-testid="advanced-filters">
                     <label className="space-y-1"><span className="text-[11px] text-muted-foreground">{t("travel.advanced.maxPrice")}</span>
-                      <input id="flight-max-price" type="number" min={0} value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="USD" className="w-full px-3 py-2 rounded-xl bg-secondary border border-border text-sm" /></label>
+                      <input id="flight-max-price" type="number" min={0} value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder={t("travel.usd")} className="w-full px-3 py-2 rounded-xl bg-secondary border border-border text-sm" /></label>
                     <label className="space-y-1"><span className="text-[11px] text-muted-foreground">{t("travel.advanced.cabin")}</span>
                       <select id="flight-cabin" value={cabin} onChange={(e) => setCabin(e.target.value as typeof cabin)} className="w-full px-3 py-2 rounded-xl bg-secondary border border-border text-sm">
                         <option value="all">{t("travel.filters.all")}</option><option value="economy">{t("travel.classEconomy")}</option><option value="business">{t("travel.classBusiness")}</option>

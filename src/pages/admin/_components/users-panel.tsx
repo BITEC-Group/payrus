@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -37,6 +38,7 @@ function StatusPill({ status }: { status: string }) {
 }
 
 function EditRoleForm({ row, roleId, onDone }: { row: UserRow; roleId: string; onDone: () => void }) {
+  const { t } = useTranslation("common");
   const role = row.roles.find((r) => r.id === roleId)!;
   const updateUserRole = useAdminUpdateUserRoleMutation();
   const [status, setStatus] = useState(role.status);
@@ -59,10 +61,10 @@ function EditRoleForm({ row, roleId, onDone }: { row: UserRow; roleId: string; o
         phone, address,
         ...(isOrg ? { orgName, legalRepName, legalRepIdNumber, legalRepPhone } : {}),
       });
-      toast.success("Profile updated");
+      toast.success(t("admin.userspanel.profileUpdated"));
       onDone();
     } catch {
-      toast.error("Couldn't save changes");
+      toast.error(t("admin.userspanel.couldnTSaveChanges"));
     } finally {
       setSaving(false);
     }
@@ -72,37 +74,37 @@ function EditRoleForm({ row, roleId, onDone }: { row: UserRow; roleId: string; o
     <div className="bg-secondary/40 rounded-xl p-3 mt-2 space-y-2">
       <div className="grid grid-cols-2 gap-2">
         <label className="text-[10px] text-muted-foreground font-semibold uppercase">
-          Status
+          {t("receipt.status")}
           <select value={status} onChange={(e) => setStatus(e.target.value as typeof status)} className="mt-1 w-full rounded-lg border border-border bg-card px-2 py-1.5 text-xs">
-            <option value="incomplete">Incomplete</option>
-            <option value="pending_verification">Pending verification</option>
-            <option value="verified">Verified</option>
+            <option value="incomplete">{t("admin.userspanel.incomplete")}</option>
+            <option value="pending_verification">{t("admin.userspanel.pendingVerification")}</option>
+            <option value="verified">{t("settings.status.verified")}</option>
           </select>
         </label>
         <label className="text-[10px] text-muted-foreground font-semibold uppercase">
-          Phone
+          {t("settings.profile.phone")}
           <input value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-2 py-1.5 text-xs" />
         </label>
         <label className="text-[10px] text-muted-foreground font-semibold uppercase col-span-2">
-          Address
+          {t("admin.userspanel.address")}
           <input value={address} onChange={(e) => setAddress(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-2 py-1.5 text-xs" />
         </label>
         {isOrg && (
           <>
             <label className="text-[10px] text-muted-foreground font-semibold uppercase col-span-2">
-              Organisation name
+              {t("profile.orgName")}
               <input value={orgName} onChange={(e) => setOrgName(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-2 py-1.5 text-xs" />
             </label>
             <label className="text-[10px] text-muted-foreground font-semibold uppercase">
-              Legal rep. name
+              {t("admin.userspanel.legalRepName")}
               <input value={legalRepName} onChange={(e) => setLegalRepName(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-2 py-1.5 text-xs" />
             </label>
             <label className="text-[10px] text-muted-foreground font-semibold uppercase">
-              Legal rep. ID number
+              {t("admin.userspanel.legalRepIdNumber")}
               <input value={legalRepIdNumber} onChange={(e) => setLegalRepIdNumber(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-2 py-1.5 text-xs" />
             </label>
             <label className="text-[10px] text-muted-foreground font-semibold uppercase col-span-2">
-              Legal rep. phone
+              {t("admin.userspanel.legalRepPhone")}
               <input value={legalRepPhone} onChange={(e) => setLegalRepPhone(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-2 py-1.5 text-xs" />
             </label>
           </>
@@ -110,10 +112,10 @@ function EditRoleForm({ row, roleId, onDone }: { row: UserRow; roleId: string; o
       </div>
       <div className="flex gap-2 justify-end pt-1">
         <button onClick={onDone} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-muted-foreground hover:bg-secondary cursor-pointer">
-          <X size={12} /> Cancel
+          <X size={12} /> {t("disputes.cancel")}
         </button>
         <button onClick={handleSave} disabled={saving} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground cursor-pointer disabled:opacity-60">
-          <Save size={12} /> {saving ? "Saving..." : "Save changes"}
+          <Save size={12} /> {saving ? t("admin.accesspanel.saving") : t("admin.users.save")}
         </button>
       </div>
     </div>
@@ -121,6 +123,7 @@ function EditRoleForm({ row, roleId, onDone }: { row: UserRow; roleId: string; o
 }
 
 function EditUserForm({ user, onDone }: { user: UserRow["user"]; onDone: () => void }) {
+  const { t } = useTranslation("common");
   const updateUser = useAdminUpdateUserMutation();
   const [name, setName] = useState(user.name ?? "");
   const [phone, setPhone] = useState(user.phone ?? "");
@@ -139,10 +142,10 @@ function EditUserForm({ user, onDone }: { user: UserRow["user"]; onDone: () => v
         defaultCurrency: currency.trim() ? currency.trim().toUpperCase() : undefined,
         kycStatus: kyc,
       });
-      toast.success("User updated");
+      toast.success(t("admin.userspanel.userUpdated"));
       onDone();
     } catch {
-      toast.error("Could not save changes (admin role required, valid country/currency codes)");
+      toast.error(t("admin.userspanel.couldNotSaveChanges"));
     } finally {
       setSaving(false);
     }
@@ -152,36 +155,36 @@ function EditUserForm({ user, onDone }: { user: UserRow["user"]; onDone: () => v
     <div className="bg-secondary/40 rounded-xl p-3 mt-3 space-y-2">
       <div className="grid grid-cols-2 gap-2">
         <label className="text-[10px] text-muted-foreground font-semibold uppercase col-span-2">
-          Name
+          {t("admin.users.name")}
           <input value={name} onChange={(e) => setName(e.target.value)} className={field} />
         </label>
         <label className="text-[10px] text-muted-foreground font-semibold uppercase">
-          Phone
+          {t("settings.profile.phone")}
           <input value={phone} onChange={(e) => setPhone(e.target.value)} className={field} />
         </label>
         <label className="text-[10px] text-muted-foreground font-semibold uppercase">
-          KYC status
+          {t("admin.userspanel.kycStatus")}
           <select value={kyc} onChange={(e) => setKyc(e.target.value as typeof kyc)} className={field}>
-            <option value="unverified">Unverified</option>
-            <option value="submitted">Submitted</option>
-            <option value="verified">Verified</option>
+            <option value="unverified">{t("admin.userspanel.unverified")}</option>
+            <option value="submitted">{t("txd.state.submitted")}</option>
+            <option value="verified">{t("settings.status.verified")}</option>
           </select>
         </label>
         <label className="text-[10px] text-muted-foreground font-semibold uppercase">
-          Country (ISO-2)
+          {t("admin.userspanel.countryIso2")}
           <input value={country} maxLength={2} onChange={(e) => setCountry(e.target.value)} className={field} />
         </label>
         <label className="text-[10px] text-muted-foreground font-semibold uppercase">
-          Default currency
+          {t("admin.userspanel.defaultCurrency")}
           <input value={currency} maxLength={3} onChange={(e) => setCurrency(e.target.value)} className={field} />
         </label>
       </div>
       <div className="flex gap-2 justify-end pt-1">
         <button onClick={onDone} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-muted-foreground hover:bg-secondary cursor-pointer">
-          <X size={12} /> Cancel
+          <X size={12} /> {t("disputes.cancel")}
         </button>
         <button onClick={() => void handleSave()} disabled={saving} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground cursor-pointer disabled:opacity-60">
-          <Save size={12} /> {saving ? "Saving..." : "Save user"}
+          <Save size={12} /> {saving ? t("admin.accesspanel.saving") : t("admin.userspanel.saveUser")}
         </button>
       </div>
     </div>
@@ -189,6 +192,7 @@ function EditUserForm({ user, onDone }: { user: UserRow["user"]; onDone: () => v
 }
 
 function CreateProfileForm({ onDone }: { onDone: () => void }) {
+  const { t } = useTranslation("common");
   const createUser = useAdminCreateUserMutation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -201,11 +205,11 @@ function CreateProfileForm({ onDone }: { onDone: () => void }) {
 
   const handleCreate = async () => {
     if (!name.trim() || !email.trim()) {
-      toast.error("Name and email are required");
+      toast.error(t("admin.userspanel.nameAndEmailAre"));
       return;
     }
     if (isAdminRole && !password) {
-      toast.error("The admin role requires the admin password");
+      toast.error(t("admin.userspanel.theAdminRoleRequires"));
       return;
     }
     setSaving(true);
@@ -226,18 +230,18 @@ function CreateProfileForm({ onDone }: { onDone: () => void }) {
   return (
     <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-2xl p-4 space-y-3">
       <div className="grid grid-cols-2 gap-2">
-        <input placeholder="Full name / organisation name" value={name} onChange={(e) => setName(e.target.value)} className="rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs col-span-2" />
-        <input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs col-span-2" />
+        <input placeholder={t("registerCustomer.name")} value={name} onChange={(e) => setName(e.target.value)} className="rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs col-span-2" />
+        <input placeholder={t("settings.profile.email")} type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs col-span-2" />
         <select value={role} onChange={(e) => setRole(e.target.value as (typeof ALL_ROLES)[number])} className="rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs">
           {ALL_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
         </select>
         <select value={kind} onChange={(e) => setKind(e.target.value as "individual" | "organisation")} className="rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs">
-          <option value="individual">Individual</option>
-          <option value="organisation">Organisation</option>
+          <option value="individual">{t("registerCustomer.kindIndividual")}</option>
+          <option value="organisation">{t("registerCustomer.kindOrganisation")}</option>
         </select>
         {isAdminRole && (
           <input
-            placeholder="Admin password"
+            placeholder={t("admin.accesspanel.adminPassword")}
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -246,9 +250,9 @@ function CreateProfileForm({ onDone }: { onDone: () => void }) {
         )}
       </div>
       <div className="flex gap-2 justify-end">
-        <button onClick={onDone} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-muted-foreground hover:bg-secondary cursor-pointer">Cancel</button>
+        <button onClick={onDone} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-muted-foreground hover:bg-secondary cursor-pointer">{t("disputes.cancel")}</button>
         <button onClick={handleCreate} disabled={saving} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground cursor-pointer disabled:opacity-60">
-          <Plus size={12} /> {saving ? "Creating..." : "Create profile"}
+          <Plus size={12} /> {saving ? t("admin.userspanel.creating") : t("admin.users.create")}
         </button>
       </div>
     </motion.div>
@@ -256,6 +260,7 @@ function CreateProfileForm({ onDone }: { onDone: () => void }) {
 }
 
 export default function UsersPanel() {
+  const { t } = useTranslation("common");
   const rows = useAdminListUsers();
   const grantAdminRole = useAdminGrantAdminRoleMutation();
   const createUser = useAdminCreateUserMutation();
@@ -290,7 +295,7 @@ export default function UsersPanel() {
   // admin password — separate from "Make admin" below, which grants the
   // role to an existing profile the admin already picked.
   const handleCreateAdminProfile = async () => {
-    const password = window.prompt("Set the admin password to create the admin profile:");
+    const password = window.prompt(t("Set the admin password to create the admin profile:"));
     if (password === null) return;
     try {
       const result = await createUser({
@@ -298,18 +303,18 @@ export default function UsersPanel() {
       });
       toast.success(result.alreadyExisted ? "Admin profile already exists" : "Admin profile created (admin@payrus.app)");
     } catch {
-      toast.error("Incorrect admin password");
+      toast.error(t("admin.accesspanel.incorrectAdminPassword"));
     }
   };
 
   const handleMakeAdmin = async (userId: string) => {
-    const password = window.prompt("Enter the admin password to grant this role:");
+    const password = window.prompt(t("Enter the admin password to grant this role:"));
     if (password === null) return;
     try {
       await grantAdminRole({ userId, password });
-      toast.success("Granted admin role");
+      toast.success(t("admin.userspanel.grantedAdminRole"));
     } catch {
-      toast.error("Incorrect admin password");
+      toast.error(t("admin.accesspanel.incorrectAdminPassword"));
     }
   };
 
@@ -321,7 +326,7 @@ export default function UsersPanel() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, email, username, ID or role..."
+            placeholder={t("admin.userspanel.searchByNameEmail")}
             className="w-full rounded-xl border border-border bg-card pl-8 pr-3 py-2 text-xs"
           />
         </div>
@@ -329,29 +334,29 @@ export default function UsersPanel() {
           onClick={() => setCreating((v) => !v)}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold cursor-pointer"
         >
-          <Plus size={13} /> Add profile
+          <Plus size={13} /> {t("admin.users.addNew")}
         </button>}
         {canEdit && <button
           onClick={() => void handleCreateAdminProfile()}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-primary/30 text-primary text-xs font-semibold cursor-pointer hover:bg-primary/5 whitespace-nowrap"
         >
-          <KeyRound size={13} /> Create admin profile
+          <KeyRound size={13} /> {t("admin.userspanel.createAdminProfile")}
         </button>}
         {isSuper && <button
           onClick={() => void handleCleanup()}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-destructive/30 text-destructive text-xs font-semibold cursor-pointer hover:bg-destructive/5"
         >
-          <Trash2 size={13} /> Clean up test data
+          <Trash2 size={13} /> {t("admin.userspanel.cleanUpTestData")}
         </button>}
       </div>
 
       {creating && <CreateProfileForm onDone={() => setCreating(false)} />}
 
       {rows === undefined && (
-        <div className="text-xs text-muted-foreground text-center py-8">Loading users...</div>
+        <div className="text-xs text-muted-foreground text-center py-8">{t("admin.userspanel.loadingUsers")}</div>
       )}
       {rows && filtered.length === 0 && (
-        <div className="text-xs text-muted-foreground text-center py-8">No users match your search.</div>
+        <div className="text-xs text-muted-foreground text-center py-8">{t("admin.users.noResults")}</div>
       )}
 
       <div className="space-y-3">
@@ -366,17 +371,17 @@ export default function UsersPanel() {
                     <span className="font-bold text-sm">{row.user.name ?? "—"}</span>
                     {row.user.isTestData && (
                       <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 flex items-center gap-1">
-                        <Sparkles size={9} /> Test
+                        <Sparkles size={9} /> {t("admin.userspanel.test")}
                       </span>
                     )}
                     {row.roles.some((r) => r.role === "admin") && (
                       <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary flex items-center gap-1">
-                        <ShieldCheck size={9} /> Admin
+                        <ShieldCheck size={9} /> {t("profile.badge.admin")}
                       </span>
                     )}
                   </div>
                   <div className="text-xs text-muted-foreground truncate">
-                    {row.user.email ?? "no email"}
+                    {row.user.email ?? t("admin.userspanel.noEmail")}
                     {row.user.username && <span className="text-muted-foreground/70"> · @{row.user.username}</span>}
                   </div>
                   <div className="text-[10px] text-muted-foreground/60 font-mono truncate">{row.user.id}</div>
@@ -396,14 +401,14 @@ export default function UsersPanel() {
                     onClick={() => setEditingUserId(editingUserId === row.user.id ? null : row.user.id)}
                     className="text-[10px] font-semibold px-2.5 py-1.5 rounded-lg border border-border hover:bg-secondary cursor-pointer whitespace-nowrap"
                   >
-                    {editingUserId === row.user.id ? "Close" : "Edit user"}
+                    {editingUserId === row.user.id ? t("common.close") : t("admin.userspanel.editUser")}
                   </button>}
                   {!canEdit && (
                     <button
                       onClick={() => setEscalateUserId(escalateUserId === row.user.id ? null : row.user.id)}
                       className="text-[10px] font-semibold px-2.5 py-1.5 rounded-lg border border-border hover:bg-secondary cursor-pointer whitespace-nowrap"
                     >
-                      {escalateUserId === row.user.id ? "Close" : "Escalate"}
+                      {escalateUserId === row.user.id ? t("common.close") : t("organisation.organisationpanel.escalate")}
                     </button>
                   )}
                   {canEdit && !row.roles.some((r) => r.role === "admin") && (
@@ -411,7 +416,7 @@ export default function UsersPanel() {
                       onClick={() => void handleMakeAdmin(row.user.id)}
                       className="text-[10px] font-semibold px-2.5 py-1.5 rounded-lg border border-border hover:bg-secondary cursor-pointer whitespace-nowrap"
                     >
-                      Make admin
+                      {t("admin.userspanel.makeAdmin")}
                     </button>
                   )}
                 </div>
@@ -438,7 +443,7 @@ export default function UsersPanel() {
                         onClick={() => setEditingRoleId(editingRoleId === role.id ? null : role.id)}
                         className="text-[10px] font-semibold text-primary cursor-pointer shrink-0"
                       >
-                        {editingRoleId === role.id ? "Close" : "Edit"}
+                        {editingRoleId === role.id ? t("common.close") : t("savings.edit")}
                       </button>
                     </div>
                     {editingRoleId === role.id && (
@@ -447,7 +452,7 @@ export default function UsersPanel() {
                   </div>
                 ))}
                 {row.roles.length === 0 && (
-                  <div className="text-[11px] text-muted-foreground italic px-1">No roles activated yet.</div>
+                  <div className="text-[11px] text-muted-foreground italic px-1">{t("admin.userspanel.noRolesActivatedYet")}</div>
                 )}
               </div>
             </div>

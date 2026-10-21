@@ -13,6 +13,7 @@ import { AreaChart, Area, XAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { getAnonId } from "@/lib/anon-id.ts";
+import { monthLabel, txTypeLabel, walletProviderLabel } from "@/lib/i18n-labels.ts";
 import { PAYMENT_PROVIDERS } from "@/components/ui/add-payment-method-sheet.tsx";
 import { useProfile } from "@/contexts/profile-context.tsx";
 import type { ProfileType } from "@/contexts/profile-context.tsx";
@@ -113,7 +114,7 @@ const DEFAULT_TRANSACTIONS = [
 const REAL_TX_CREDIT_TYPES = new Set(["deposit", "convert_in"]);
 const REAL_TX_ICON: Record<string, string> = { transfer: "↔️", payment: "💳", deposit: "➕", remittance: "🌍", convert_out: "🔁", convert_in: "🔁" };
 const REAL_TX_BG: Record<string, string> = { transfer: "bg-accent/15", payment: "bg-blue-50", deposit: "bg-primary/15", remittance: "bg-accent/15", convert_out: "bg-violet-50", convert_in: "bg-violet-50" };
-const REAL_TX_LABEL: Record<string, string> = { transfer: "Transfer", payment: "Payment", deposit: "Deposit", remittance: "Remittance", convert_out: "Conversion out", convert_in: "Conversion in" };
+// Types stored for real transfers; their labels come from txTypeLabel (txtype.* in the locale files).;
 
 interface TooltipProps { active?: boolean; payload?: Array<{ value: number }>; label?: string; }
 function ChartTooltip({ active, payload, label }: TooltipProps) {
@@ -148,7 +149,7 @@ export default function Dashboard() {
   const primaryCard = realCards && realCards.length > 0 ? realCards[0] : null;
   const linkedMethods = useLinkedPaymentMethods(getAnonId());
   const walletsToShow = realWallets && realWallets.length > 0
-    ? realWallets.map(w => ({ name: w.provider, balance: `${w.currency} ${w.balance.toLocaleString()}`, flag: w.flag, color: w.colorClass, currency: w.currency as string | undefined }))
+    ? realWallets.map(w => ({ name: walletProviderLabel(t, w.provider) ?? w.currency, balance: `${w.currency} ${w.balance.toLocaleString()}`, flag: w.flag, color: w.colorClass, currency: w.currency as string | undefined }))
     : wallets;
 
   // Format balance for display — compact for very large numbers
@@ -174,7 +175,7 @@ export default function Dashboard() {
   const recentTransactions = realRecentTransfers && realRecentTransfers.length > 0
     ? realRecentTransfers.map((tr) => ({
         id: tr.id,
-        name: REAL_TX_LABEL[tr.type] ?? tr.type,
+        name: txTypeLabel(t, tr.type),
         type: REAL_TX_CREDIT_TYPES.has(tr.type) ? "credit" : "debit",
         amount: REAL_TX_CREDIT_TYPES.has(tr.type) ? tr.amount : -tr.amount,
         currency: tr.currency,
@@ -255,7 +256,7 @@ export default function Dashboard() {
                   <stop offset="100%" stopColor="oklch(0.62 0.19 155)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="month" tick={{ fill: "oklch(0.55 0.01 240)", fontSize: 9 }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="month" tickFormatter={(m: string) => monthLabel(m, lng)} tick={{ fill: "oklch(0.55 0.01 240)", fontSize: 9 }} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} />
               <Area type="monotone" dataKey="value" stroke="oklch(0.62 0.19 155)" strokeWidth={2} fill="url(#sg)"
                 dot={false} activeDot={{ r: 3, fill: "oklch(0.62 0.19 155)", strokeWidth: 0 }} />
@@ -265,7 +266,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-3 divide-x divide-border border-t border-[#d8e5f0] bg-white/60 backdrop-blur-[2px]">
           {stats.map((s) => (
             <div key={s.label} className="px-4 py-3">
-              <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{s.label}</div>
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{t(s.label)}</div>
               <div className="text-sm font-bold text-foreground mt-0.5 font-mono">{s.value}</div>
               <div className={cn("text-[10px] mt-0.5 flex items-center gap-0.5", s.up ? "text-primary" : "text-muted-foreground")}>
                 {s.up && <TrendingUp size={9} />}{s.change}
@@ -365,7 +366,7 @@ export default function Dashboard() {
                   return (
                     <div key={m.id} className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Icon size={13} className="text-foreground shrink-0" />
-                      <span className="truncate">{m.label}</span>
+                      <span className="truncate">{t(m.label)}</span>
                     </div>
                   );
                 })}

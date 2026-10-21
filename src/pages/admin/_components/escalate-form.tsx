@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Send, X } from "lucide-react";
@@ -22,6 +23,7 @@ export default function EscalateForm({
 }: {
   userId: string; userLabel: string; transferId?: string; transferReference?: string; currency?: string; onDone: () => void;
 }) {
+  const { t } = useTranslation("common");
   const request = useSupportRequestEscalationMutation();
   const available = ACTIONS.filter((a) => !a.needsTx || transferId);
   const [action, setAction] = useState<EscalationAction>(available[0]?.value ?? "other");
@@ -40,7 +42,7 @@ export default function EscalateForm({
         amount: action === "adjustment" ? Number(amount) : undefined,
         currency: action === "adjustment" ? cur.trim().toUpperCase() : undefined,
       });
-      toast.success("Escalation sent to a higher profile");
+      toast.success(t("admin.escalateform.escalationSentToA"));
       onDone();
     } catch (e) {
       toast.error(e instanceof Error ? e.message.replace(/^[A-Za-z]+: /, "") : "Could not send the escalation");
@@ -52,37 +54,37 @@ export default function EscalateForm({
   return (
     <div className="bg-secondary/40 rounded-xl p-3 mt-2 space-y-2">
       <div className="text-[11px] text-muted-foreground">
-        Escalate for <span className="font-semibold text-foreground">{userLabel}</span>
+        {t("admin.escalateform.escalateFor")} <span className="font-semibold text-foreground">{userLabel}</span>
         {transferReference && <> · <span className="font-mono">{transferReference}</span></>}
       </div>
       <label className="block text-[10px] text-muted-foreground font-semibold uppercase">
-        Requested change
+        {t("admin.escalateform.requestedChange")}
         <select value={action} onChange={(e) => setAction(e.target.value as EscalationAction)} className={field}>
-          {available.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
+          {available.map((a) => <option key={a.value} value={a.value}>{t(a.label)}</option>)}
         </select>
       </label>
       {action === "adjustment" && (
         <div className="grid grid-cols-2 gap-2">
           <label className="text-[10px] text-muted-foreground font-semibold uppercase">
-            Amount
+            {t("payments.amount")}
             <input type="number" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} className={field} />
           </label>
           <label className="text-[10px] text-muted-foreground font-semibold uppercase">
-            Currency
+            {t("groups.currency")}
             <input value={cur} maxLength={3} onChange={(e) => setCur(e.target.value)} className={field} />
           </label>
         </div>
       )}
       <label className="block text-[10px] text-muted-foreground font-semibold uppercase">
-        What the user reported
+        {t("admin.escalateform.whatTheUserReported")}
         <textarea value={details} onChange={(e) => setDetails(e.target.value)} rows={3} className={field} />
       </label>
       <div className="flex gap-2 justify-end">
         <button onClick={onDone} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-muted-foreground hover:bg-secondary cursor-pointer">
-          <X size={12} /> Cancel
+          <X size={12} /> {t("disputes.cancel")}
         </button>
         <button onClick={() => void submit()} disabled={saving || details.trim().length < 3} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground cursor-pointer disabled:opacity-60">
-          <Send size={12} /> {saving ? "Sending..." : "Send escalation"}
+          <Send size={12} /> {saving ? t("admin.escalateform.sending") : t("admin.escalateform.sendEscalation")}
         </button>
       </div>
     </div>

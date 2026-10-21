@@ -122,8 +122,8 @@ export default function Payouts() {
               <Banknote size={18} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-foreground truncate">{p.name}</div>
-              <div className="text-xs text-muted-foreground truncate">{p.meta}</div>
+              <div className="text-sm font-medium text-foreground truncate">{t(p.name)}</div>
+              <div className="text-xs text-muted-foreground truncate">{t(p.meta)}</div>
             </div>
             <div className="text-right shrink-0">
               <div className="text-sm font-bold font-mono text-foreground">{p.amount} <span className="text-xs font-normal text-muted-foreground">{p.currency}</span></div>

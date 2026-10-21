@@ -12,7 +12,7 @@ import {
 import { cn } from "@/lib/utils.ts";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useProfileFeatures, useMyPermissionsQuery } from "@/hooks/use-backend.ts";
 import { generateTechAnalysisPDF } from "./_components/tech-analysis-pdf.ts";
@@ -357,28 +357,28 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-5">
-      <PageHeader title="Admin" className="mb-4 md:mb-6" />
+      <PageHeader title={t("profile.badge.admin")} className="mb-4 md:mb-6" />
 
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 mb-0.5">
             <Shield size={14} className="text-primary" />
-            <span className="text-[10px] text-muted-foreground font-semibold tracking-widest uppercase">PayRus Admin</span>
+            <span className="text-[10px] text-muted-foreground font-semibold tracking-widest uppercase">{t("admin.payrusAdmin")}</span>
           </div>
-          <h1 className="text-xl font-black text-foreground tracking-tight">Business Intelligence</h1>
+          <h1 className="text-xl font-black text-foreground tracking-tight">{t("admin.businessIntelligence")}</h1>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20">
             <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            <span className="text-[11px] text-primary font-semibold">DEMO</span>
-            <span className="text-[11px] text-muted-foreground font-mono">{pulseCount} events</span>
+            <span className="text-[11px] text-primary font-semibold">{t("admin.demo")}</span>
+            <span className="text-[11px] text-muted-foreground font-mono">{pulseCount} {t("admin.events")}</span>
           </div>
           <button
             onClick={() => generateTechAnalysisPDF()}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-50 border border-violet-200 text-[11px] font-semibold text-violet-700 cursor-pointer hover:bg-violet-100 transition-colors"
           >
-            <FileDown size={13} /> Tech Analysis PDF
+            <FileDown size={13} /> {t("admin.techAnalysisPdf")}
           </button>
           <button type="button" aria-label={t("cta.refresh")} title={t("cta.refresh")} onClick={() => { void queryClient.invalidateQueries(); toast.success(t("cta.refreshed")); }} className="w-8 h-8 rounded-xl bg-secondary border border-border flex items-center justify-center cursor-pointer hover:bg-secondary/80 transition-colors">
             <RefreshCw size={13} className="text-muted-foreground" />
@@ -414,7 +414,7 @@ export default function AdminDashboard() {
             )}
           >
             <tab.icon size={13} />
-            <span className="hidden sm:inline">{tab.label}</span>
+            <span className="hidden sm:inline">{t(tab.label)}</span>
           </button>
         ))}
       </div>
@@ -502,15 +502,15 @@ export default function AdminDashboard() {
                 <Flag size={22} className="text-primary" />
               </div>
               <div>
-                <div className="font-black text-base">Pilot Program — CEMAC Zone</div>
+                <div className="font-black text-base">{t("admin.pilotProgramCemacZone")}</div>
                 <div className="text-xs text-muted-foreground">
-                  PayRus is currently piloting in <span className="text-foreground font-semibold">Central African Republic</span> and <span className="text-foreground font-semibold">Congo Brazzaville</span> as the first two markets in the XAF zone.
+                  <Trans i18nKey="admin.pilotingIn" values={{ first: t("admin.centralAfricanRepublic"), second: t("admin.congoBrazzaville") }} components={{ b: <span className="text-foreground font-semibold" /> }} />
                 </div>
               </div>
               <div className="ml-auto shrink-0">
                 <span className="flex items-center gap-1.5 text-[10px] font-black bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-full">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  2 Countries Active
+                  {t("admin.2CountriesActive")}
                 </span>
               </div>
             </div>
@@ -526,12 +526,10 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-black text-lg">{c.name}</h3>
                       <span className={cn("text-[9px] font-black border px-2 py-0.5 rounded-full uppercase tracking-wider", c.borderAccent, c.bgAccent, c.accent)}>
-                        {c.pilotPhase} · Active
+                        {c.pilotPhase} {t("admin.active")}
                       </span>
                     </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      Capital: {c.capital} · Population: {c.population} · Currency: {c.currency}
-                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{t("admin.capitalPopulationCurrency", { capital: c.capital, population: c.population, currency: c.currency })}</div>
                   </div>
                 </div>
 
@@ -544,14 +542,14 @@ export default function AdminDashboard() {
                   ].map(m => (
                     <div key={m.label} className="p-3 text-center">
                       <div className={cn("font-black text-base font-mono", c.accent)}>{m.value}</div>
-                      <div className="text-[10px] text-muted-foreground">{m.label}</div>
+                      <div className="text-[10px] text-muted-foreground">{t(m.label)}</div>
                     </div>
                   ))}
                 </div>
 
                 {/* Features */}
                 <div className="p-4">
-                  <div className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider mb-2">Activated Features</div>
+                  <div className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider mb-2">{t("admin.activatedFeatures")}</div>
                   <div className="flex flex-wrap gap-2">
                     {c.features.map(f => (
                       <span key={f} className={cn("flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-xl border", c.bgAccent, c.borderAccent, c.accent)}>
@@ -565,7 +563,7 @@ export default function AdminDashboard() {
 
             {/* Roadmap */}
             <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-              <div className="font-bold text-sm">Pilot Roadmap</div>
+              <div className="font-bold text-sm">{t("admin.pilotRoadmap")}</div>
               {[
                 { phase: "Phase 1 · Q3 2026", label: "RCA & Congo-B launch — Mobile money, P2P, remittance", done: true },
                 { phase: "Phase 2 · Q4 2026", label: "Business & Gov accounts — Payroll, tax collection, API Hub", done: false },
@@ -579,7 +577,7 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <div className={cn("text-[10px] font-black uppercase tracking-wider", r.done ? "text-primary" : "text-muted-foreground")}>{r.phase}</div>
-                    <div className="text-xs text-muted-foreground">{r.label}</div>
+                    <div className="text-xs text-muted-foreground">{t(r.label)}</div>
                   </div>
                 </div>
               ))}
@@ -594,13 +592,13 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
               <Star size={16} className="text-amber-700 shrink-0" />
               <div className="text-xs text-muted-foreground leading-relaxed">
-                <span className="text-foreground font-semibold">System Administrator demo mode.</span> Switch to any profile to preview every feature exactly as an end user would see it. You will be redirected to that profile's dashboard.
+                <span className="text-foreground font-semibold">{t("admin.systemAdministratorDemoMode")}</span> {t("admin.switchToAnyProfile")}
               </div>
             </div>
 
             {/* Profile switcher */}
             <div>
-              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Switch Profile & Preview</div>
+              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">{t("admin.switchProfilePreview")}</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {DEMO_PROFILES.map((p) => (
                   <button
@@ -615,8 +613,8 @@ export default function AdminDashboard() {
                       <p.icon size={18} className={p.color} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-sm">{p.label}</div>
-                      <div className="text-[11px] text-muted-foreground truncate">{p.desc}</div>
+                      <div className="font-bold text-sm">{t(p.label)}</div>
+                      <div className="text-[11px] text-muted-foreground truncate">{t(p.desc)}</div>
                     </div>
                     <ChevronRight size={14} className="text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
                   </button>
@@ -626,7 +624,7 @@ export default function AdminDashboard() {
 
             {/* Direct page navigation */}
             <div>
-              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Jump to any page</div>
+              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">{t("admin.jumpToAnyPage")}</div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {DEMO_PAGES.map((page) => (
                   <button
@@ -635,7 +633,7 @@ export default function AdminDashboard() {
                     className="flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-2.5 hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer text-left group"
                   >
                     <page.icon size={14} className="text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                    <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors truncate">{page.label}</span>
+                    <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors truncate">{t(page.label)}</span>
                   </button>
                 ))}
               </div>
@@ -650,12 +648,12 @@ export default function AdminDashboard() {
             <div className="bg-card border border-border rounded-2xl p-4">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <div className="text-xs font-semibold text-foreground">Daily Profit Growth</div>
-                  <div className="text-[10px] text-muted-foreground">Last 30 days · USD</div>
+                  <div className="text-xs font-semibold text-foreground">{t("admin.dailyProfitGrowth")}</div>
+                  <div className="text-[10px] text-muted-foreground">{t("admin.last30DaysUsd")}</div>
                 </div>
                 <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary inline-block" />Profit</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-accent inline-block" />Volume /1k</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary inline-block" />{t("admin.profit")}</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-accent inline-block" />{t("admin.volume1k")}</span>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={200}>
@@ -682,8 +680,8 @@ export default function AdminDashboard() {
             <div className="bg-card border border-border rounded-2xl p-4">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <div className="text-xs font-semibold text-foreground">Hourly Transaction Activity</div>
-                  <div className="text-[10px] text-muted-foreground">Last 24 hours · count</div>
+                  <div className="text-xs font-semibold text-foreground">{t("admin.hourlyTransactionActivity")}</div>
+                  <div className="text-[10px] text-muted-foreground">{t("admin.last24HoursCount")}</div>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={150}>
@@ -705,8 +703,8 @@ export default function AdminDashboard() {
                 <div key={s.label} className="bg-card border border-border rounded-xl p-3">
                   <s.icon size={14} className={cn("mb-2", s.color)} />
                   <div className="text-lg font-black font-mono text-foreground">{s.value}</div>
-                  <div className="text-[10px] text-muted-foreground">{s.label}</div>
-                  <div className="text-[10px] text-muted-foreground/60">{s.sub}</div>
+                  <div className="text-[10px] text-muted-foreground">{t(s.label)}</div>
+                  <div className="text-[10px] text-muted-foreground/60">{t(s.sub)}</div>
                 </div>
               ))}
             </div>
@@ -719,15 +717,15 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-xs font-semibold text-foreground">Live Transaction Monitor</span>
+                  <span className="text-xs font-semibold text-foreground">{t("admin.liveTransactionMonitor")}</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">{liveTxs.length} recent</span>
+                <span className="text-[10px] text-muted-foreground">{liveTxs.length} {t("admin.recent")}</span>
               </div>
 
               {/* Header row */}
               <div className="hidden md:grid grid-cols-[1.5fr_1.2fr_0.8fr_0.7fr_0.7fr_0.8fr_0.7fr] gap-2 px-4 py-2 border-b border-border bg-secondary/50">
                 {["Transaction", "Corridor / Provider", "Amount", "Margin", "FX Cost", "Profit", "Status"].map((h) => (
-                  <span key={h} className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">{h}</span>
+                  <span key={h} className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">{t(h)}</span>
                 ))}
               </div>
 
@@ -760,7 +758,7 @@ export default function AdminDashboard() {
                       <div className="min-w-0">
                         <div className="text-[11px] font-semibold text-accent font-mono">{tx.corridor}</div>
                         <div className="text-[10px] text-muted-foreground truncate">{tx.fxProvider}</div>
-                        <div className="text-[9px] text-muted-foreground/60">Rate: {tx.fxRate}</div>
+                        <div className="text-[9px] text-muted-foreground/60">{t("admin.rate")} {tx.fxRate}</div>
                       </div>
                       {/* Amount */}
                       <div className="font-mono">
@@ -772,17 +770,17 @@ export default function AdminDashboard() {
                         <div className={cn("text-xs font-bold font-mono", tx.marginPct >= 8 ? "text-primary" : tx.marginPct >= 6 ? "text-amber-700" : "text-muted-foreground")}>
                           {tx.marginPct}%
                         </div>
-                        <div className="text-[9px] text-muted-foreground">5–10% target</div>
+                        <div className="text-[9px] text-muted-foreground">{t("admin.510Target")}</div>
                       </div>
                       {/* FX Cost */}
                       <div>
                         <div className="text-xs font-mono text-accent">${tx.fxCost.toFixed(2)}</div>
-                        <div className="text-[9px] text-muted-foreground">best rate</div>
+                        <div className="text-[9px] text-muted-foreground">{t("admin.bestRate")}</div>
                       </div>
                       {/* Profit */}
                       <div>
                         <div className="text-xs font-bold font-mono text-primary">+${tx.profit.toFixed(2)}</div>
-                        <div className="text-[9px] text-muted-foreground">net profit</div>
+                        <div className="text-[9px] text-muted-foreground">{t("admin.netProfit")}</div>
                       </div>
                       {/* Status */}
                       <div className="flex items-start">
@@ -800,8 +798,8 @@ export default function AdminDashboard() {
           <motion.div key="fx" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="space-y-4">
 
             <div className="bg-card border border-border rounded-2xl p-4">
-              <div className="text-xs font-semibold text-foreground mb-1">FX Provider Cost Comparison</div>
-              <div className="text-[10px] text-muted-foreground mb-4">Average cost % per transaction · lower is better</div>
+              <div className="text-xs font-semibold text-foreground mb-1">{t("admin.fxProviderCostComparison")}</div>
+              <div className="text-[10px] text-muted-foreground mb-4">{t("admin.averageCostPerTransaction")}</div>
               <div className="space-y-3">
                 {fxProviderData.map((p, i) => (
                   <motion.div key={p.name} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}>
@@ -810,12 +808,12 @@ export default function AdminDashboard() {
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
                         <span className="text-xs font-semibold text-foreground">{p.name}</span>
                         {i === 0 && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">CHEAPEST</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">{t("admin.cheapest")}</span>
                         )}
                       </div>
                       <div className="text-right">
                         <span className="text-xs font-mono font-bold text-foreground">{p.cost}%</span>
-                        <span className="text-[10px] text-muted-foreground ml-2">{p.share}% share</span>
+                        <span className="text-[10px] text-muted-foreground ml-2">{p.share}{t("admin.share")}</span>
                       </div>
                     </div>
                     <div className="h-2 bg-secondary rounded-full overflow-hidden">
@@ -835,7 +833,7 @@ export default function AdminDashboard() {
             {/* FX share pie + cost line */}
             <div className="grid md:grid-cols-2 gap-4">
               <div className="bg-card border border-border rounded-2xl p-4">
-                <div className="text-xs font-semibold text-foreground mb-4">Provider Market Share</div>
+                <div className="text-xs font-semibold text-foreground mb-4">{t("admin.providerMarketShare")}</div>
                 <ResponsiveContainer width="100%" height={200}>
                   <RechartsPie>
                     <Pie data={fxProviderData} dataKey="share" nameKey="name" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3}>
@@ -855,7 +853,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="bg-card border border-border rounded-2xl p-4">
-                <div className="text-xs font-semibold text-foreground mb-4">Hourly FX Savings vs Market Rate</div>
+                <div className="text-xs font-semibold text-foreground mb-4">{t("admin.hourlyFxSavingsVs")}</div>
                 <ResponsiveContainer width="100%" height={200}>
                   <LineChart data={activityData.slice(0, 12)} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
                     <CartesianGrid stroke="oklch(0.22 0.02 240)" strokeDasharray="3 3" />
@@ -873,8 +871,8 @@ export default function AdminDashboard() {
                 <Zap size={14} className="text-primary" />
               </div>
               <div className="flex-1">
-                <div className="text-xs font-semibold text-foreground">BIS Marketplace routing active</div>
-                <div className="text-[11px] text-muted-foreground">All CDF↔XAF corridors routed through cheapest provider. Saving avg $0.34/tx vs market rate.</div>
+                <div className="text-xs font-semibold text-foreground">{t("admin.bisMarketplaceRoutingActive")}</div>
+                <div className="text-[11px] text-muted-foreground">{t("admin.allCdfXafCorridors")}</div>
               </div>
               <ChevronRight size={13} className="text-muted-foreground shrink-0" />
             </div>
@@ -886,12 +884,12 @@ export default function AdminDashboard() {
 
             <div className="bg-card border border-border rounded-2xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border">
-                <div className="text-xs font-semibold text-foreground">Corridor Performance</div>
-                <div className="text-[10px] text-muted-foreground">Volume, margin, and transaction count per corridor</div>
+                <div className="text-xs font-semibold text-foreground">{t("admin.corridorPerformance")}</div>
+                <div className="text-[10px] text-muted-foreground">{t("admin.volumeMarginAndTransaction")}</div>
               </div>
               <div className="hidden md:grid grid-cols-4 gap-2 px-4 py-2 border-b border-border bg-secondary/50">
                 {["Corridor", "Volume (USD)", "Avg Margin", "Tx Count"].map((h) => (
-                  <span key={h} className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">{h}</span>
+                  <span key={h} className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">{t(h)}</span>
                 ))}
               </div>
               <div className="divide-y divide-border">
@@ -912,11 +910,11 @@ export default function AdminDashboard() {
                     </div>
                     <div className={cn("text-xs font-bold font-mono", c.margin >= 8.5 ? "text-primary" : c.margin >= 7 ? "text-amber-700" : "text-muted-foreground")}>
                       {c.margin}%
-                      <div className="text-[9px] font-normal text-muted-foreground">of volume</div>
+                      <div className="text-[9px] font-normal text-muted-foreground">{t("admin.ofVolume")}</div>
                     </div>
                     <div className="text-xs font-mono text-foreground">
                       {c.txCount.toLocaleString()}
-                      <div className="text-[9px] text-muted-foreground">transactions</div>
+                      <div className="text-[9px] text-muted-foreground">{t("admin.transactions")}</div>
                     </div>
                   </motion.div>
                 ))}
@@ -925,8 +923,8 @@ export default function AdminDashboard() {
 
             {/* Corridor volume bar chart */}
             <div className="bg-card border border-border rounded-2xl p-4">
-              <div className="text-xs font-semibold text-foreground mb-1">Volume by Corridor</div>
-              <div className="text-[10px] text-muted-foreground mb-4">USD equivalent · today</div>
+              <div className="text-xs font-semibold text-foreground mb-1">{t("admin.volumeByCorridor")}</div>
+              <div className="text-[10px] text-muted-foreground mb-4">{t("admin.usdEquivalentToday")}</div>
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={corridorData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }} layout="vertical">
                   <XAxis type="number" tick={{ fill: "oklch(0.55 0.01 240)", fontSize: 8 }} axisLine={false} tickLine={false} />

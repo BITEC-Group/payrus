@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import logo from "@/assets/payrus-logo.png";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,13 +10,14 @@ import {
 } from "@/data/payrus-landing-content";
 
 export function Masthead() {
+  const { t } = useTranslation("common");
   return (
     <div className="mx-auto max-w-[1180px] px-6 pt-6">
       <div className="flex flex-wrap items-center gap-4">
         <a
           href="#top"
           role="img"
-          aria-label="PayRus"
+          aria-label={t("landing.Masthead.payrus")}
           className="w-[96px] h-[28px] shrink-0 mix-blend-multiply bg-no-repeat"
           style={{
             backgroundImage: `url(${logo})`,

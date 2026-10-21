@@ -1,0 +1,48 @@
+import type { TFunction } from "i18next";
+
+/**
+ * Notifications are written by the database in English, with values spliced in ("USD 787.71 added to your wallet").
+ * This maps the messages the backend is known to produce onto locale keys (dbnotif.*) so they follow the language switch;
+ * anything unrecognised is shown as written.
+ */
+const TITLES: Record<string, string> = {
+  "Deposit received": "dbnotif.title.deposit",
+  "Currency converted": "dbnotif.title.convert",
+  "Remittance sent": "dbnotif.title.remittance",
+  "Transfer sent": "dbnotif.title.transfer",
+  "Transaction completed": "dbnotif.title.txCompleted",
+  "Transaction updated": "dbnotif.title.txUpdated",
+  "Transaction cancelled": "dbnotif.title.txCancelled",
+  "Card issued": "dbnotif.title.cardIssued",
+  "Wallet created": "dbnotif.title.walletCreated",
+  "Payment link paid": "dbnotif.title.paymentLinkPaid",
+  "Cash picked up": "dbnotif.title.cashPickedUp",
+  "Money delivered": "dbnotif.title.moneyDelivered",
+  "Account restricted": "dbnotif.title.accountRestricted",
+  "Added to a workspace": "dbnotif.title.addedToWorkspace",
+  "Sensitive data accessed (break-glass)": "dbnotif.title.breakGlass",
+};
+
+const BODIES: Array<[RegExp, string, (m: RegExpMatchArray) => Record<string, string>]> = [
+  [/^([A-Z]{3}) ([\d.,]+) added to your wallet$/, "dbnotif.body.added", (m) => ({ currency: m[1], amount: m[2] })],
+  [/^([A-Z]{3}) ([\d.,]+) converted to ([A-Z]{3})$/, "dbnotif.body.converted", (m) => ({ currency: m[1], amount: m[2], to: m[3] })],
+  [/^([A-Z]{3}) ([\d.,]+) sent$/, "dbnotif.body.sent", (m) => ({ currency: m[1], amount: m[2] })],
+  [/^Your virtual card ending (\d{4}) is ready\.$/, "dbnotif.body.cardReady", (m) => ({ last4: m[1] })],
+  [/^Your ([A-Z]{3}) wallet is ready\. Top it up to start using it\.$/, "dbnotif.body.walletReady", (m) => ({ currency: m[1] })],
+  [/^Sending from your wallet is temporarily restricted\.$/, "dbnotif.body.restricted", () => ({})],
+  [/^Your test account is ready\. No email confirmation and no two-factor code are needed\. Your starter wallet and virtual card open in ([A-Z]{3})(?: \(([^)]*)\))? with a zero balance: top up to start\. Sample contacts are in your address book to send money to\. Everything here is simulated, so no real money moves\.$/, "dbnotif.body.welcome", (m) => ({ currency: m[1], country: m[2] ? ` (${m[2]})` : "" })],
+  [/^Your test account is ready\. No email confirmation and no two-factor code are needed\. Choose a profile to open your starter wallet and virtual card\. Sample contacts are in your address book to send money to\. Everything here is simulated, so no real money moves\.$/, "dbnotif.body.welcomeNoCurrency", () => ({})],
+];
+
+export function localizeNotification(n: { title: string; body: string }, t: TFunction): { title: string; body: string } {
+  let title = n.title;
+  let body = n.body;
+  const welcome = n.title.match(/^Welcome to PayRus, (.+)!$/);
+  if (welcome) title = t("dbnotif.title.welcome", { name: welcome[1] });
+  else if (TITLES[n.title]) title = t(TITLES[n.title]);
+  for (const [re, key, params] of BODIES) {
+    const m = n.body.match(re);
+    if (m) { body = t(key, params(m)); break; }
+  }
+  return { title, body };
+}

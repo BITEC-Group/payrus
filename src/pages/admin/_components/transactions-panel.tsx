@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
@@ -26,6 +27,7 @@ const VOIDABLE = ["draft", "quoted"];
 // (my_permissions): read = list, update = complete/resolve/refund,
 // delete = void an unexecuted transaction, create = adjustment credit.
 export default function TransactionsPanel() {
+  const { t } = useTranslation("common");
   const [callerId, setCallerId] = useState<string>("");
   const users = useAdminListUsers();
   const { data, isLoading, error } = useAdminListTransfers(300, callerId || undefined);
@@ -42,8 +44,8 @@ export default function TransactionsPanel() {
   const canDelete = perms?.transactions.delete ?? false;
   const canCreate = perms?.transactions.create ?? false;
 
-  const run = async (t: AdminTransfer, action: () => Promise<void>, ok: string) => {
-    setBusyId(t.id);
+  const run = async (tItem: AdminTransfer, action: () => Promise<void>, ok: string) => {
+    setBusyId(tItem.id);
     try {
       await action();
       toast.success(ok);
@@ -56,46 +58,46 @@ export default function TransactionsPanel() {
 
   const askNote = (label: string) => window.prompt(label) ?? null;
 
-  const handleComplete = (t: AdminTransfer) => {
-    const note = askNote("Note for the user and audit log (optional):");
+  const handleComplete = (tItem: AdminTransfer) => {
+    const note = askNote(t("Note for the user and audit log (optional):"));
     if (note === null) return;
-    void run(t, () => complete({ transferId: t.id, note: note || undefined }), "Transaction completed");
+    void run(tItem, () => complete({ transferId: tItem.id, note: note || undefined }), t("Transaction completed"));
   };
-  const handleResolve = (t: AdminTransfer, newState: "resolved" | "refunded") => {
+  const handleResolve = (tItem: AdminTransfer, newState: "resolved" | "refunded") => {
     const note = askNote(newState === "refunded" ? "Refund reason (credits the user's wallet):" : "Resolution note:");
     if (note === null) return;
-    void run(t, () => resolve({ transferId: t.id, newState, note: note || undefined }), newState === "refunded" ? "Refunded" : "Dispute closed");
+    void run(tItem, () => resolve({ transferId: tItem.id, newState, note: note || undefined }), newState === "refunded" ? "Refunded" : "Dispute closed");
   };
-  const handleVoid = (t: AdminTransfer) => {
-    const note = askNote("Reason for voiding this unexecuted transaction (required):");
+  const handleVoid = (tItem: AdminTransfer) => {
+    const note = askNote(t("Reason for voiding this unexecuted transaction (required):"));
     if (!note) return;
-    const password = window.prompt("Voiding is superadmin-only. Enter the admin password:");
+    const password = window.prompt(t("Voiding is superadmin-only. Enter the admin password:"));
     if (password === null) return;
-    void run(t, () => voidTransfer({ transferId: t.id, note, password }), "Transaction voided");
+    void run(tItem, () => voidTransfer({ transferId: tItem.id, note, password }), t("Transaction voided"));
   };
-  const handleAdjust = (t: AdminTransfer) => {
-    const amountText = window.prompt(`Adjustment credit for ${t.userName ?? t.userEmail ?? "user"} (${t.currency}):`);
+  const handleAdjust = (tItem: AdminTransfer) => {
+    const amountText = window.prompt(`Adjustment credit for ${tItem.userName ?? tItem.userEmail ?? "user"} (${tItem.currency}):`);
     if (!amountText) return;
     const amount = Number(amountText);
     if (!Number.isFinite(amount) || amount <= 0) {
-      toast.error("Enter a positive amount");
+      toast.error(t("admin.transactionspanel.enterAPositiveAmount"));
       return;
     }
-    const reason = window.prompt("Reason (required):");
+    const reason = window.prompt(t("Reason (required):"));
     if (!reason) return;
-    void run(t, () => adjust({ userId: t.userId, amount, currency: t.currency, reason }), "Adjustment credited");
+    void run(tItem, () => adjust({ userId: tItem.userId, amount, currency: tItem.currency, reason }), t("Adjustment credited"));
   };
 
   const q = search.trim().toLowerCase();
-  const rows = (data ?? []).filter((t) =>
+  const rows = (data ?? []).filter((tItem) =>
     !q ||
-    t.reference.toLowerCase().includes(q) ||
-    t.type.toLowerCase().includes(q) ||
-    t.state.toLowerCase().includes(q) ||
-    t.currency.toLowerCase().includes(q) ||
-    (t.userName ?? "").toLowerCase().includes(q) ||
-    (t.userEmail ?? "").toLowerCase().includes(q) ||
-    (t.note ?? "").toLowerCase().includes(q),
+    tItem.reference.toLowerCase().includes(q) ||
+    tItem.type.toLowerCase().includes(q) ||
+    tItem.state.toLowerCase().includes(q) ||
+    tItem.currency.toLowerCase().includes(q) ||
+    (tItem.userName ?? "").toLowerCase().includes(q) ||
+    (tItem.userEmail ?? "").toLowerCase().includes(q) ||
+    (tItem.note ?? "").toLowerCase().includes(q),
   );
 
   const btn = "text-[10px] font-semibold px-2 py-1 rounded-lg border border-border hover:bg-secondary cursor-pointer disabled:opacity-50";
@@ -103,9 +105,9 @@ export default function TransactionsPanel() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <label className="text-[10px] font-semibold uppercase text-muted-foreground shrink-0" htmlFor="caller-select">Caller</label>
+        <label className="text-[10px] font-semibold uppercase text-muted-foreground shrink-0" htmlFor="caller-select">{t("admin.transactionspanel.caller")}</label>
         <select id="caller-select" value={callerId} onChange={(e) => setCallerId(e.target.value)} className="flex-1 rounded-xl border border-border bg-card px-2 py-2 text-xs">
-          <option value="">All users</option>
+          <option value="">{t("admin.transactionspanel.allUsers")}</option>
           {(users ?? []).map((row) => (
             <option key={row.user.id} value={row.user.id}>{row.user.name ?? row.user.email ?? row.user.id}{row.user.email ? ` (${row.user.email})` : ""}</option>
           ))}
@@ -117,59 +119,59 @@ export default function TransactionsPanel() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by reference, user, type, state, currency or note..."
+          placeholder={t("admin.transactionspanel.searchByReferenceUser")}
           className="w-full rounded-xl border border-border bg-card pl-8 pr-3 py-2 text-xs"
         />
       </div>
 
-      {isLoading && <div className="text-xs text-muted-foreground text-center py-8">Loading transactions...</div>}
-      {error && <div className="text-xs text-destructive text-center py-8">Could not load transactions. The transactions.read permission is required.</div>}
-      {data && rows.length === 0 && <div className="text-xs text-muted-foreground text-center py-8">No transactions match.</div>}
+      {isLoading && <div className="text-xs text-muted-foreground text-center py-8">{t("admin.transactionspanel.loadingTransactions")}</div>}
+      {error && <div className="text-xs text-destructive text-center py-8">{t("admin.transactionspanel.couldNotLoadTransactions")}</div>}
+      {data && rows.length === 0 && <div className="text-xs text-muted-foreground text-center py-8">{t("admin.transactionspanel.noTransactionsMatch")}</div>}
 
       {rows.length > 0 && (
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
-          <div className="px-4 py-2 border-b border-border text-[10px] text-muted-foreground">{rows.length} of {data?.length} shown (latest 300)</div>
+          <div className="px-4 py-2 border-b border-border text-[10px] text-muted-foreground">{t("admin.transactionspanel.ofShownLatest300", { shown: rows.length, total: data?.length })}</div>
           <div className="divide-y divide-border max-h-[560px] overflow-y-auto">
-            {rows.map((t) => (
-              <div key={t.id} className="px-4 py-3 hover:bg-secondary/30">
+            {rows.map((tItem) => (
+              <div key={tItem.id} className="px-4 py-3 hover:bg-secondary/30">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="text-xs font-mono font-semibold truncate">{t.reference}</div>
-                    <div className="text-[11px] text-muted-foreground truncate">{t.userName ?? "-"} · {t.userEmail ?? "no email"}</div>
-                    <div className="text-[10px] text-muted-foreground/70 truncate">{t.type}{t.note ? ` · ${t.note}` : ""} · {new Date(t.createdAt).toLocaleString()}</div>
+                    <div className="text-xs font-mono font-semibold truncate">{tItem.reference}</div>
+                    <div className="text-[11px] text-muted-foreground truncate">{tItem.userName ?? "-"} · {tItem.userEmail ?? t("admin.userspanel.noEmail")}</div>
+                    <div className="text-[10px] text-muted-foreground/70 truncate">{tItem.type}{tItem.note ? ` · ${tItem.note}` : ""} · {new Date(tItem.createdAt).toLocaleString()}</div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="text-xs font-bold font-mono">{t.amount.toLocaleString()} {t.currency}</div>
-                    <span className={cn("inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold", STATE_STYLE[t.state] ?? "bg-secondary text-muted-foreground")}>
-                      {t.state.replace("_", " ")}
+                    <div className="text-xs font-bold font-mono">{tItem.amount.toLocaleString()} {tItem.currency}</div>
+                    <span className={cn("inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold", STATE_STYLE[tItem.state] ?? "bg-secondary text-muted-foreground")}>
+                      {tItem.state.replace("_", " ")}
                     </span>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  {canUpdate && COMPLETABLE.includes(t.state) && (
-                    <button className={btn} disabled={busyId === t.id} onClick={() => handleComplete(t)}>Complete</button>
+                  {canUpdate && COMPLETABLE.includes(tItem.state) && (
+                    <button className={btn} disabled={busyId === tItem.id} onClick={() => handleComplete(tItem)}>{t("admin.transactionspanel.complete")}</button>
                   )}
-                  {canUpdate && t.state === "disputed" && (
-                    <button className={btn} disabled={busyId === t.id} onClick={() => handleResolve(t, "resolved")}>Close dispute</button>
+                  {canUpdate && tItem.state === "disputed" && (
+                    <button className={btn} disabled={busyId === tItem.id} onClick={() => handleResolve(tItem, "resolved")}>{t("admin.transactionspanel.closeDispute")}</button>
                   )}
-                  {canUpdate && REFUNDABLE.includes(t.state) && (
-                    <button className={btn} disabled={busyId === t.id} onClick={() => handleResolve(t, "refunded")}>Refund</button>
+                  {canUpdate && REFUNDABLE.includes(tItem.state) && (
+                    <button className={btn} disabled={busyId === tItem.id} onClick={() => handleResolve(tItem, "refunded")}>{t("filter.refund")}</button>
                   )}
-                  {canDelete && VOIDABLE.includes(t.state) && (
-                    <button className={cn(btn, "text-destructive")} disabled={busyId === t.id} onClick={() => handleVoid(t)}>Void</button>
+                  {canDelete && VOIDABLE.includes(tItem.state) && (
+                    <button className={cn(btn, "text-destructive")} disabled={busyId === tItem.id} onClick={() => handleVoid(tItem)}>{t("admin.transactionspanel.void")}</button>
                   )}
                   {canCreate && (
-                    <button className={btn} disabled={busyId === t.id} onClick={() => handleAdjust(t)}>Credit user</button>
+                    <button className={btn} disabled={busyId === tItem.id} onClick={() => handleAdjust(tItem)}>{t("admin.transactionspanel.creditUser")}</button>
                   )}
-                  <button className={btn} onClick={() => setEscalateFor(escalateFor?.id === t.id ? null : t)}>Escalate</button>
+                  <button className={btn} onClick={() => setEscalateFor(escalateFor?.id === tItem.id ? null : tItem)}>{t("organisation.organisationpanel.escalate")}</button>
                 </div>
-                {escalateFor?.id === t.id && (
+                {escalateFor?.id === tItem.id && (
                   <EscalateForm
-                    userId={t.userId}
-                    userLabel={t.userName ?? t.userEmail ?? t.userId}
-                    transferId={t.id}
-                    transferReference={t.reference}
-                    currency={t.currency}
+                    userId={tItem.userId}
+                    userLabel={tItem.userName ?? tItem.userEmail ?? tItem.userId}
+                    transferId={tItem.id}
+                    transferReference={tItem.reference}
+                    currency={tItem.currency}
                     onDone={() => setEscalateFor(null)}
                   />
                 )}

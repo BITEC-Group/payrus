@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useAction } from "convex/react";
 import { toast } from "sonner";
@@ -24,6 +25,7 @@ const RESOLUTION_OPTIONS: Record<string, string[]> = {
 };
 
 function BlockedTransfersSection() {
+  const { t } = useTranslation("common");
   const transfers = useAdminBlockedTransfers();
   const resolveTransfer = useAdminResolveTransferMutation();
   const [resolvingId, setResolvingId] = useState<string | null>(null);
@@ -36,11 +38,11 @@ function BlockedTransfersSection() {
     setSaving(true);
     try {
       await resolveTransfer({ transferId, newState: targetState, password });
-      toast.success("Transfer updated");
+      toast.success(t("admin.configpanel.transferUpdated"));
       setResolvingId(null);
       setPassword("");
     } catch {
-      toast.error("Couldn't resolve this transfer — check the password and target state");
+      toast.error(t("admin.configpanel.couldnTResolveThis"));
     } finally {
       setSaving(false);
     }
@@ -50,51 +52,51 @@ function BlockedTransfersSection() {
     <div className="bg-card border border-border rounded-2xl p-5">
       <div className="flex items-center gap-2 mb-1">
         <AlertTriangle size={14} className="text-destructive" />
-        <div className="text-sm font-bold text-foreground">Blocked transfers</div>
+        <div className="text-sm font-bold text-foreground">{t("admin.configpanel.blockedTransfers")}</div>
       </div>
       <div className="text-xs text-muted-foreground mb-4">
-        Transfers stuck in failed / disputed / refund-pending — give one a way forward instead of leaving it stuck.
+        {t("admin.configpanel.transfersStuckInFailed")}
       </div>
-      {!transfers && <div className="text-xs text-muted-foreground py-2">Loading...</div>}
-      {transfers && transfers.length === 0 && <div className="text-xs text-muted-foreground py-2">Nothing blocked right now.</div>}
+      {!transfers && <div className="text-xs text-muted-foreground py-2">{t("common.loading")}</div>}
+      {transfers && transfers.length === 0 && <div className="text-xs text-muted-foreground py-2">{t("admin.configpanel.nothingBlockedRightNow")}</div>}
       <div className="space-y-2">
-        {transfers?.map((t) => (
-          <div key={t.transferId} className="rounded-xl bg-secondary/40 p-3">
+        {transfers?.map((tItem) => (
+          <div key={tItem.transferId} className="rounded-xl bg-secondary/40 p-3">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="min-w-0">
-                <div className="text-xs font-semibold text-foreground truncate">{t.reference} · {t.userName ?? t.userEmail ?? "—"}</div>
-                <div className="text-[10px] text-muted-foreground">{t.currency} {t.amount.toLocaleString()} · state: {t.state} · {new Date(t.createdAt).toLocaleDateString()}</div>
+                <div className="text-xs font-semibold text-foreground truncate">{tItem.reference} · {tItem.userName ?? tItem.userEmail ?? "—"}</div>
+                <div className="text-[10px] text-muted-foreground">{t("admin.blockedTransferLine", { currency: tItem.currency, amount: tItem.amount.toLocaleString(), state: tItem.state, date: new Date(tItem.createdAt).toLocaleDateString() })}</div>
               </div>
               <button
-                onClick={() => setResolvingId(resolvingId === t.transferId ? null : t.transferId)}
+                onClick={() => setResolvingId(resolvingId === tItem.transferId ? null : tItem.transferId)}
                 className="text-[10px] font-semibold text-primary cursor-pointer shrink-0"
               >
-                {resolvingId === t.transferId ? "Cancel" : "Resolve"}
+                {resolvingId === tItem.transferId ? t("disputes.cancel") : t("organisation.organisationpanel.resolve")}
               </button>
             </div>
-            {resolvingId === t.transferId && (
+            {resolvingId === tItem.transferId && (
               <div className="mt-2 pt-2 border-t border-border/60 flex items-center gap-2 flex-wrap">
                 <select
                   value={targetState}
                   onChange={(e) => setTargetState(e.target.value)}
                   className="rounded-lg border border-border bg-card px-2 py-1.5 text-xs"
                 >
-                  <option value="">Move to...</option>
-                  {(RESOLUTION_OPTIONS[t.state] ?? []).map((s) => <option key={s} value={s}>{s}</option>)}
+                  <option value="">{t("admin.configpanel.moveTo")}</option>
+                  {(RESOLUTION_OPTIONS[tItem.state] ?? []).map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Admin password"
+                  placeholder={t("admin.accesspanel.adminPassword")}
                   className="rounded-lg border border-border bg-card px-2 py-1.5 text-xs flex-1 min-w-[120px]"
                 />
                 <button
-                  onClick={() => void handleResolve(t.transferId)}
+                  onClick={() => void handleResolve(tItem.transferId)}
                   disabled={saving || !targetState || !password}
                   className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-[11px] font-semibold cursor-pointer disabled:opacity-60"
                 >
-                  {saving ? "Saving..." : "Confirm"}
+                  {saving ? t("admin.accesspanel.saving") : t("common.confirm")}
                 </button>
               </div>
             )}
@@ -106,6 +108,7 @@ function BlockedTransfersSection() {
 }
 
 function PendingProfilesSection() {
+  const { t } = useTranslation("common");
   const profiles = useAdminPendingProfiles();
   const updateRole = useAdminUpdateUserRoleMutation();
   const [activatingId, setActivatingId] = useState<string | null>(null);
@@ -114,9 +117,9 @@ function PendingProfilesSection() {
     setActivatingId(roleId);
     try {
       await updateRole({ roleId, status: "verified" });
-      toast.success("Profile activated");
+      toast.success(t("admin.configpanel.profileActivated"));
     } catch {
-      toast.error("Couldn't activate this profile");
+      toast.error(t("admin.configpanel.couldnTActivateThis"));
     } finally {
       setActivatingId(null);
     }
@@ -126,26 +129,26 @@ function PendingProfilesSection() {
     <div className="bg-card border border-border rounded-2xl p-5">
       <div className="flex items-center gap-2 mb-1">
         <UserCheck size={14} className="text-primary" />
-        <div className="text-sm font-bold text-foreground">Profiles awaiting activation</div>
+        <div className="text-sm font-bold text-foreground">{t("admin.configpanel.profilesAwaitingActivation")}</div>
       </div>
       <div className="text-xs text-muted-foreground mb-4">
-        Incomplete or pending-verification profiles — for a customer whose KYC upload never finished (agent-assisted onboarding, a lost connection, etc.), activate manually here instead of leaving them stuck.
+        {t("admin.configpanel.incompleteOrPendingVerification")}
       </div>
-      {!profiles && <div className="text-xs text-muted-foreground py-2">Loading...</div>}
-      {profiles && profiles.length === 0 && <div className="text-xs text-muted-foreground py-2">Nothing pending right now.</div>}
+      {!profiles && <div className="text-xs text-muted-foreground py-2">{t("common.loading")}</div>}
+      {profiles && profiles.length === 0 && <div className="text-xs text-muted-foreground py-2">{t("admin.configpanel.nothingPendingRightNow")}</div>}
       <div className="space-y-2">
         {profiles?.map((p) => (
           <div key={p.roleId} className="flex items-center justify-between gap-2 rounded-xl bg-secondary/40 p-3">
             <div className="min-w-0">
               <div className="text-xs font-semibold text-foreground truncate">{p.userName ?? p.userEmail ?? "—"} · {p.role}</div>
-              <div className="text-[10px] text-muted-foreground">{p.kind} · status: {p.status}</div>
+              <div className="text-[10px] text-muted-foreground">{p.kind} {t("admin.configpanel.status")} {p.status}</div>
             </div>
             <button
               onClick={() => void handleActivate(p.roleId)}
               disabled={activatingId === p.roleId}
               className="text-[10px] font-semibold px-2.5 py-1.5 rounded-lg border border-primary/30 text-primary hover:bg-primary/5 cursor-pointer disabled:opacity-60 shrink-0"
             >
-              {activatingId === p.roleId ? "Activating..." : "Activate"}
+              {activatingId === p.roleId ? t("admin.configpanel.activating") : t("admin.configpanel.activate")}
             </button>
           </div>
         ))}
@@ -165,6 +168,7 @@ function PendingProfilesSection() {
 // 0007/0008) — see 0013's own comment on why this reuses that gate rather
 // than introducing a separate "super admin" role/table for one screen.
 export default function ConfigPanel() {
+  const { t } = useTranslation("common");
   const current = useCurrentFxMarginConfig();
   const updateConfig = useUpdateFxMarginConfigMutation();
   const refreshRates = useAction(api.fxRates.refreshLiveFxRates);
@@ -186,7 +190,7 @@ export default function ConfigPanel() {
   const handleSave = async () => {
     if (marginValue == null || commissionValue == null) return;
     if (!password) {
-      toast.error("The admin password is required to change these values");
+      toast.error(t("admin.configpanel.theAdminPasswordIs"));
       return;
     }
     setSaving(true);
@@ -195,13 +199,13 @@ export default function ConfigPanel() {
         marginRate: marginValue, commissionRate: commissionValue,
         decider: "super_admin", note: note.trim() || undefined, password,
       });
-      toast.success("Configuration updated");
+      toast.success(t("admin.configpanel.configurationUpdated"));
       setMarginPct("");
       setCommissionPct("");
       setNote("");
       setPassword("");
     } catch {
-      toast.error("Incorrect admin password");
+      toast.error(t("admin.accesspanel.incorrectAdminPassword"));
     } finally {
       setSaving(false);
     }
@@ -225,25 +229,25 @@ export default function ConfigPanel() {
   return (
     <div className="space-y-5 max-w-2xl">
       <div className="bg-card border border-border rounded-2xl p-5">
-        <div className="text-sm font-bold text-foreground mb-1">FX margin &amp; commission</div>
+        <div className="text-sm font-bold text-foreground mb-1">{t("admin.configpanel.fxMarginCommission")}</div>
         <div className="text-xs text-muted-foreground mb-4">
-          Applied to every quote (supabase create_quote()) — a change here takes effect immediately for new quotes, and is logged with full history, never overwritten.
+          {t("admin.configpanel.appliedToEveryQuote")}
         </div>
 
         {current && (
           <div className="flex items-center gap-4 mb-4 p-3 rounded-xl bg-secondary/40">
             <div>
-              <div className="text-[10px] font-semibold uppercase text-muted-foreground">Current margin</div>
+              <div className="text-[10px] font-semibold uppercase text-muted-foreground">{t("admin.configpanel.currentMargin")}</div>
               <div className="text-lg font-bold text-foreground">{(current.marginRate * 100).toFixed(1)}%</div>
             </div>
             <div className="w-px h-8 bg-border" />
             <div>
-              <div className="text-[10px] font-semibold uppercase text-muted-foreground">Current commission</div>
+              <div className="text-[10px] font-semibold uppercase text-muted-foreground">{t("admin.configpanel.currentCommission")}</div>
               <div className="text-lg font-bold text-foreground">{(current.commissionRate * 100).toFixed(1)}%</div>
             </div>
             <div className="w-px h-8 bg-border" />
             <div className="min-w-0">
-              <div className="text-[10px] font-semibold uppercase text-muted-foreground">Set by</div>
+              <div className="text-[10px] font-semibold uppercase text-muted-foreground">{t("admin.configpanel.setBy")}</div>
               <div className="text-xs font-semibold text-foreground truncate">{current.decider}</div>
             </div>
           </div>
@@ -251,7 +255,7 @@ export default function ConfigPanel() {
 
         <div className="grid grid-cols-2 gap-3 mb-3">
           <div>
-            <label className="text-[11px] font-semibold uppercase text-muted-foreground">New margin %</label>
+            <label className="text-[11px] font-semibold uppercase text-muted-foreground">{t("admin.configpanel.newMargin")}</label>
             <input
               type="number" step="0.1" min="0" max="99"
               value={marginPct}
@@ -261,7 +265,7 @@ export default function ConfigPanel() {
             />
           </div>
           <div>
-            <label className="text-[11px] font-semibold uppercase text-muted-foreground">New commission %</label>
+            <label className="text-[11px] font-semibold uppercase text-muted-foreground">{t("admin.configpanel.newCommission")}</label>
             <input
               type="number" step="0.1" min="0" max="99"
               value={commissionPct}
@@ -272,16 +276,16 @@ export default function ConfigPanel() {
           </div>
         </div>
         <div className="mb-3">
-          <label className="text-[11px] font-semibold uppercase text-muted-foreground">Note (optional)</label>
+          <label className="text-[11px] font-semibold uppercase text-muted-foreground">{t("p2p.new.note")}</label>
           <input
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Why is this changing?"
+            placeholder={t("admin.configpanel.whyIsThisChanging")}
             className="mt-1 w-full rounded-xl border border-border bg-secondary/40 px-3 py-2.5 text-sm"
           />
         </div>
         <div className="mb-4">
-          <label className="text-[11px] font-semibold uppercase text-muted-foreground">Admin password</label>
+          <label className="text-[11px] font-semibold uppercase text-muted-foreground">{t("admin.accesspanel.adminPassword")}</label>
           <input
             type="password"
             value={password}
@@ -294,19 +298,19 @@ export default function ConfigPanel() {
           disabled={saving}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold cursor-pointer disabled:opacity-60"
         >
-          <Save size={13} /> {saving ? "Saving..." : "Save configuration"}
+          <Save size={13} /> {saving ? t("admin.accesspanel.saving") : t("admin.configpanel.saveConfiguration")}
         </button>
       </div>
 
       <div className="bg-card border border-border rounded-2xl p-5">
-        <div className="text-sm font-bold text-foreground mb-1">Live FX rates</div>
+        <div className="text-sm font-bold text-foreground mb-1">{t("fx.pill.titleNoTime")}</div>
         <div className="text-xs text-muted-foreground mb-4">
-          Automatically refreshed every 6 hours from a free, no-key rate provider (open.er-api.com, 166 currencies). Trigger a refresh now instead of waiting for the schedule.
+          {t("admin.configpanel.automaticallyRefreshedEvery6")}
         </div>
         {lastRateUpdate && (
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground mb-3">
             <History size={12} />
-            Last updated {new Date(lastRateUpdate.fetchedAt).toLocaleString()} — {lastRateUpdate.currenciesUpdated} currencies, via {lastRateUpdate.source}
+            {t("admin.configpanel.lastRatesUpdate", { date: new Date(lastRateUpdate.fetchedAt).toLocaleString(), n: lastRateUpdate.currenciesUpdated, source: lastRateUpdate.source })}
           </div>
         )}
         <button
@@ -314,9 +318,9 @@ export default function ConfigPanel() {
           disabled={refreshing}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border text-xs font-semibold cursor-pointer hover:bg-secondary disabled:opacity-60"
         >
-          <RefreshCw size={13} className={refreshing ? "animate-spin" : ""} /> {refreshing ? "Refreshing..." : "Refresh rates now"}
+          <RefreshCw size={13} className={refreshing ? "animate-spin" : ""} /> {refreshing ? t("admin.configpanel.refreshing") : t("admin.configpanel.refreshRatesNow")}
         </button>
-        <div className="mt-3 text-[10px] text-muted-foreground">Rates by Exchange Rate API — exchangerate-api.com</div>
+        <div className="mt-3 text-[10px] text-muted-foreground">{t("settings.about.fxTickerAttribution")}</div>
       </div>
 
       <BlockedTransfersSection />

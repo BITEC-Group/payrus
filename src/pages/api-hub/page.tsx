@@ -133,6 +133,7 @@ const WEBHOOKS: WebhookEndpoint[] = [
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: NetworkStatus | ApiKeyStatus | WebhookStatus }) {
+  const { t } = useTranslation("common");
   const map: Record<string, { label: string; className: string; dot: string }> = {
     connected: { label: "Connected", className: "bg-emerald-50 text-emerald-700 border-emerald-200", dot: "bg-emerald-400 animate-pulse" },
     active:    { label: "Active",     className: "bg-emerald-50 text-emerald-700 border-emerald-200", dot: "bg-emerald-400 animate-pulse" },
@@ -148,7 +149,7 @@ function StatusBadge({ status }: { status: NetworkStatus | ApiKeyStatus | Webhoo
   return (
     <span className={cn("inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full border", cfg.className)}>
       <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
-      {cfg.label}
+      {t(cfg.label)}
     </span>
   );
 }
@@ -186,6 +187,7 @@ function MetricCard({ icon: Icon, label, value, sub, color = "text-primary" }: {
 // ── Tab: Overview / Networks ───────────────────────────────────────────────────
 
 function NetworksTab() {
+  const { t } = useTranslation("common");
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const connected = NETWORKS.filter(n => n.status === "connected");
@@ -196,15 +198,15 @@ function NetworksTab() {
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MetricCard icon={Network} label="Networks Connected" value={`${connected.length} / ${NETWORKS.length}`} sub="2 pending activation" />
-        <MetricCard icon={Zap} label="Transactions Today" value={totalTx.toLocaleString()} sub="across all networks" />
-        <MetricCard icon={BarChart3} label="Volume Today (USD)" value={`$${(totalVol / 1_000_000).toFixed(1)}M`} sub="+12.4% vs yesterday" color="text-amber-700" />
-        <MetricCard icon={Activity} label="Avg. Latency" value="89 ms" sub="P95: 210 ms" />
+        <MetricCard icon={Network} label={t("apihub.networksConnected")} value={`${connected.length} / ${NETWORKS.length}`} sub={t("apihub.pendingActivation", { n: 2 })} />
+        <MetricCard icon={Zap} label={t("apihub.transactionsToday")} value={totalTx.toLocaleString()} sub={t("apihub.acrossAllNetworks")} />
+        <MetricCard icon={BarChart3} label={t("apihub.volumeTodayUsd")} value={`$${(totalVol / 1_000_000).toFixed(1)}M`} sub="+12.4% vs yesterday" color="text-amber-700" />
+        <MetricCard icon={Activity} label={t("apihub.avgLatency")} value="89 ms" sub="P95: 210 ms" />
       </div>
 
       {/* Volume chart */}
       <div className="bg-secondary/50 rounded-xl border border-border p-5">
-        <h3 className="text-sm font-semibold text-foreground mb-4">Settlement Volume by Network (USD M) — Last 7 days</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-4">{t("apihub.settlementVolumeByNetwork")}</h3>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={VOLUME_DATA} barCategoryGap="30%" barGap={2}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -221,7 +223,7 @@ function NetworksTab() {
 
       {/* Latency chart */}
       <div className="bg-secondary/50 rounded-xl border border-border p-5">
-        <h3 className="text-sm font-semibold text-foreground mb-4">Network Latency (ms) — Today</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-4">{t("apihub.networkLatencyMsToday")}</h3>
         <ResponsiveContainer width="100%" height={140}>
           <LineChart data={LATENCY_DATA}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -238,12 +240,12 @@ function NetworksTab() {
       {/* Network list */}
       <div className="space-y-2">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-foreground">Payment Networks</h3>
+          <h3 className="text-sm font-semibold text-foreground">{t("apiHub.tab.networks")}</h3>
           <button
-            onClick={() => toast.info("Network connection requests are processed by the PayRus integration team.")}
+            onClick={() => toast.info(t("apihub.networkConnectionRequestsAre"))}
             className="flex items-center gap-1.5 text-xs text-primary font-medium hover:underline cursor-pointer"
           >
-            <Plus size={13} /> Request Network Access
+            <Plus size={13} /> {t("apihub.requestNetworkAccess")}
           </button>
         </div>
 
@@ -259,22 +261,22 @@ function NetworksTab() {
                   <span className="font-semibold text-sm text-foreground">{net.name}</span>
                   <span className="text-[10px] text-muted-foreground bg-secondary rounded px-1.5 py-0.5 border border-border">{net.type}</span>
                 </div>
-                <p className="text-xs text-muted-foreground truncate mt-0.5">{net.description}</p>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">{t(net.description)}</p>
               </div>
               <div className="hidden md:flex items-center gap-4 mr-3">
                 {net.status === "connected" && (
                   <>
                     <div className="text-right">
                       <div className="text-xs font-semibold text-foreground">{net.txToday.toLocaleString()}</div>
-                      <div className="text-[10px] text-muted-foreground">tx today</div>
+                      <div className="text-[10px] text-muted-foreground">{t("apihub.txToday")}</div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs font-semibold text-foreground">${(net.volumeUSD / 1_000_000).toFixed(1)}M</div>
-                      <div className="text-[10px] text-muted-foreground">volume</div>
+                      <div className="text-[10px] text-muted-foreground">{t("apihub.volume")}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs font-semibold text-emerald-700">{net.latency}ms</div>
-                      <div className="text-[10px] text-muted-foreground">latency</div>
+                      <div className="text-xs font-semibold text-emerald-700">{net.latency}{t("apihub.ms")}</div>
+                      <div className="text-[10px] text-muted-foreground">{t("apihub.latency")}</div>
                     </div>
                   </>
                 )}
@@ -295,19 +297,19 @@ function NetworksTab() {
                   <div className="px-4 pb-4 pt-1 border-t border-border bg-secondary/20">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                       <div>
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Uptime (30d)</div>
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">{t("apihub.uptime30d")}</div>
                         <div className="text-sm font-semibold text-foreground">{net.uptime > 0 ? `${net.uptime}%` : "—"}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Avg Latency</div>
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">{t("apihub.avgLatency2")}</div>
                         <div className="text-sm font-semibold text-foreground">{net.latency > 0 ? `${net.latency} ms` : "—"}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Today Vol</div>
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">{t("apihub.todayVol")}</div>
                         <div className="text-sm font-semibold text-foreground">{net.volumeUSD > 0 ? `$${(net.volumeUSD/1_000_000).toFixed(2)}M` : "—"}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Today Tx</div>
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">{t("apihub.todayTx")}</div>
                         <div className="text-sm font-semibold text-foreground">{net.txToday > 0 ? net.txToday.toLocaleString() : "—"}</div>
                       </div>
                     </div>
@@ -315,20 +317,20 @@ function NetworksTab() {
                       {net.status === "connected" && (
                         <>
                           <button onClick={() => toast.success(`${net.name} test ping successful — ${net.latency}ms`)} className="text-xs px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20 cursor-pointer flex items-center gap-1.5">
-                            <Wifi size={12} /> Test Connection
+                            <Wifi size={12} /> {t("apihub.testConnection")}
                           </button>
                           <button onClick={() => toast.info(`${net.name} configuration details sent to your admin email.`)} className="text-xs px-3 py-1.5 rounded-lg bg-secondary text-muted-foreground hover:text-foreground transition-colors border border-border cursor-pointer flex items-center gap-1.5">
-                            <Edit2 size={12} /> Configure
+                            <Edit2 size={12} /> {t("apihub.configure")}
                           </button>
                         </>
                       )}
                       {(net.status === "pending" || net.status === "inactive") && (
                         <button onClick={() => toast.info(`Activation request submitted for ${net.name}. The integration team will contact you within 48h.`)} className="text-xs px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors border border-amber-200 cursor-pointer flex items-center gap-1.5">
-                          <PlugZap size={12} /> Request Activation
+                          <PlugZap size={12} /> {t("apihub.requestActivation")}
                         </button>
                       )}
                       <button onClick={() => toast.info(`Opening ${net.name} developer documentation…`)} className="text-xs px-3 py-1.5 rounded-lg bg-secondary text-muted-foreground hover:text-foreground transition-colors border border-border cursor-pointer flex items-center gap-1.5">
-                        <BookOpen size={12} /> Docs
+                        <BookOpen size={12} /> {t("apihub.docs")}
                       </button>
                     </div>
                   </div>
@@ -345,6 +347,7 @@ function NetworksTab() {
 // ── Tab: API Catalog ───────────────────────────────────────────────────────────
 
 function ApiCatalogTab() {
+  const { t } = useTranslation("common");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const categories = ["All", "Payments", "FX", "Accounts", "Compliance", "Webhooks", "Networks"];
@@ -361,13 +364,13 @@ function ApiCatalogTab() {
         <div className="flex items-center gap-3 mb-3">
           <Code2 size={16} className="text-primary" />
           <div>
-            <div className="text-sm font-semibold text-foreground">PayRus Distributed API v2</div>
-            <div className="text-xs text-muted-foreground">Base URL: <span className="font-mono text-primary">https://api.payrus.africa/v2</span></div>
+            <div className="text-sm font-semibold text-foreground">{t("apihub.payrusDistributedApiV2")}</div>
+            <div className="text-xs text-muted-foreground">{t("apihub.baseUrl")} <span className="font-mono text-primary">{t("apihub.httpsApiPayrusAfrica")}</span></div>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <span className="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2.5 py-0.5 font-semibold">REST + Webhooks</span>
-            <button onClick={() => toast.info("OpenAPI spec download will be available shortly.")} className="text-xs px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer flex items-center gap-1.5">
-              <Download size={12} /> OpenAPI Spec
+            <span className="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2.5 py-0.5 font-semibold">{t("apihub.restWebhooks")}</span>
+            <button onClick={() => toast.info(t("apihub.openapiSpecDownloadWill"))} className="text-xs px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer flex items-center gap-1.5">
+              <Download size={12} /> {t("apihub.openapiSpec")}
             </button>
           </div>
         </div>
@@ -379,7 +382,7 @@ function ApiCatalogTab() {
             { label: "SLA", value: "99.95% uptime" },
           ].map(i => (
             <div key={i.label} className="bg-secondary/80 rounded-lg px-3 py-2 border border-border">
-              <div className="text-muted-foreground">{i.label}</div>
+              <div className="text-muted-foreground">{t(i.label)}</div>
               <div className="font-semibold text-foreground mt-0.5">{i.value}</div>
             </div>
           ))}
@@ -393,7 +396,7 @@ function ApiCatalogTab() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search endpoints…"
+            placeholder={t("apihub.searchEndpoints")}
             className="w-full pl-8 pr-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
           />
         </div>
@@ -416,10 +419,10 @@ function ApiCatalogTab() {
           <div key={i} className="flex items-center gap-3 px-4 py-3 bg-secondary/40 rounded-xl border border-border hover:border-primary/30 transition-colors group">
             <MethodBadge method={ep.method} />
             <code className="text-xs font-mono text-foreground flex-1 truncate">{ep.path}</code>
-            <span className="hidden md:block text-xs text-muted-foreground truncate max-w-[280px]">{ep.description}</span>
+            <span className="hidden md:block text-xs text-muted-foreground truncate max-w-[280px]">{t(ep.description)}</span>
             <span className="text-[10px] text-muted-foreground bg-secondary border border-border rounded px-1.5 py-0.5">{ep.category}</span>
             <button
-              onClick={() => { navigator.clipboard.writeText(`https://api.payrus.africa${ep.path}`); toast.success("Endpoint URL copied"); }}
+              onClick={() => { navigator.clipboard.writeText(`https://api.payrus.africa${ep.path}`); toast.success(t("apihub.endpointUrlCopied")); }}
               className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
             >
               <Copy size={13} className="text-muted-foreground hover:text-foreground" />
@@ -427,7 +430,7 @@ function ApiCatalogTab() {
           </div>
         ))}
         {filtered.length === 0 && (
-          <div className="text-center py-8 text-sm text-muted-foreground">No endpoints match your search.</div>
+          <div className="text-center py-8 text-sm text-muted-foreground">{t("apihub.noEndpointsMatchYour")}</div>
         )}
       </div>
     </div>
@@ -437,6 +440,7 @@ function ApiCatalogTab() {
 // ── Tab: API Keys ──────────────────────────────────────────────────────────────
 
 function ApiKeysTab() {
+  const { t } = useTranslation("common");
   const [showKey, setShowKey] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
@@ -455,9 +459,9 @@ function ApiKeysTab() {
     : API_KEYS;
 
   async function handleCreate() {
-    if (!newKeyName.trim()) { toast.error("Please enter a key name"); return; }
+    if (!newKeyName.trim()) { toast.error(t("apihub.pleaseEnterAKey")); return; }
     if (!currentUser) {
-      toast.success("API key created — copy it now, it will not be shown again.");
+      toast.success(t("apihub.apiKeyCreatedCopy"));
       setShowCreate(false); setNewKeyName(""); setNewKeyPerms([]);
       return;
     }
@@ -465,10 +469,10 @@ function ApiKeysTab() {
     try {
       const key = await createApiKey({ userId: currentUser.id, name: newKeyName.trim(), permissions: newKeyPerms });
       setJustCreatedPlaintext({ id: key.id, key: key.plaintextKey });
-      toast.success("API key created — copy it now, it will not be shown again.");
+      toast.success(t("apihub.apiKeyCreatedCopy"));
       setShowCreate(false); setNewKeyName(""); setNewKeyPerms([]);
     } catch {
-      toast.error("Couldn't create the key — try again.");
+      toast.error(t("apihub.couldnTCreateThe"));
     } finally {
       setCreating(false);
     }
@@ -480,7 +484,7 @@ function ApiKeysTab() {
       await revokeApiKey({ keyId, userId: currentUser.id });
       toast.error(`Key "${name}" revoked. Systems using this key will be denied immediately.`);
     } catch {
-      toast.error("Couldn't revoke the key — try again.");
+      toast.error(t("apihub.couldnTRevokeThe"));
     }
   }
 
@@ -490,14 +494,14 @@ function ApiKeysTab() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">API Keys</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Manage access credentials for your connected systems</p>
+          <h3 className="text-sm font-semibold text-foreground">{t("apiHub.tab.keys")}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("apihub.manageAccessCredentialsFor")}</p>
         </div>
         <button
           onClick={() => setShowCreate(!showCreate)}
           className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer font-medium"
         >
-          <Plus size={14} /> Create Key
+          <Plus size={14} /> {t("apihub.createKey")}
         </button>
       </div>
 
@@ -512,18 +516,18 @@ function ApiKeysTab() {
             className="overflow-hidden"
           >
             <div className="bg-secondary/60 rounded-xl border border-primary/20 p-5 space-y-4">
-              <h4 className="text-sm font-semibold text-foreground">New API Key</h4>
+              <h4 className="text-sm font-semibold text-foreground">{t("apihub.newApiKey")}</h4>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Key Name</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t("apihub.keyName")}</label>
                 <input
                   value={newKeyName}
                   onChange={e => setNewKeyName(e.target.value)}
-                  placeholder="e.g. Core Banking Production"
+                  placeholder={t("apihub.eGCoreBanking")}
                   className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-2 block">Permissions</label>
+                <label className="text-xs text-muted-foreground mb-2 block">{t("apihub.permissions")}</label>
                 <div className="flex flex-wrap gap-2">
                   {PERM_OPTIONS.map(p => (
                     <button
@@ -542,10 +546,10 @@ function ApiKeysTab() {
                   disabled={creating}
                   className="text-sm px-4 py-2 rounded-xl bg-primary text-black font-semibold hover:bg-primary/90 transition-colors cursor-pointer disabled:opacity-60"
                 >
-                  {creating ? "Generating..." : "Generate Key"}
+                  {creating ? t("apihub.generating") : t("apihub.generateKey")}
                 </button>
                 <button onClick={() => setShowCreate(false)} className="text-sm px-4 py-2 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                  Cancel
+                  {t("disputes.cancel")}
                 </button>
               </div>
             </div>
@@ -557,14 +561,14 @@ function ApiKeysTab() {
       {justCreatedPlaintext && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-xs font-semibold text-emerald-700 mb-1">Copy this key now — it won't be shown again</div>
+            <div className="text-xs font-semibold text-emerald-700 mb-1">{t("apihub.copyThisKeyNow")}</div>
             <code className="text-xs font-mono text-foreground break-all">{justCreatedPlaintext.key}</code>
           </div>
           <button
-            onClick={() => { navigator.clipboard.writeText(justCreatedPlaintext.key); toast.success("Key copied"); setJustCreatedPlaintext(null); }}
+            onClick={() => { navigator.clipboard.writeText(justCreatedPlaintext.key); toast.success(t("apihub.keyCopied")); setJustCreatedPlaintext(null); }}
             className="shrink-0 text-xs px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 cursor-pointer transition-colors"
           >
-            Copy & dismiss
+            {t("apihub.copyDismiss")}
           </button>
         </div>
       )}
@@ -588,7 +592,7 @@ function ApiKeysTab() {
                     {showKey === key.id ? <EyeOff size={12} /> : <Eye size={12} />}
                   </button>
                   {key.status !== "revoked" && (
-                    <button onClick={() => { navigator.clipboard.writeText(key.prefix + "••••"); toast.success("Key prefix copied"); }} className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
+                    <button onClick={() => { navigator.clipboard.writeText(key.prefix + "••••"); toast.success(t("apihub.keyPrefixCopied")); }} className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
                       <Copy size={12} />
                     </button>
                   )}
@@ -597,7 +601,7 @@ function ApiKeysTab() {
               <div className="flex items-center gap-2">
                 {key.status === "active" && (
                   <button onClick={() => void handleRevoke(key.id, key.name)} className="text-xs px-2.5 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 cursor-pointer transition-colors flex items-center gap-1">
-                    <Trash2 size={11} /> Revoke
+                    <Trash2 size={11} /> {t("admin.staffpanel.revoke")}
                   </button>
                 )}
               </div>
@@ -608,9 +612,9 @@ function ApiKeysTab() {
               ))}
             </div>
             <div className="mt-3 flex items-center gap-4 text-[11px] text-muted-foreground">
-              <span>Created {key.created}</span>
-              <span>Last used {key.lastUsed}</span>
-              <span>{key.requests.toLocaleString()} requests</span>
+              <span>{t("remittance.state.quoted")} {key.created}</span>
+              <span>{t("apihub.lastUsed")} {key.lastUsed}</span>
+              <span>{key.requests.toLocaleString()} {t("apihub.requests")}</span>
             </div>
           </div>
         ))}
@@ -620,7 +624,7 @@ function ApiKeysTab() {
       <div className="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
         <Shield size={16} className="text-amber-700 shrink-0 mt-0.5" />
         <div className="text-xs text-amber-300/80">
-          <strong className="text-amber-700">Security reminder:</strong> Store API keys in your system's secret manager (Vault, AWS Secrets Manager, etc.). Never embed keys in client-side code or version control. Rotate keys every 90 days. IP allowlisting is available in the API settings.
+          <strong className="text-amber-700">{t("apihub.securityReminder")}</strong> {t("apihub.storeApiKeysIn")}
         </div>
       </div>
     </div>
@@ -630,6 +634,7 @@ function ApiKeysTab() {
 // ── Tab: Webhooks ──────────────────────────────────────────────────────────────
 
 function WebhooksTab() {
+  const { t } = useTranslation("common");
   const [showAdd, setShowAdd] = useState(false);
   const [newUrl, setNewUrl] = useState("");
 
@@ -645,11 +650,11 @@ function WebhooksTab() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Webhook Endpoints</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Receive real-time event notifications to your systems</p>
+          <h3 className="text-sm font-semibold text-foreground">{t("apihub.webhookEndpoints")}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("apihub.receiveRealTimeEvent")}</p>
         </div>
         <button onClick={() => setShowAdd(!showAdd)} className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-xl bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer font-medium">
-          <Plus size={14} /> Add Endpoint
+          <Plus size={14} /> {t("apihub.addEndpoint")}
         </button>
       </div>
 
@@ -658,13 +663,13 @@ function WebhooksTab() {
         {showAdd && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.18, ease: "easeOut" as const }} className="overflow-hidden">
             <div className="bg-secondary/60 rounded-xl border border-primary/20 p-5 space-y-4">
-              <h4 className="text-sm font-semibold text-foreground">Register Webhook Endpoint</h4>
+              <h4 className="text-sm font-semibold text-foreground">{t("apihub.registerWebhookEndpoint")}</h4>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Endpoint URL (HTTPS required)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t("apihub.endpointUrlHttpsRequired")}</label>
                 <input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="https://api.yourbank.com/payrus/events" className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50" />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-2 block">Subscribe to Events</label>
+                <label className="text-xs text-muted-foreground mb-2 block">{t("apihub.subscribeToEvents")}</label>
                 <div className="flex flex-wrap gap-2">
                   {EVENT_TYPES.map(ev => (
                     <span key={ev} className="text-[10px] font-mono px-2 py-0.5 bg-secondary border border-border text-muted-foreground rounded hover:text-foreground hover:border-primary/30 transition-colors">
@@ -674,10 +679,10 @@ function WebhooksTab() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => { if (!newUrl.startsWith("https://")) { toast.error("URL must start with https://"); return; } toast.success("Webhook registered. A test ping has been sent to verify reachability."); setShowAdd(false); setNewUrl(""); }} className="text-sm px-4 py-2 rounded-xl bg-primary text-black font-semibold hover:bg-primary/90 transition-colors cursor-pointer">
-                  Register Endpoint
+                <button onClick={() => { if (!newUrl.startsWith("https://")) { toast.error(t("apihub.urlMustStartWith")); return; } toast.success(t("apihub.webhookRegisteredATest")); setShowAdd(false); setNewUrl(""); }} className="text-sm px-4 py-2 rounded-xl bg-primary text-black font-semibold hover:bg-primary/90 transition-colors cursor-pointer">
+                  {t("apihub.registerEndpoint")}
                 </button>
-                <button onClick={() => setShowAdd(false)} className="text-sm px-4 py-2 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer">Cancel</button>
+                <button onClick={() => setShowAdd(false)} className="text-sm px-4 py-2 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer">{t("disputes.cancel")}</button>
               </div>
             </div>
           </motion.div>
@@ -706,31 +711,31 @@ function WebhooksTab() {
             </div>
 
             <div className="mt-3 flex items-center gap-4 text-[11px] text-muted-foreground">
-              <span>Success rate: <strong className={wh.successRate > 95 ? "text-emerald-700" : "text-red-700"}>{wh.successRate}%</strong></span>
-              <span>{wh.deliveries.toLocaleString()} deliveries</span>
-              <span>Last delivery {wh.lastDelivery}</span>
+              <span>{t("apihub.successRate")} <strong className={wh.successRate > 95 ? "text-emerald-700" : "text-red-700"}>{wh.successRate}%</strong></span>
+              <span>{wh.deliveries.toLocaleString()} {t("apihub.deliveries")}</span>
+              <span>{t("apihub.lastDelivery")} {wh.lastDelivery}</span>
             </div>
 
             {wh.status === "failing" && (
               <div className="mt-3 flex items-center gap-2 text-xs text-red-700 bg-red-50 rounded-lg px-3 py-2 border border-red-200">
                 <AlertCircle size={12} />
-                High failure rate detected. Verify your endpoint returns HTTP 200 within 5s.
+                {t("apihub.highFailureRateDetected")}
               </div>
             )}
 
             <div className="mt-3 flex gap-2">
-              <button onClick={() => toast.success("Test event delivered to endpoint")} className="text-xs px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 cursor-pointer transition-colors flex items-center gap-1">
-                <Zap size={11} /> Test
+              <button onClick={() => toast.success(t("apihub.testEventDeliveredTo"))} className="text-xs px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 cursor-pointer transition-colors flex items-center gap-1">
+                <Zap size={11} /> {t("admin.userspanel.test")}
               </button>
-              <button onClick={() => toast.info("Delivery logs opened")} className="text-xs px-2.5 py-1.5 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground cursor-pointer transition-colors flex items-center gap-1">
-                <Activity size={11} /> Logs
+              <button onClick={() => toast.info(t("apihub.deliveryLogsOpened"))} className="text-xs px-2.5 py-1.5 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground cursor-pointer transition-colors flex items-center gap-1">
+                <Activity size={11} /> {t("apihub.logs")}
               </button>
               {wh.status === "failing" && (
-                <button onClick={() => toast.info("Re-queuing failed deliveries…")} className="text-xs px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 cursor-pointer transition-colors flex items-center gap-1">
-                  <RefreshCw size={11} /> Retry Failed
+                <button onClick={() => toast.info(t("apihub.reQueuingFailedDeliveries"))} className="text-xs px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 cursor-pointer transition-colors flex items-center gap-1">
+                  <RefreshCw size={11} /> {t("apihub.retryFailed")}
                 </button>
               )}
-              <button onClick={() => toast.error("Webhook endpoint removed")} className="text-xs px-2.5 py-1.5 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-red-700 cursor-pointer transition-colors ml-auto flex items-center gap-1">
+              <button onClick={() => toast.error(t("apihub.webhookEndpointRemoved"))} className="text-xs px-2.5 py-1.5 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-red-700 cursor-pointer transition-colors ml-auto flex items-center gap-1">
                 <Trash2 size={11} />
               </button>
             </div>
@@ -742,7 +747,7 @@ function WebhooksTab() {
       <div className="bg-secondary/40 rounded-xl border border-border p-4">
         <div className="flex items-center gap-2 mb-3">
           <GitBranch size={14} className="text-primary" />
-          <span className="text-sm font-semibold text-foreground">Webhook Architecture</span>
+          <span className="text-sm font-semibold text-foreground">{t("apihub.webhookArchitecture")}</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
           {[
@@ -753,8 +758,8 @@ function WebhooksTab() {
             <div key={item.title} className="flex gap-2">
               <item.icon size={13} className="text-primary shrink-0 mt-0.5" />
               <div>
-                <div className="font-semibold text-foreground mb-0.5">{item.title}</div>
-                <div className="text-muted-foreground">{item.desc}</div>
+                <div className="font-semibold text-foreground mb-0.5">{t(item.title)}</div>
+                <div className="text-muted-foreground">{t(item.desc)}</div>
               </div>
             </div>
           ))}
@@ -813,7 +818,7 @@ export default function ApiHub() {
           </div>
           <div className="ml-auto hidden md:flex items-center gap-2">
             <SystemStatusPill label="long" />
-            <button onClick={() => toast.info("Full API documentation opened in new tab.")} className="text-xs px-3 py-1.5 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1.5">
+            <button onClick={() => toast.info(t("apihub.fullApiDocumentationOpened"))} className="text-xs px-3 py-1.5 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1.5">
               <ExternalLink size={12} /> {t("apiHub.viewDocs")}
             </button>
           </div>
@@ -840,7 +845,7 @@ export default function ApiHub() {
             )}
           >
             <t2.icon size={14} />
-            {t2.label}
+            {t(t2.label)}
           </button>
         ))}
       </div>

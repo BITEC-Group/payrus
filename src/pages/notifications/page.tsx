@@ -13,6 +13,7 @@ import { useProfile } from "@/contexts/profile-context.tsx";
 import { toast } from "sonner";
 import { useCurrentAppUser } from "@/hooks/use-current-app-user.ts";
 import { useNotificationsForUser, useMarkNotificationReadMutation } from "@/hooks/use-backend.ts";
+import { localizeNotification } from "@/lib/db-notifications.ts";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -142,13 +143,14 @@ const REAL_NOTIF_EMOJI: Record<string, string> = {
   welcome: "👋", wallet: "👛", card: "💳",
 };
 
-function toDisplayNotification(n: { id: string; kind: string; title: string; body: string; read: boolean; createdAt: string }): Notification {
+function toDisplayNotification(n: { id: string; kind: string; title: string; body: string; read: boolean; createdAt: string }, t: TFunction): Notification {
+  const localized = localizeNotification(n, t);
   return {
     id: n.id,
     type: REAL_NOTIF_TYPE[n.kind] ?? "system",
     category: "transactions",
-    titleKey: n.title,
-    bodyKey: n.body,
+    titleKey: localized.title,
+    bodyKey: localized.body,
     minutesAgo: Math.max(0, Math.round((Date.now() - new Date(n.createdAt).getTime()) / 60000)),
     read: n.read,
     emoji: REAL_NOTIF_EMOJI[n.kind] ?? "🔔",
@@ -158,11 +160,11 @@ function toDisplayNotification(n: { id: string; kind: string; title: string; bod
 
 // ── Relative time formatting ─────────────────────────────────────────────────
 
-function formatRelativeTime(minutesAgo: number, t: TFunction): string {
-  if (minutesAgo < 60) return t("notifications.timeMinutesAgo", { count: minutesAgo });
-  if (minutesAgo < 60 * 24) return t("notifications.timeHoursAgo", { count: Math.floor(minutesAgo / 60) });
-  if (minutesAgo < 60 * 24 * 2) return t("common.yesterday");
-  return t("notifications.timeDaysAgo", { count: Math.floor(minutesAgo / (60 * 24)) });
+function formatRelativeTime(minutesAgo: number, tItem: TFunction): string {
+  if (minutesAgo < 60) return tItem("notifications.timeMinutesAgo", { count: minutesAgo });
+  if (minutesAgo < 60 * 24) return tItem("notifications.timeHoursAgo", { count: Math.floor(minutesAgo / 60) });
+  if (minutesAgo < 60 * 24 * 2) return tItem("common.yesterday");
+  return tItem("notifications.timeDaysAgo", { count: Math.floor(minutesAgo / (60 * 24)) });
 }
 
 // ── Notif type styling ────────────────────────────────────────────────────────
@@ -204,7 +206,7 @@ export default function NotificationsPage() {
   // instead so it actually persists.
   const hasReal = !!realNotifs && realNotifs.length > 0;
   const allNotifs: Notification[] = hasReal
-    ? (realCleared ? [] : realNotifs.filter(n => !dismissedRealIds.has(n.id)).map(toDisplayNotification))
+    ? (realCleared ? [] : realNotifs.filter(n => !dismissedRealIds.has(n.id)).map((n) => toDisplayNotification(n, t)))
     : mockNotifs;
 
   const unreadCount = allNotifs.filter(n => !n.read).length;

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, type ReactNode } from "react";
 
 // PRS-OPS-001 / TCX-OPS-01: the admin cockpit is a separate surface (the Console, with its own SSO/MFA).
@@ -11,6 +12,7 @@ function cockpitUrl(): string | null {
 }
 
 export function AdminCockpitGate({ children }: { children: ReactNode }) {
+  const { t } = useTranslation("common");
   const url = cockpitUrl();
   useEffect(() => {
     if (url) window.location.replace(url);
@@ -18,7 +20,7 @@ export function AdminCockpitGate({ children }: { children: ReactNode }) {
   if (!url) return <>{children}</>;
   return (
     <div className="max-w-md mx-auto p-6 text-sm text-muted-foreground" role="status">
-      Opening the PayRus admin cockpit…
+      {t("admin.cockpitgate.openingThePayrusAdmin")}
     </div>
   );
 }

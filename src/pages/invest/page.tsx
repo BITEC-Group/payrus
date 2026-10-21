@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useTranslation } from "react-i18next";
+import { labelWithPercent } from "@/lib/i18n-labels.ts";
+import { Trans, useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import PageHeader from "@/components/ui/page-header.tsx";
 import {
@@ -508,6 +509,7 @@ function catLabel(cat: PitchCategory) {
 }
 
 function RiskBadge({ risk }: { risk: RiskLevel }) {
+  const { t } = useTranslation("common");
   const cfg = {
     low: { icon: ShieldCheck, label: "Low Risk", cls: "text-emerald-700 bg-emerald-50 border-emerald-200" },
     medium: { icon: Shield, label: "Medium Risk", cls: "text-amber-700 bg-amber-50 border-amber-200" },
@@ -516,7 +518,7 @@ function RiskBadge({ risk }: { risk: RiskLevel }) {
   return (
     <span className={cn("flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-full border", cfg.cls)}>
       <cfg.icon size={9} />
-      {cfg.label}
+      {t(cfg.label)}
     </span>
   );
 }
@@ -524,6 +526,7 @@ function RiskBadge({ risk }: { risk: RiskLevel }) {
 // ─── LIVE TICKER ──────────────────────────────────────────────────────────────
 
 function LiveTicker() {
+  const { t } = useTranslation("common");
   const [idx, setIdx] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setIdx(i => (i + 1) % TICKER_EVENTS.length), 3500);
@@ -540,7 +543,7 @@ function LiveTicker() {
           transition={{ duration: 0.3 }}
           className="text-[11px] text-primary font-medium"
         >
-          <span className="text-[9px] font-black uppercase tracking-widest text-primary/60 mr-2">● LIVE</span>
+          <span className="text-[9px] font-black uppercase tracking-widest text-primary/60 mr-2">{t("invest.live")}</span>
           {TICKER_EVENTS[idx]}
         </motion.p>
       </AnimatePresence>
@@ -555,6 +558,7 @@ function PitchCard({ pitch, onSelect, onInvest }: {
   onSelect: (p: Pitch) => void;
   onInvest: (p: Pitch) => void;
 }) {
+  const { t } = useTranslation("common");
   const progress = pct(pitch.raised, pitch.goal);
   return (
     <motion.div
@@ -569,12 +573,12 @@ function PitchCard({ pitch, onSelect, onInvest }: {
         <div className="absolute top-2 left-2 flex gap-1">
           {pitch.featured && (
             <span className="flex items-center gap-0.5 text-[9px] font-black bg-amber-400/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full">
-              <Star size={9} /> Featured
+              <Star size={9} /> {t("fundraise.featured")}
             </span>
           )}
           {pitch.hot && (
             <span className="flex items-center gap-0.5 text-[9px] font-black bg-rose-400/20 border border-rose-400/40 text-rose-300 px-2 py-0.5 rounded-full">
-              <FlameKindling size={9} /> Hot
+              <FlameKindling size={9} /> {t("invest.hot")}
             </span>
           )}
         </div>
@@ -584,7 +588,7 @@ function PitchCard({ pitch, onSelect, onInvest }: {
         {/* Return badge */}
         <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-primary/90 text-primary-foreground text-[10px] font-black px-2.5 py-1 rounded-xl">
           <Percent size={9} />
-          {pitch.returnPct}% / yr
+          {pitch.returnPct}{t("invest.yr")}
         </div>
         {/* Country */}
         <div className="absolute bottom-2 left-2 text-base">{pitch.country}</div>
@@ -592,7 +596,7 @@ function PitchCard({ pitch, onSelect, onInvest }: {
 
       <div className="p-4 flex flex-col flex-1 gap-2">
         <div className="flex items-start gap-1.5">
-          <h3 className="font-bold text-sm leading-snug flex-1">{pitch.title}</h3>
+          <h3 className="font-bold text-sm leading-snug flex-1">{t(pitch.title)}</h3>
           {pitch.founderVerified && <BadgeCheck size={14} className="text-primary shrink-0 mt-0.5" />}
         </div>
 
@@ -602,16 +606,16 @@ function PitchCard({ pitch, onSelect, onInvest }: {
 
         {/* Stats row */}
         <div className="flex gap-2 text-[10px] flex-wrap">
-          <span className="flex items-center gap-1 text-muted-foreground"><CalendarDays size={9} />{pitch.timelineMonths}mo</span>
-          <span className="flex items-center gap-1 text-muted-foreground"><Users size={9} />{pitch.backers} backers</span>
-          <span className="flex items-center gap-1 text-amber-700 font-bold"><Clock size={9} />{pitch.daysLeft}d left</span>
+          <span className="flex items-center gap-1 text-muted-foreground"><CalendarDays size={9} />{pitch.timelineMonths}{t("invest.mo")}</span>
+          <span className="flex items-center gap-1 text-muted-foreground"><Users size={9} />{pitch.backers} {t("invest.backers")}</span>
+          <span className="flex items-center gap-1 text-amber-700 font-bold"><Clock size={9} />{pitch.daysLeft}{t("fundraise.dLeft")}</span>
         </div>
 
         {/* Risk & impact */}
         <div className="flex items-center gap-2">
           <RiskBadge risk={pitch.risk} />
           <span className="flex items-center gap-1 text-[9px] text-muted-foreground">
-            <Briefcase size={9} />{pitch.impact.jobs} jobs
+            <Briefcase size={9} />{pitch.impact.jobs} {t("invest.jobs")}
           </span>
         </div>
 
@@ -619,7 +623,7 @@ function PitchCard({ pitch, onSelect, onInvest }: {
         <div className="space-y-1 mt-auto pt-1">
           <div className="flex justify-between text-[10px]">
             <span className="text-primary font-bold font-mono">{fmt(pitch.raised, pitch.currency)}</span>
-            <span className="text-muted-foreground">{progress}% of {fmt(pitch.goal, pitch.currency)}</span>
+            <span className="text-muted-foreground">{progress}{t("invest.of")} {fmt(pitch.goal, pitch.currency)}</span>
           </div>
           <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
             <motion.div
@@ -636,7 +640,7 @@ function PitchCard({ pitch, onSelect, onInvest }: {
           className="w-full mt-1 text-xs font-bold"
           onClick={(e) => { e.stopPropagation(); onInvest(pitch); }}
         >
-          <CircleDollarSign size={12} className="mr-1" /> Invest Now
+          <CircleDollarSign size={12} className="mr-1" /> {t("invest.investNow")}
         </Button>
       </div>
     </motion.div>
@@ -648,6 +652,7 @@ function PitchCard({ pitch, onSelect, onInvest }: {
 function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
   pitch: Pitch; currentUserId: string | undefined; onInvest: (args: { userId: string; pitchId: string; amount: number }) => Promise<unknown>; onClose: () => void;
 }) {
+  const { t } = useTranslation("common");
   const [amount, setAmount] = useState("");
   const [done, setDone] = useState(false);
   const [investing, setInvesting] = useState(false);
@@ -665,7 +670,7 @@ function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
       return;
     }
     if (!riskAccepted) {
-      toast.error("Please accept the risk disclosure first");
+      toast.error(t("invest.pleaseAcceptTheRisk"));
       return;
     }
     if (!currentUserId || typeof pitch.id !== "string") {
@@ -681,7 +686,7 @@ function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
       setDone(true);
       toast.success(`Investment of ${numAmount.toLocaleString()} ${pitch.currency} confirmed!`);
     } catch {
-      toast.error("Couldn't process the investment — try again");
+      toast.error(t("invest.couldnTProcessThe"));
     } finally {
       setInvesting(false);
     }
@@ -705,9 +710,9 @@ function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <h3 className="font-bold text-sm">{pitch.title}</h3>
+                <h3 className="font-bold text-sm">{t(pitch.title)}</h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <p className="text-[11px] text-muted-foreground">{pitch.returnPct}% annual return · {pitch.timelineMonths} months</p>
+                  <p className="text-[11px] text-muted-foreground">{t("invest.annualReturnMonths", { returnPct: pitch.returnPct, timelineMonths: pitch.timelineMonths })}</p>
                   <RiskBadge risk={pitch.risk} />
                 </div>
               </div>
@@ -731,10 +736,10 @@ function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
               </div>
 
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Amount ({pitch.currency}) — min 5,000</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t("invest.amountMin5000", { currency: pitch.currency })}</label>
                 <Input
                   type="number"
-                  placeholder="Enter amount..."
+                  placeholder={t("fundraise.enterAmount")}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className="font-mono text-base"
@@ -743,7 +748,7 @@ function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
 
               <label className="flex items-start gap-2 text-[11px] text-muted-foreground cursor-pointer">
                 <input type="checkbox" checked={riskAccepted} onChange={(e) => setRiskAccepted(e.target.checked)} className="mt-0.5" />
-                <span>I understand my capital is at risk, this investment is illiquid and no return is guaranteed.</span>
+                <span>{t("invest.iUnderstandMyCapital")}</span>
               </label>
 
               {/* Return projection */}
@@ -753,23 +758,23 @@ function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
                   animate={{ opacity: 1, height: "auto" }}
                   className="bg-primary/5 border border-primary/20 rounded-xl p-3 space-y-2"
                 >
-                  <div className="text-[11px] font-bold text-primary uppercase tracking-wider">Projected return</div>
+                  <div className="text-[11px] font-bold text-primary uppercase tracking-wider">{t("invest.projectedReturn")}</div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
-                      <div className="text-muted-foreground text-[10px]">You invest</div>
+                      <div className="text-muted-foreground text-[10px]">{t("invest.youInvest")}</div>
                       <div className="font-black font-mono">{numAmount.toLocaleString()} {pitch.currency}</div>
                     </div>
                     <div>
-                      <div className="text-muted-foreground text-[10px]">Expected back</div>
+                      <div className="text-muted-foreground text-[10px]">{t("invest.expectedBack")}</div>
                       <div className="font-black font-mono text-primary">{Math.round(projectedReturn).toLocaleString()} {pitch.currency}</div>
                     </div>
                     <div>
-                      <div className="text-muted-foreground text-[10px]">Net gain</div>
+                      <div className="text-muted-foreground text-[10px]">{t("invest.netGain")}</div>
                       <div className="font-black font-mono text-emerald-700">+{Math.round(projectedReturn - numAmount).toLocaleString()} {pitch.currency}</div>
                     </div>
                     <div>
-                      <div className="text-muted-foreground text-[10px]">Timeline</div>
-                      <div className="font-black">{pitch.timelineMonths} months</div>
+                      <div className="text-muted-foreground text-[10px]">{t("invest.timeline")}</div>
+                      <div className="font-black">{pitch.timelineMonths} {t("invest.months")}</div>
                     </div>
                   </div>
                 </motion.div>
@@ -778,13 +783,13 @@ function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
               <div className="flex gap-2.5 bg-muted/30 border border-border rounded-xl p-3">
                 <AlertCircle size={14} className="text-amber-700 shrink-0 mt-0.5" />
                 <p className="text-[10px] text-muted-foreground leading-relaxed">
-                  Investments are held in escrow by PayRus. Returns are not guaranteed. Past performance does not predict future results.
+                  {t("invest.investmentsAreHeldIn")}
                 </p>
               </div>
 
               <Button className="w-full font-bold" onClick={handleInvest} disabled={investing}>
                 <CircleDollarSign size={14} className="mr-2" />
-                {investing ? "Processing…" : "Confirm Investment"}
+                {investing ? t("invest.processing") : t("invest.confirmInvestment")}
               </Button>
             </div>
           </>
@@ -793,12 +798,11 @@ function InvestModal({ pitch, currentUserId, onInvest, onClose }: {
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" as const, stiffness: 300 }}>
               <CheckCircle size={56} className="text-primary" />
             </motion.div>
-            <h3 className="font-black text-lg">Investment Confirmed!</h3>
+            <h3 className="font-black text-lg">{t("invest.investmentConfirmed")}</h3>
             <p className="text-sm text-muted-foreground">
-              Your investment in <span className="text-foreground font-semibold">{pitch.title}</span> is now live.
-              Track repayments in your Portfolio tab.
+              <Trans i18nKey="invest.investmentLive" values={{ title: t(pitch.title) }} components={{ b: <span className="text-foreground font-semibold" /> }} />
             </p>
-            <Button className="w-full" onClick={onClose}>View Portfolio</Button>
+            <Button className="w-full" onClick={onClose}>{t("invest.viewPortfolio")}</Button>
           </div>
         )}
       </motion.div>
@@ -813,6 +817,7 @@ function PitchDetail({ pitch, onBack, onInvest }: {
   onBack: () => void;
   onInvest: (p: Pitch) => void;
 }) {
+  const { t } = useTranslation("common");
   const progress = pct(pitch.raised, pitch.goal);
   return (
     <motion.div
@@ -828,11 +833,11 @@ function PitchDetail({ pitch, onBack, onInvest }: {
           onClick={onBack}
           className="absolute top-3 left-3 flex items-center gap-1.5 text-white/80 hover:text-white text-xs font-semibold bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-xl cursor-pointer"
         >
-          <ArrowLeft size={14} /> Back
+          <ArrowLeft size={14} /> {t("payments.back")}
         </button>
         <div className="absolute top-3 right-3">{pitch.country}</div>
         <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-primary text-primary-foreground text-xs font-black px-3 py-1.5 rounded-xl shadow-lg">
-          <Percent size={11} />{pitch.returnPct}% / yr expected return
+          <Percent size={11} />{pitch.returnPct}{t("invest.yrExpectedReturn")}
         </div>
       </div>
 
@@ -840,7 +845,7 @@ function PitchDetail({ pitch, onBack, onInvest }: {
         {/* Title */}
         <div>
           <div className="flex items-start gap-2 mb-1">
-            <h2 className="font-black text-xl leading-snug flex-1">{pitch.title}</h2>
+            <h2 className="font-black text-xl leading-snug flex-1">{t(pitch.title)}</h2>
             {pitch.founderVerified && <BadgeCheck size={18} className="text-primary shrink-0 mt-1" />}
           </div>
           <div className="flex flex-wrap gap-2 text-xs text-muted-foreground items-center">
@@ -859,13 +864,13 @@ function PitchDetail({ pitch, onBack, onInvest }: {
             { label: "Raised", value: fmt(pitch.raised, pitch.currency), icon: TrendingUp, color: "text-primary" },
             { label: "Backers", value: pitch.backers.toLocaleString(), icon: Users, color: "text-foreground" },
             { label: "Days left", value: `${pitch.daysLeft}d`, icon: Clock, color: "text-amber-700" },
-            { label: "Return", value: `${pitch.returnPct}% / yr`, icon: Percent, color: "text-emerald-700" },
+            { label: "Return", value: t("invest.pctPerYear", { pct: pitch.returnPct }), icon: Percent, color: "text-emerald-700" },
             { label: "Timeline", value: `${pitch.timelineMonths} months`, icon: CalendarDays, color: "text-foreground" },
           ].map(s => (
             <div key={s.label} className="bg-secondary/40 border border-border rounded-xl p-3 flex items-center gap-2.5">
               <s.icon size={15} className={s.color} />
               <div>
-                <div className="text-[10px] text-muted-foreground">{s.label}</div>
+                <div className="text-[10px] text-muted-foreground">{t(s.label)}</div>
                 <div className={cn("font-black text-sm font-mono", s.color)}>{s.value}</div>
               </div>
             </div>
@@ -875,8 +880,8 @@ function PitchDetail({ pitch, onBack, onInvest }: {
         {/* Funding progress */}
         <div className="bg-secondary/40 border border-border rounded-2xl p-4 space-y-2">
           <div className="flex justify-between text-xs">
-            <span className="font-bold text-primary">{progress}% funded</span>
-            <span className="text-muted-foreground">Goal: {fmt(pitch.goal, pitch.currency)}</span>
+            <span className="font-bold text-primary">{progress}{t("fundraise.funded")}</span>
+            <span className="text-muted-foreground">{t("fundraise.goal")} {fmt(pitch.goal, pitch.currency)}</span>
           </div>
           <div className="h-3 bg-secondary rounded-full overflow-hidden">
             <motion.div
@@ -887,19 +892,19 @@ function PitchDetail({ pitch, onBack, onInvest }: {
             />
           </div>
           <div className="text-[10px] text-muted-foreground text-right">
-            {fmt(pitch.goal - pitch.raised, pitch.currency)} still needed
+            {fmt(pitch.goal - pitch.raised, pitch.currency)} {t("invest.stillNeeded")}
           </div>
         </div>
 
         {/* Description */}
         <div>
-          <h3 className="font-bold text-sm mb-2">About this venture</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">{pitch.description}</p>
+          <h3 className="font-bold text-sm mb-2">{t("invest.aboutThisVenture")}</h3>
+          <p className="text-sm text-muted-foreground leading-relaxed">{t(pitch.description)}</p>
         </div>
 
         {/* Milestone timeline */}
         <div>
-          <h3 className="font-bold text-sm mb-3">Milestone Timeline</h3>
+          <h3 className="font-bold text-sm mb-3">{t("invest.milestoneTimeline")}</h3>
           <div className="space-y-2.5">
             {pitch.milestones.map((ms, i) => (
               <div key={i} className="flex items-start gap-3">
@@ -910,7 +915,7 @@ function PitchDetail({ pitch, onBack, onInvest }: {
                   {ms.done ? <CheckCircle size={11} className="text-primary-foreground" /> : <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />}
                 </div>
                 <div className="flex-1 flex items-start justify-between gap-2">
-                  <span className={cn("text-xs leading-relaxed", ms.done ? "text-foreground font-medium" : "text-muted-foreground")}>{ms.title}</span>
+                  <span className={cn("text-xs leading-relaxed", ms.done ? "text-foreground font-medium" : "text-muted-foreground")}>{t(ms.title)}</span>
                   <span className={cn("text-[10px] font-mono shrink-0", ms.done ? "text-primary" : "text-muted-foreground")}>{ms.date}</span>
                 </div>
               </div>
@@ -920,12 +925,12 @@ function PitchDetail({ pitch, onBack, onInvest }: {
 
         {/* Use of funds */}
         <div>
-          <h3 className="font-bold text-sm mb-2.5">Use of funds</h3>
+          <h3 className="font-bold text-sm mb-2.5">{t("invest.useOfFunds")}</h3>
           <div className="space-y-2">
             {pitch.useOfFunds.map((item, i) => (
               <div key={i} className="flex items-center gap-2.5 text-sm">
                 <div className="w-5 h-5 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-[10px] font-black text-primary shrink-0">{i + 1}</div>
-                <span className="text-muted-foreground">{item}</span>
+                <span className="text-muted-foreground">{labelWithPercent(t, item)}</span>
               </div>
             ))}
           </div>
@@ -935,23 +940,23 @@ function PitchDetail({ pitch, onBack, onInvest }: {
         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <Leaf size={14} className="text-emerald-700" />
-            <h3 className="font-bold text-sm text-emerald-700">Social Impact</h3>
+            <h3 className="font-bold text-sm text-emerald-700">{t("invest.socialImpact")}</h3>
           </div>
           <p className="text-[11px] text-muted-foreground leading-relaxed mb-3">{pitch.impact.detail}</p>
           <div className="flex gap-3 flex-wrap">
             <div className="bg-emerald-50 rounded-xl px-3 py-2">
-              <div className="text-[10px] text-emerald-700/70">Jobs created</div>
+              <div className="text-[10px] text-emerald-700/70">{t("invest.jobsCreated")}</div>
               <div className="font-black text-emerald-700 font-mono">{pitch.impact.jobs.toLocaleString()}</div>
             </div>
             {pitch.impact.households > 0 && (
               <div className="bg-emerald-50 rounded-xl px-3 py-2">
-                <div className="text-[10px] text-emerald-700/70">Households impacted</div>
+                <div className="text-[10px] text-emerald-700/70">{t("invest.householdsImpacted")}</div>
                 <div className="font-black text-emerald-700 font-mono">{pitch.impact.households.toLocaleString()}</div>
               </div>
             )}
             {pitch.impact.co2Saved && (
               <div className="bg-emerald-50 rounded-xl px-3 py-2">
-                <div className="text-[10px] text-emerald-700/70">CO₂ saved (t/yr)</div>
+                <div className="text-[10px] text-emerald-700/70">{t("invest.coSavedTYr")}</div>
                 <div className="font-black text-emerald-700 font-mono">{pitch.impact.co2Saved}</div>
               </div>
             )}
@@ -971,7 +976,7 @@ function PitchDetail({ pitch, onBack, onInvest }: {
           <div>
             <div className={cn("text-[11px] font-bold mb-0.5",
               pitch.risk === "low" ? "text-emerald-700" : pitch.risk === "medium" ? "text-amber-700" : "text-destructive"
-            )}>Risk Assessment</div>
+            )}>{t("invest.riskAssessment")}</div>
             <p className="text-[11px] text-muted-foreground leading-relaxed">{pitch.riskNote}</p>
           </div>
         </div>
@@ -979,13 +984,13 @@ function PitchDetail({ pitch, onBack, onInvest }: {
         <div className="flex gap-2.5 bg-muted/30 border border-border rounded-xl p-3">
           <Lock size={14} className="text-muted-foreground shrink-0 mt-0.5" />
           <p className="text-[10px] text-muted-foreground leading-relaxed">
-            Investments are held in escrow by PayRus. Funds are released as milestones are validated. Early withdrawal may incur penalties.
+            {t("invest.investmentsAreHeldIn2")}
           </p>
         </div>
 
         <Button className="w-full font-bold text-base py-6" onClick={() => onInvest(pitch)}>
           <CircleDollarSign size={17} className="mr-2" />
-          Invest in this Venture
+          {t("invest.investInThisVenture")}
         </Button>
       </div>
     </motion.div>
@@ -1020,6 +1025,7 @@ function investmentStatusBadge(s: Investment["status"]) {
 function RealInvestmentRow({ inv, pitchTitle, isOpen, onToggle }: {
   inv: AppPitchInvestment; pitchTitle: string; isOpen: boolean; onToggle: () => void;
 }) {
+  const { t } = useTranslation("common");
   const repayments = usePitchRepayments(inv.id);
   const today = new Date();
   const rows: Repayment[] = (repayments ?? []).map((r) => ({
@@ -1045,9 +1051,9 @@ function RealInvestmentRow({ inv, pitchTitle, isOpen, onToggle }: {
           <div className="flex-1 min-w-0">
             <div className="font-bold text-sm truncate">{pitchTitle}</div>
             <div className="text-[10px] text-muted-foreground flex items-center gap-2 mt-0.5">
-              <span>{fmt(inv.amount, inv.currency)} invested</span>
+              <span>{fmt(inv.amount, inv.currency)} {t("invest.invested")}</span>
               <span>·</span>
-              <span className={cn("font-bold", status === "delayed" ? "text-amber-700" : "text-primary")}>{inv.returnPct}%/yr</span>
+              <span className={cn("font-bold", status === "delayed" ? "text-amber-700" : "text-primary")}>{inv.returnPct}{t("invest.yr2")}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -1059,7 +1065,7 @@ function RealInvestmentRow({ inv, pitchTitle, isOpen, onToggle }: {
         </div>
         <div className="px-4 pb-3">
           <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
-            <span>Repayment progress</span>
+            <span>{t("invest.repaymentProgress")}</span>
             <span className="font-mono">{repayProgress}%</span>
           </div>
           <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
@@ -1072,7 +1078,7 @@ function RealInvestmentRow({ inv, pitchTitle, isOpen, onToggle }: {
         {isOpen && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
             <div className="border-t border-border px-4 py-3 space-y-2">
-              <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3">Repayment Schedule</div>
+              <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3">{t("invest.repaymentSchedule")}</div>
               {rows.map((r, idx) => (
                 <div key={idx} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -1088,11 +1094,11 @@ function RealInvestmentRow({ inv, pitchTitle, isOpen, onToggle }: {
                 </div>
               ))}
               <div className="pt-2 border-t border-border flex justify-between text-xs">
-                <span className="text-muted-foreground">Total repaid</span>
+                <span className="text-muted-foreground">{t("invest.totalRepaid")}</span>
                 <span className="font-black font-mono text-emerald-700">{fmt(totalRepaid, inv.currency)}</span>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Total expected</span>
+                <span className="text-muted-foreground">{t("invest.totalExpected")}</span>
                 <span className="font-black font-mono text-primary">{fmt(Math.round(totalExpected), inv.currency)}</span>
               </div>
             </div>
@@ -1106,6 +1112,7 @@ function RealInvestmentRow({ inv, pitchTitle, isOpen, onToggle }: {
 function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }: {
   onBrowse: () => void; currentUserId: string | undefined; realInvestments: AppPitchInvestment[] | undefined; realPitches: AppPitch[] | undefined;
 }) {
+  const { t } = useTranslation("common");
   const [expanded, setExpanded] = useState<number | string | null>(null);
 
   const hasRealInvestments = !!currentUserId && !!realInvestments && realInvestments.length > 0;
@@ -1127,13 +1134,13 @@ function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }
 
       {/* Portfolio value header */}
       <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-2xl p-5">
-        <div className="text-xs text-muted-foreground mb-1">Total Portfolio Value</div>
-        <div className="text-3xl font-black font-mono text-foreground">{currentValue.toLocaleString()} <span className="text-base text-muted-foreground">XAF</span></div>
+        <div className="text-xs text-muted-foreground mb-1">{t("invest.totalPortfolioValue")}</div>
+        <div className="text-3xl font-black font-mono text-foreground">{currentValue.toLocaleString()} <span className="text-base text-muted-foreground">{t("fundraise.xaf")}</span></div>
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs text-emerald-700 flex items-center gap-1 font-bold">
-            <ArrowUpRight size={12} />+{growthPct}% this month
+            <ArrowUpRight size={12} />{t("invest.growthThisMonth", { pct: growthPct })}
           </span>
-          <span className="text-[10px] text-muted-foreground">vs last month</span>
+          <span className="text-[10px] text-muted-foreground">{t("invest.vsLastMonth")}</span>
         </div>
       </div>
 
@@ -1147,14 +1154,14 @@ function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }
           <div key={s.label} className="bg-card border border-border rounded-2xl p-3 text-center">
             <s.icon size={16} className={cn("mx-auto mb-1", s.color)} />
             <div className={cn("text-base font-black font-mono", s.color)}>{s.value}</div>
-            <div className="text-[10px] text-muted-foreground">{s.label}</div>
+            <div className="text-[10px] text-muted-foreground">{t(s.label)}</div>
           </div>
         ))}
       </div>
 
       {/* Growth chart */}
       <div className="bg-card border border-border rounded-2xl p-4">
-        <div className="text-xs font-bold text-muted-foreground mb-3">Portfolio Value (Jan–Aug 2026)</div>
+        <div className="text-xs font-bold text-muted-foreground mb-3">{t("invest.portfolioValueJanAug")}</div>
         <ResponsiveContainer width="100%" height={120}>
           <AreaChart data={PORTFOLIO_CHART}>
             <defs>
@@ -1172,7 +1179,7 @@ function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }
 
       {/* Category donut */}
       <div className="bg-card border border-border rounded-2xl p-4">
-        <div className="text-xs font-bold text-muted-foreground mb-3">Allocation by Sector</div>
+        <div className="text-xs font-bold text-muted-foreground mb-3">{t("invest.allocationBySector")}</div>
         <div className="flex items-center gap-4">
           <ResponsiveContainer width={80} height={80}>
             <PieChart>
@@ -1193,13 +1200,13 @@ function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }
         </div>
       </div>
 
-      <h3 className="font-bold text-sm">My Investments</h3>
+      <h3 className="font-bold text-sm">{t("invest.myInvestments")}</h3>
 
       {hasRealInvestments ? realInvestments.map((inv) => (
         <RealInvestmentRow
           key={inv.id}
           inv={inv}
-          pitchTitle={realPitches?.find((p) => p.id === inv.pitchId)?.title ?? "Investment"}
+          pitchTitle={realPitches?.find((p) => p.id === inv.pitchId)?.title ?? t("invest.investment")}
           isOpen={expanded === inv.id}
           onToggle={() => setExpanded(expanded === inv.id ? null : inv.id)}
         />
@@ -1219,9 +1226,9 @@ function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-sm truncate">{inv.pitchTitle}</div>
                   <div className="text-[10px] text-muted-foreground flex items-center gap-2 mt-0.5">
-                    <span>{fmt(inv.amountInvested, inv.currency)} invested</span>
+                    <span>{fmt(inv.amountInvested, inv.currency)} {t("invest.invested")}</span>
                     <span>·</span>
-                    <span className={cn("font-bold", inv.status === "delayed" ? "text-amber-700" : "text-primary")}>{inv.returnPct}%/yr</span>
+                    <span className={cn("font-bold", inv.status === "delayed" ? "text-amber-700" : "text-primary")}>{inv.returnPct}{t("invest.yr2")}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1233,7 +1240,7 @@ function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }
               </div>
               <div className="px-4 pb-3">
                 <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
-                  <span>Repayment progress</span>
+                  <span>{t("invest.repaymentProgress")}</span>
                   <span className="font-mono">{repayProgress}%</span>
                 </div>
                 <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
@@ -1255,7 +1262,7 @@ function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }
                   className="overflow-hidden"
                 >
                   <div className="border-t border-border px-4 py-3 space-y-2">
-                    <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3">Repayment Schedule</div>
+                    <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3">{t("invest.repaymentSchedule")}</div>
                     {inv.repayments.map((r, idx) => (
                       <div key={idx} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -1273,11 +1280,11 @@ function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }
                       </div>
                     ))}
                     <div className="pt-2 border-t border-border flex justify-between text-xs">
-                      <span className="text-muted-foreground">Total repaid</span>
+                      <span className="text-muted-foreground">{t("invest.totalRepaid")}</span>
                       <span className="font-black font-mono text-emerald-700">{fmt(inv.totalRepaid, inv.currency)}</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Total expected</span>
+                      <span className="text-muted-foreground">{t("invest.totalExpected")}</span>
                       <span className="font-black font-mono text-primary">{fmt(inv.totalExpected, inv.currency)}</span>
                     </div>
                   </div>
@@ -1291,8 +1298,8 @@ function PortfolioView({ onBrowse, currentUserId, realInvestments, realPitches }
       {(hasRealInvestments ? realInvestments.length === 0 : MY_INVESTMENTS.length === 0) && (
         <div className="text-center py-16 space-y-3">
           <BarChart3 size={40} className="text-muted-foreground mx-auto" />
-          <p className="text-sm text-muted-foreground">No investments yet</p>
-          <Button size="sm" onClick={onBrowse}>Browse Pitches</Button>
+          <p className="text-sm text-muted-foreground">{t("invest.noInvestmentsYet")}</p>
+          <Button size="sm" onClick={onBrowse}>{t("invest.browsePitches")}</Button>
         </div>
       )}
     </div>
@@ -1328,6 +1335,7 @@ function LeaderboardView({ realLeaderboard, currentUserId, realSectorPopularity,
   realLeaderboard: AppLeaderboardRow[] | undefined; currentUserId: string | undefined;
   realSectorPopularity: AppSectorPopularity[] | undefined; realPlatformImpact: AppPlatformImpact | undefined;
 }) {
+  const { t } = useTranslation("common");
   const levelColor: Record<string, string> = {
     "Anchor": "text-amber-700 bg-amber-50 border-amber-200",
     "Senior": "text-accent-foreground bg-accent/10 border-accent/30",
@@ -1378,12 +1386,12 @@ function LeaderboardView({ realLeaderboard, currentUserId, realSectorPopularity,
       <div className="bg-gradient-to-r from-amber-400/10 to-primary/10 border border-amber-200 rounded-2xl p-5">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <div className="text-[10px] text-amber-700 font-black uppercase tracking-widest">Season 1 · Aug 2026</div>
-            <h2 className="font-black text-lg">Top PayRus Investors</h2>
+            <div className="text-[10px] text-amber-700 font-black uppercase tracking-widest">{t("invest.season1Aug2026")}</div>
+            <h2 className="font-black text-lg">{t("invest.topPayrusInvestors")}</h2>
           </div>
           <Trophy size={28} className="text-amber-700" />
         </div>
-        <p className="text-[11px] text-muted-foreground">Rankings based on total capital deployed, number of ventures backed, and portfolio return rate.</p>
+        <p className="text-[11px] text-muted-foreground">{t("invest.rankingsBasedOnTotal")}</p>
       </div>
 
       {/* Leaderboard table */}
@@ -1401,7 +1409,7 @@ function LeaderboardView({ realLeaderboard, currentUserId, realSectorPopularity,
               <div className={cn("font-bold text-sm", inv.isYou ? "text-primary" : "text-foreground")}>
                 {inv.name} <span className="text-base">{inv.country}</span>
               </div>
-              <div className="text-[10px] text-muted-foreground">{inv.pitches} ventures backed · avg {inv.avgReturn} return</div>
+              <div className="text-[10px] text-muted-foreground">{t("invest.venturesBackedAvgReturn", { pitches: inv.pitches, avgReturn: inv.avgReturn })}</div>
             </div>
             <div className="text-right shrink-0">
               <div className="font-black text-sm font-mono text-foreground">{inv.total}</div>
@@ -1415,7 +1423,7 @@ function LeaderboardView({ realLeaderboard, currentUserId, realSectorPopularity,
 
       {/* Sector popularity chart */}
       <div className="bg-card border border-border rounded-2xl p-4">
-        <div className="text-xs font-bold text-muted-foreground mb-3">Most Backed Sectors (# of backers)</div>
+        <div className="text-xs font-bold text-muted-foreground mb-3">{t("invest.mostBackedSectorsOf")}</div>
         <ResponsiveContainer width="100%" height={150}>
           <BarChart data={sectorData} barCategoryGap="30%">
             <XAxis dataKey="sector" tick={{ fontSize: 9, fill: "oklch(0.60 0.01 240)" }} axisLine={false} tickLine={false} />
@@ -1430,14 +1438,14 @@ function LeaderboardView({ realLeaderboard, currentUserId, realSectorPopularity,
       <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <Globe size={16} className="text-emerald-700" />
-          <h3 className="font-bold text-sm text-emerald-700">Collective Impact — All Investors</h3>
+          <h3 className="font-bold text-sm text-emerald-700">{t("invest.collectiveImpactAllInvestors")}</h3>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {impactStats.map(s => (
             <div key={s.label} className="bg-emerald-50 rounded-xl px-3 py-2.5">
               <s.icon size={13} className="text-emerald-700 mb-1" />
               <div className="font-black text-sm text-emerald-700 font-mono">{s.value}</div>
-              <div className="text-[10px] text-emerald-700/70">{s.label}</div>
+              <div className="text-[10px] text-emerald-700/70">{t(s.label)}</div>
             </div>
           ))}
         </div>
@@ -1445,7 +1453,7 @@ function LeaderboardView({ realLeaderboard, currentUserId, realSectorPopularity,
 
       {/* Level up guide */}
       <div className="bg-card border border-border rounded-2xl p-4">
-        <h3 className="font-bold text-sm mb-3 flex items-center gap-2"><Award size={14} className="text-primary" /> Investor Levels</h3>
+        <h3 className="font-bold text-sm mb-3 flex items-center gap-2"><Award size={14} className="text-primary" /> {t("invest.investorLevels")}</h3>
         <div className="space-y-2">
           {[
             { level: "Starter", req: "< 500K XAF deployed", color: "text-muted-foreground" },
@@ -1484,6 +1492,7 @@ function SubmitPitch({ onBack, currentUserId, onSubmit }: {
     returnPct: number; timelineMonths: number; location?: string; impactJobs?: number; impactHouseholds?: number; impactCo2?: number;
   }) => Promise<unknown>;
 }) {
+  const { t } = useTranslation("common");
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -1504,12 +1513,12 @@ function SubmitPitch({ onBack, currentUserId, onSubmit }: {
 
   async function handleSubmit() {
     if (!form.title || !form.description || !form.goal || !form.returnPct || !form.timelineMonths) {
-      toast.error("Please fill in all required fields");
+      toast.error(t("fundraise.pleaseFillInAll"));
       return;
     }
     if (!isReal || !currentUserId) {
       setSubmitted(true);
-      toast.success("Pitch submitted for review!");
+      toast.success(t("invest.pitchSubmittedForReview"));
       return;
     }
     setSubmitting(true);
@@ -1524,9 +1533,9 @@ function SubmitPitch({ onBack, currentUserId, onSubmit }: {
         impactCo2: form.impactCo2 ? Number(form.impactCo2) : undefined,
       });
       setSubmitted(true);
-      toast.success("Pitch submitted!");
+      toast.success(t("invest.pitchSubmitted"));
     } catch {
-      toast.error("Couldn't submit the pitch — try again");
+      toast.error(t("invest.couldnTSubmitThe"));
     } finally {
       setSubmitting(false);
     }
@@ -1542,21 +1551,21 @@ function SubmitPitch({ onBack, currentUserId, onSubmit }: {
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" as const, stiffness: 300, delay: 0.1 }}>
           <CheckCircle size={64} className="text-primary" />
         </motion.div>
-        <h2 className="font-black text-xl">{isReal ? "Pitch Live!" : "Pitch Submitted!"}</h2>
+        <h2 className="font-black text-xl">{isReal ? t("invest.pitchLive") : t("invest.pitchSubmitted2")}</h2>
         <p className="text-muted-foreground text-sm max-w-xs">
           {isReal
-            ? "Your venture is now listed on PayRus Invest and open to investors."
-            : "Your investment pitch is under review. Our team will respond within 48 hours once verified and listed on PayRus Invest."}
+            ? t("invest.yourVentureIsNow")
+            : t("invest.yourInvestmentPitchIs")}
         </p>
         <div className="bg-secondary/50 border border-border rounded-2xl p-4 text-left w-full max-w-xs space-y-2">
-          <div className="text-xs text-muted-foreground">Venture</div>
-          <div className="font-bold text-sm">{form.title}</div>
-          <div className="text-xs text-muted-foreground">Target raise</div>
-          <div className="font-black font-mono text-primary text-sm">{Number(form.goal).toLocaleString()} XAF</div>
-          <div className="text-xs text-muted-foreground">Offered return</div>
-          <div className="font-black text-sm">{form.returnPct}% / year</div>
+          <div className="text-xs text-muted-foreground">{t("invest.venture")}</div>
+          <div className="font-bold text-sm">{t(form.title)}</div>
+          <div className="text-xs text-muted-foreground">{t("invest.targetRaise")}</div>
+          <div className="font-black font-mono text-primary text-sm">{Number(form.goal).toLocaleString()} {t("fundraise.xaf")}</div>
+          <div className="text-xs text-muted-foreground">{t("invest.offeredReturn")}</div>
+          <div className="font-black text-sm">{form.returnPct}{t("invest.year")}</div>
         </div>
-        <Button className="w-full max-w-xs" onClick={onBack}>Back to Browse</Button>
+        <Button className="w-full max-w-xs" onClick={onBack}>{t("fundraise.backToBrowse")}</Button>
       </motion.div>
     );
   }
@@ -1573,8 +1582,8 @@ function SubmitPitch({ onBack, currentUserId, onSubmit }: {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 className="font-black text-base">Post an Investment Pitch</h2>
-          <p className="text-xs text-muted-foreground">Raise capital from PayRus investors across Africa & diaspora</p>
+          <h2 className="font-black text-base">{t("invest.postAnInvestmentPitch")}</h2>
+          <p className="text-xs text-muted-foreground">{t("invest.raiseCapitalFromPayrus")}</p>
         </div>
       </div>
 
@@ -1583,24 +1592,24 @@ function SubmitPitch({ onBack, currentUserId, onSubmit }: {
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-3.5 flex gap-2.5">
           <Activity size={14} className="text-primary shrink-0 mt-0.5" />
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            PayRus Invest connects African entrepreneurs to a network of local and diaspora investors. Average funded pitch raises <span className="text-foreground font-bold">28M XAF</span> in 21 days.
+            <Trans i18nKey="invest.aboutNote" values={{ amount: t("invest.28mXaf") }} components={{ b: <span className="text-foreground font-bold" /> }} />
           </p>
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-muted-foreground">Venture / project title *</label>
+          <label className="text-xs font-semibold text-muted-foreground">{t("invest.ventureProjectTitle")}</label>
           <Input
-            placeholder="e.g. Kinshasa Solar Mini-Grid Phase 2"
+            placeholder={t("invest.eGKinshasaSolar")}
             value={form.title}
             onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
           />
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-muted-foreground">Description & business case *</label>
+          <label className="text-xs font-semibold text-muted-foreground">{t("invest.descriptionBusinessCase")}</label>
           <textarea
             className="w-full min-h-[100px] bg-input border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-            placeholder="Describe your venture, market opportunity, traction, and how investor funds will be deployed..."
+            placeholder={t("invest.describeYourVentureMarket")}
             value={form.description}
             onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
           />
@@ -1608,14 +1617,14 @@ function SubmitPitch({ onBack, currentUserId, onSubmit }: {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-muted-foreground">Funding goal (XAF) *</label>
+            <label className="text-xs font-semibold text-muted-foreground">{t("invest.fundingGoalXaf")}</label>
             <div className="relative">
               <CircleDollarSign size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input type="number" className="pl-8 font-mono" placeholder="25000000" value={form.goal} onChange={e => setForm(f => ({ ...f, goal: e.target.value }))} />
             </div>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-muted-foreground">Timeline (months) *</label>
+            <label className="text-xs font-semibold text-muted-foreground">{t("invest.timelineMonths")}</label>
             <div className="relative">
               <CalendarDays size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input type="number" className="pl-8" placeholder="24" value={form.timelineMonths} onChange={e => setForm(f => ({ ...f, timelineMonths: e.target.value }))} />
@@ -1624,24 +1633,24 @@ function SubmitPitch({ onBack, currentUserId, onSubmit }: {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-muted-foreground">Offered annual return (%) *</label>
+          <label className="text-xs font-semibold text-muted-foreground">{t("invest.offeredAnnualReturn")}</label>
           <div className="relative">
             <Percent size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input type="number" className="pl-8 font-mono" placeholder="e.g. 18" value={form.returnPct} onChange={e => setForm(f => ({ ...f, returnPct: e.target.value }))} />
+            <Input type="number" className="pl-8 font-mono" placeholder={t("invest.eG18")} value={form.returnPct} onChange={e => setForm(f => ({ ...f, returnPct: e.target.value }))} />
           </div>
-          <p className="text-[10px] text-muted-foreground">Platform average: 14–25% annual return. Unrealistically high rates may reduce investor trust.</p>
+          <p className="text-[10px] text-muted-foreground">{t("invest.platformAverage1425")}</p>
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-muted-foreground">Location / country</label>
+          <label className="text-xs font-semibold text-muted-foreground">{t("invest.locationCountry")}</label>
           <div className="relative">
             <MapPin size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input className="pl-8" placeholder="e.g. Douala, Cameroon" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
+            <Input className="pl-8" placeholder={t("invest.eGDoualaCameroon")} value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
           </div>
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-muted-foreground">Sector / category</label>
+          <label className="text-xs font-semibold text-muted-foreground">{t("invest.sectorCategory")}</label>
           <div className="flex gap-2 flex-wrap">
             {SUBMIT_CATEGORIES.map(c => (
               <button
@@ -1654,48 +1663,48 @@ function SubmitPitch({ onBack, currentUserId, onSubmit }: {
                     : "bg-secondary border-border text-muted-foreground hover:text-foreground"
                 )}
               >
-                {c.label}
+                {t(c.label)}
               </button>
             ))}
           </div>
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-muted-foreground">Social impact (optional)</label>
-          <Input placeholder="e.g. Direct export lines to specialty roasters" value={form.impact} onChange={e => setForm(f => ({ ...f, impact: e.target.value }))} />
-          <p className="text-[10px] text-muted-foreground">Ventures with clear social impact receive a Leaf badge and rank higher in search.</p>
+          <label className="text-xs font-semibold text-muted-foreground">{t("invest.socialImpactOptional")}</label>
+          <Input placeholder={t("invest.eGDirectExport")} value={form.impact} onChange={e => setForm(f => ({ ...f, impact: e.target.value }))} />
+          <p className="text-[10px] text-muted-foreground">{t("invest.venturesWithClearSocial")}</p>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-muted-foreground">Jobs created</label>
+            <label className="text-xs font-semibold text-muted-foreground">{t("invest.jobsCreated")}</label>
             <Input type="number" className="font-mono" placeholder="0" value={form.impactJobs} onChange={e => setForm(f => ({ ...f, impactJobs: e.target.value }))} />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-muted-foreground">Households</label>
+            <label className="text-xs font-semibold text-muted-foreground">{t("invest.households")}</label>
             <Input type="number" className="font-mono" placeholder="0" value={form.impactHouseholds} onChange={e => setForm(f => ({ ...f, impactHouseholds: e.target.value }))} />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-muted-foreground">CO₂ saved (t/yr)</label>
+            <label className="text-xs font-semibold text-muted-foreground">{t("invest.coSavedTYr")}</label>
             <Input type="number" className="font-mono" placeholder="0" value={form.impactCo2} onChange={e => setForm(f => ({ ...f, impactCo2: e.target.value }))} />
           </div>
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-muted-foreground">Organisation / company name</label>
-          <Input placeholder="e.g. LumiCongo Energy SARL" value={form.org} onChange={e => setForm(f => ({ ...f, org: e.target.value }))} />
-          <p className="text-[10px] text-muted-foreground">Registered entities receive a verification badge after due diligence.</p>
+          <label className="text-xs font-semibold text-muted-foreground">{t("invest.organisationCompanyName")}</label>
+          <Input placeholder={t("invest.eGLumicongoEnergy")} value={form.org} onChange={e => setForm(f => ({ ...f, org: e.target.value }))} />
+          <p className="text-[10px] text-muted-foreground">{t("invest.registeredEntitiesReceiveA")}</p>
         </div>
 
         <div className="flex gap-2.5 bg-primary/5 border border-primary/20 rounded-xl p-3.5">
           <Target size={14} className="text-primary shrink-0 mt-0.5" />
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Pitches reviewed within 48 hours. PayRus charges a <span className="text-foreground font-semibold">3% success fee</span> on total capital raised. Funds released as milestones are validated by our team.
+            <Trans i18nKey="invest.pitchReviewNote" values={{ fee: t("invest.3SuccessFee") }} components={{ b: <span className="text-foreground font-semibold" /> }} />
           </p>
         </div>
 
         <Button className="w-full font-bold" onClick={handleSubmit} disabled={submitting}>
-          <Plus size={15} className="mr-2" /> {submitting ? "Submitting…" : "Submit Pitch for Review"}
+          <Plus size={15} className="mr-2" /> {submitting ? t("invest.submitting") : t("invest.submitPitchForReview")}
         </Button>
       </div>
     </motion.div>
@@ -1769,15 +1778,15 @@ export default function InvestPage() {
         <div className="flex items-center justify-between mb-1">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black">PayRus Invest</h1>
+              <h1 className="text-xl font-black">{t("games.payrusInvest")}</h1>
               <span className="text-[9px] font-black bg-primary/15 border border-primary/30 text-primary px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Africa's Marketplace
+                {t("invest.africaSMarketplace")}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground">Direct investment in African ventures — {displayPitches.length} active pitches</p>
+            <p className="text-xs text-muted-foreground">{t("invest.directInvestmentInAfrican", { count: displayPitches.length })}</p>
           </div>
           <Button size="sm" className="font-bold" onClick={() => { setSelected(null); setTab("submit"); }}>
-            <Plus size={14} className="mr-1" /> Pitch
+            <Plus size={14} className="mr-1" /> {t("invest.pitch")}
           </Button>
         </div>
 
@@ -1791,11 +1800,11 @@ export default function InvestPage() {
           {[
             { label: "Active pitches", value: `${displayPitches.length}` },
             { label: "Total raised", value: `${(totalRaised / 1_000_000).toFixed(0)}M XAF` },
-            { label: "Avg return", value: `${Math.round(displayPitches.reduce((s, p) => s + p.returnPct, 0) / displayPitches.length)}% / yr` },
+            { label: "Avg return", value: t("invest.pctPerYear", { pct: Math.round(displayPitches.reduce((s, p) => s + p.returnPct, 0) / displayPitches.length) }) },
             { label: "Total backers", value: totalBackers.toLocaleString() },
           ].map(s => (
             <div key={s.label} className="flex-1 bg-secondary/50 border border-border rounded-xl px-2 py-1.5 min-w-0">
-              <div className="text-[9px] text-muted-foreground truncate">{s.label}</div>
+              <div className="text-[9px] text-muted-foreground truncate">{t(s.label)}</div>
               <div className="font-black text-xs font-mono text-primary">{s.value}</div>
             </div>
           ))}
@@ -1803,17 +1812,17 @@ export default function InvestPage() {
 
         {/* Tabs */}
         <div className="flex gap-0.5 border-b border-border overflow-x-auto">
-          {TABS.map(t => (
+          {TABS.map(tItem => (
             <button
-              key={t.key}
-              onClick={() => { setTab(t.key); setSelected(null); }}
+              key={tItem.key}
+              onClick={() => { setTab(tItem.key); setSelected(null); }}
               className={cn(
                 "flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 border-b-2 transition-colors cursor-pointer whitespace-nowrap shrink-0",
-                tab === t.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                tab === tItem.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
               )}
             >
-              <t.icon size={12} />
-              {t.label}
+              <tItem.icon size={12} />
+              {t(tItem.label)}
             </button>
           ))}
         </div>
@@ -1830,7 +1839,7 @@ export default function InvestPage() {
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <Input className="pl-9 text-sm" placeholder="Search ventures, founders, locations..." value={search} onChange={e => setSearch(e.target.value)} />
+                  <Input className="pl-9 text-sm" placeholder={t("invest.searchVenturesFoundersLocations")} value={search} onChange={e => setSearch(e.target.value)} />
                 </div>
                 <div className="flex items-center gap-1 bg-secondary border border-border rounded-xl px-3">
                   <Filter size={12} className="text-muted-foreground" />
@@ -1839,10 +1848,10 @@ export default function InvestPage() {
                     onChange={e => setSortBy(e.target.value as typeof sortBy)}
                     className="bg-transparent text-xs text-muted-foreground focus:outline-none cursor-pointer"
                   >
-                    <option value="return">Top Return</option>
-                    <option value="progress">Trending</option>
-                    <option value="risk">Lowest Risk</option>
-                    <option value="new">Newest</option>
+                    <option value="return">{t("invest.topReturn")}</option>
+                    <option value="progress">{t("fundraise.trending")}</option>
+                    <option value="risk">{t("invest.lowestRisk")}</option>
+                    <option value="new">{t("invest.newest")}</option>
                   </select>
                 </div>
               </div>
@@ -1861,7 +1870,7 @@ export default function InvestPage() {
                     )}
                   >
                     <cat.icon size={12} className={category === cat.key ? "text-primary-foreground" : cat.color} />
-                    {cat.label}
+                    {t(cat.label)}
                   </button>
                 ))}
               </div>
@@ -1871,7 +1880,7 @@ export default function InvestPage() {
                 <div>
                   <div className="flex items-center gap-1.5 mb-3">
                     <Star size={13} className="text-amber-700" />
-                    <span className="text-xs font-black uppercase tracking-wider">Featured Ventures</span>
+                    <span className="text-xs font-black uppercase tracking-wider">{t("invest.featuredVentures")}</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {featured.map(p => <PitchCard key={p.id} pitch={p} onSelect={setSelected} onInvest={setInvesting} />)}
@@ -1883,11 +1892,11 @@ export default function InvestPage() {
               <div>
                 <div className="flex items-center gap-1.5 mb-3">
                   <span className="text-xs font-black uppercase tracking-wider">
-                    {category === "all" && !search ? "All Pitches" : `Results (${filtered.length})`}
+                    {category === "all" && !search ? t("invest.allPitches") : `Results (${filtered.length})`}
                   </span>
                 </div>
                 {filtered.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground text-sm">No pitches found for this search.</div>
+                  <div className="text-center py-12 text-muted-foreground text-sm">{t("invest.noPitchesFoundFor")}</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {filtered.map(p => <PitchCard key={p.id} pitch={p} onSelect={setSelected} onInvest={setInvesting} />)}

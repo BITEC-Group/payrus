@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from "react-i18next";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import PageHeader from "@/components/ui/page-header.tsx";
@@ -165,6 +166,7 @@ function CampaignCard({ campaign, onSelect, onDonate }: {
   onSelect: (c: Campaign) => void;
   onDonate: (c: Campaign) => void;
 }) {
+  const { t } = useTranslation("common");
   const progress = pct(campaign.raised, campaign.goal);
   return (
     <motion.div
@@ -179,12 +181,12 @@ function CampaignCard({ campaign, onSelect, onDonate }: {
         <div className="absolute top-2 left-2 flex gap-1">
           {campaign.featured && (
             <span className="flex items-center gap-0.5 text-[9px] font-black bg-amber-400/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full">
-              <Star size={9} /> Featured
+              <Star size={9} /> {t("fundraise.featured")}
             </span>
           )}
           {campaign.trending && (
             <span className="flex items-center gap-0.5 text-[9px] font-black bg-rose-400/20 border border-rose-400/40 text-rose-300 px-2 py-0.5 rounded-full">
-              <Flame size={9} /> Trending
+              <Flame size={9} /> {t("fundraise.trending")}
             </span>
           )}
         </div>
@@ -195,7 +197,7 @@ function CampaignCard({ campaign, onSelect, onDonate }: {
 
       <div className="p-4 flex flex-col flex-1 gap-2">
         <div className="flex items-start gap-1.5">
-          <h3 className="font-bold text-sm leading-snug flex-1">{campaign.title}</h3>
+          <h3 className="font-bold text-sm leading-snug flex-1">{t(campaign.title)}</h3>
           {campaign.creatorVerified && <BadgeCheck size={14} className="text-primary shrink-0 mt-0.5" />}
         </div>
 
@@ -209,7 +211,7 @@ function CampaignCard({ campaign, onSelect, onDonate }: {
         <div className="space-y-1 mt-auto pt-1">
           <div className="flex justify-between text-[10px]">
             <span className="text-primary font-bold font-mono">{fmt(campaign.raised, campaign.currency)}</span>
-            <span className="text-muted-foreground">of {fmt(campaign.goal, campaign.currency)}</span>
+            <span className="text-muted-foreground">{t("fundraise.of")} {fmt(campaign.goal, campaign.currency)}</span>
           </div>
           <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
             <motion.div
@@ -220,8 +222,8 @@ function CampaignCard({ campaign, onSelect, onDonate }: {
             />
           </div>
           <div className="flex justify-between text-[10px] text-muted-foreground">
-            <span className="flex items-center gap-1"><Users size={9} />{campaign.donors.toLocaleString()} donors</span>
-            <span className="flex items-center gap-1"><Clock size={9} />{campaign.daysLeft}d left</span>
+            <span className="flex items-center gap-1"><Users size={9} />{campaign.donors.toLocaleString()} {t("fundraise.donors")}</span>
+            <span className="flex items-center gap-1"><Clock size={9} />{campaign.daysLeft}{t("fundraise.dLeft")}</span>
           </div>
         </div>
 
@@ -230,7 +232,7 @@ function CampaignCard({ campaign, onSelect, onDonate }: {
           className="w-full mt-1 text-xs font-bold"
           onClick={(e) => { e.stopPropagation(); onDonate(campaign); }}
         >
-          <Heart size={12} className="mr-1" /> Donate Now
+          <Heart size={12} className="mr-1" /> {t("fundraise.donateNow")}
         </Button>
       </div>
     </motion.div>
@@ -242,6 +244,7 @@ function CampaignCard({ campaign, onSelect, onDonate }: {
 function DonateModal({ campaign, currentUserId, onDonate, onClose }: {
   campaign: Campaign; currentUserId: string | undefined; onDonate: (args: { userId: string; campaignId: string; amount: number; note?: string }) => Promise<unknown>; onClose: () => void;
 }) {
+  const { t } = useTranslation("common");
   const [amount, setAmount] = useState("");
   const [anonymous, setAnonymous] = useState(false);
   const [done, setDone] = useState(false);
@@ -250,7 +253,7 @@ function DonateModal({ campaign, currentUserId, onDonate, onClose }: {
 
   async function handleDonate() {
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-      toast.error("Please enter a valid amount");
+      toast.error(t("wallet.enterValidAmount"));
       return;
     }
     if (!currentUserId || typeof campaign.id !== "string") {
@@ -266,7 +269,7 @@ function DonateModal({ campaign, currentUserId, onDonate, onClose }: {
       setDone(true);
       toast.success(`Donation of ${Number(amount).toLocaleString()} ${campaign.currency} sent!`);
     } catch {
-      toast.error("Couldn't process the donation — try again");
+      toast.error(t("fundraise.couldnTProcessThe"));
     } finally {
       setDonating(false);
     }
@@ -290,7 +293,7 @@ function DonateModal({ campaign, currentUserId, onDonate, onClose }: {
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <h3 className="font-bold text-sm">{campaign.title}</h3>
+                <h3 className="font-bold text-sm">{t(campaign.title)}</h3>
                 <p className="text-[11px] text-muted-foreground">{campaign.creator}</p>
               </div>
 
@@ -313,10 +316,10 @@ function DonateModal({ campaign, currentUserId, onDonate, onClose }: {
               </div>
 
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Amount ({campaign.currency})</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t("savings.amountLabel", { currency: campaign.currency })}</label>
                 <Input
                   type="number"
-                  placeholder="Enter amount..."
+                  placeholder={t("fundraise.enterAmount")}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className="font-mono text-base"
@@ -333,12 +336,12 @@ function DonateModal({ campaign, currentUserId, onDonate, onClose }: {
                 >
                   <div className={cn("w-4 h-4 rounded-full bg-white transition-transform shadow", anonymous ? "translate-x-4" : "translate-x-0")} />
                 </div>
-                <span className="text-xs text-muted-foreground">Donate anonymously</span>
+                <span className="text-xs text-muted-foreground">{t("fundraise.donateAnonymously")}</span>
               </label>
 
               <Button className="w-full font-bold" disabled={donating} onClick={() => void handleDonate()}>
                 <Heart size={14} className="mr-2" />
-                {donating ? "Processing..." : "Confirm Donation"}
+                {donating ? t("fundraise.processing") : t("fundraise.confirmDonation")}
               </Button>
             </div>
           </>
@@ -347,13 +350,13 @@ function DonateModal({ campaign, currentUserId, onDonate, onClose }: {
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" as const, stiffness: 300 }}>
               <CheckCircle size={56} className="text-primary" />
             </motion.div>
-            <h3 className="font-black text-lg">Thank you!</h3>
-            <p className="text-sm text-muted-foreground">Your donation to <span className="text-foreground font-semibold">{campaign.title}</span> has been processed and the campaign has been notified.</p>
+            <h3 className="font-black text-lg">{t("fundraise.thankYou")}</h3>
+            <p className="text-sm text-muted-foreground"><Trans i18nKey="fundraise.donationProcessed" values={{ title: t(campaign.title) }} components={{ b: <span className="text-foreground font-semibold" /> }} /></p>
             <div className="flex gap-2 w-full">
-              <Button variant="secondary" className="flex-1 text-xs" onClick={() => { void navigator.clipboard?.writeText(window.location.href).then(() => toast.success("Share link copied!"), () => toast.error("Could not copy the link")); }}>
-                <Share2 size={12} className="mr-1" /> Share
+              <Button variant="secondary" className="flex-1 text-xs" onClick={() => { void navigator.clipboard?.writeText(window.location.href).then(() => toast.success(t("fundraise.shareLinkCopied")), () => toast.error(t("fundraise.couldNotCopyThe"))); }}>
+                <Share2 size={12} className="mr-1" /> {t("receipt.share")}
               </Button>
-              <Button className="flex-1 text-xs" onClick={onClose}>Done</Button>
+              <Button className="flex-1 text-xs" onClick={onClose}>{t("receipt.done")}</Button>
             </div>
           </div>
         )}
@@ -369,6 +372,7 @@ function CampaignDetail({ campaign, onBack, onDonate }: {
   onBack: () => void;
   onDonate: (c: Campaign) => void;
 }) {
+  const { t } = useTranslation("common");
   const progress = pct(campaign.raised, campaign.goal);
   return (
     <motion.div
@@ -385,18 +389,18 @@ function CampaignDetail({ campaign, onBack, onDonate }: {
           onClick={onBack}
           className="absolute top-3 left-3 flex items-center gap-1.5 text-white/80 hover:text-white text-xs font-semibold bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-xl cursor-pointer"
         >
-          <ArrowLeft size={14} /> Back
+          <ArrowLeft size={14} /> {t("payments.back")}
         </button>
         <div className="absolute top-3 right-3 flex gap-1.5">
-          {campaign.featured && <span className="flex items-center gap-0.5 text-[9px] font-black bg-amber-400/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full"><Star size={9} /> Featured</span>}
-          {campaign.trending && <span className="flex items-center gap-0.5 text-[9px] font-black bg-rose-400/20 border border-rose-400/40 text-rose-300 px-2 py-0.5 rounded-full"><Flame size={9} /> Trending</span>}
+          {campaign.featured && <span className="flex items-center gap-0.5 text-[9px] font-black bg-amber-400/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-full"><Star size={9} /> {t("fundraise.featured")}</span>}
+          {campaign.trending && <span className="flex items-center gap-0.5 text-[9px] font-black bg-rose-400/20 border border-rose-400/40 text-rose-300 px-2 py-0.5 rounded-full"><Flame size={9} /> {t("fundraise.trending")}</span>}
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-5 space-y-5">
         <div>
           <div className="flex items-start gap-2 mb-1">
-            <h2 className="font-black text-xl leading-snug flex-1">{campaign.title}</h2>
+            <h2 className="font-black text-xl leading-snug flex-1">{t(campaign.title)}</h2>
             {campaign.creatorVerified && <BadgeCheck size={18} className="text-primary shrink-0 mt-1" />}
           </div>
           <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
@@ -411,21 +415,21 @@ function CampaignDetail({ campaign, onBack, onDonate }: {
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
               <div className="text-lg font-black font-mono text-primary">{fmt(campaign.raised, campaign.currency)}</div>
-              <div className="text-[10px] text-muted-foreground">raised</div>
+              <div className="text-[10px] text-muted-foreground">{t("fundraise.raised")}</div>
             </div>
             <div>
               <div className="text-lg font-black font-mono">{campaign.donors.toLocaleString()}</div>
-              <div className="text-[10px] text-muted-foreground">donors</div>
+              <div className="text-[10px] text-muted-foreground">{t("fundraise.donors")}</div>
             </div>
             <div>
               <div className="text-lg font-black font-mono text-amber-700">{campaign.daysLeft}</div>
-              <div className="text-[10px] text-muted-foreground">days left</div>
+              <div className="text-[10px] text-muted-foreground">{t("fundraise.daysLeft")}</div>
             </div>
           </div>
           <div className="space-y-1">
             <div className="flex justify-between text-[10px]">
-              <span className="text-muted-foreground">{progress}% funded</span>
-              <span className="text-muted-foreground">Goal: {fmt(campaign.goal, campaign.currency)}</span>
+              <span className="text-muted-foreground">{progress}{t("fundraise.funded")}</span>
+              <span className="text-muted-foreground">{t("fundraise.goal")} {fmt(campaign.goal, campaign.currency)}</span>
             </div>
             <div className="h-2 bg-secondary rounded-full overflow-hidden">
               <motion.div
@@ -440,16 +444,16 @@ function CampaignDetail({ campaign, onBack, onDonate }: {
 
         {/* Story */}
         <div>
-          <h3 className="font-bold text-sm mb-2">About this campaign</h3>
+          <h3 className="font-bold text-sm mb-2">{t("fundraise.aboutThisCampaign")}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{campaign.story}</p>
         </div>
 
         {/* Actions */}
         <div className="flex gap-3">
           <Button className="flex-1 font-bold" onClick={() => onDonate(campaign)}>
-            <Heart size={15} className="mr-2" /> Donate Now
+            <Heart size={15} className="mr-2" /> {t("fundraise.donateNow")}
           </Button>
-          <Button variant="secondary" className="px-4" onClick={() => { void navigator.clipboard?.writeText(window.location.href).then(() => toast.success("Share link copied!"), () => toast.error("Could not copy the link")); }}>
+          <Button variant="secondary" className="px-4" onClick={() => { void navigator.clipboard?.writeText(window.location.href).then(() => toast.success(t("fundraise.shareLinkCopied")), () => toast.error(t("fundraise.couldNotCopyThe"))); }}>
             <Share2 size={15} />
           </Button>
         </div>
@@ -472,6 +476,7 @@ function CreateCampaign({ currentUserId, onCreate, onBack }: {
   onCreate: (args: { ownerUserId: string; title: string; story: string; category: string; goal: number; currency: string; deadline?: string }) => Promise<unknown>;
   onBack: () => void;
 }) {
+  const { t } = useTranslation("common");
   const [form, setForm] = useState({ title: "", story: "", goal: "", category: "agriculture" as Category, deadline: "", org: "" });
   const [photoName, setPhotoName] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -479,22 +484,22 @@ function CreateCampaign({ currentUserId, onCreate, onBack }: {
 
   async function handleSubmit() {
     if (!form.title || !form.story || !form.goal || !form.deadline) {
-      toast.error("Please fill in all required fields");
+      toast.error(t("fundraise.pleaseFillInAll"));
       return;
     }
     if (!currentUserId) {
       // Anonymous preview — keep the existing mock success path unchanged.
       setSubmitted(true);
-      toast.success("Campaign submitted for review!");
+      toast.success(t("fundraise.campaignSubmittedForReview"));
       return;
     }
     setSubmitting(true);
     try {
       await onCreate({ ownerUserId: currentUserId, title: form.title, story: form.story, category: form.category, goal: Number(form.goal), currency: "XAF", deadline: form.deadline });
       setSubmitted(true);
-      toast.success("Campaign submitted for review!");
+      toast.success(t("fundraise.campaignSubmittedForReview"));
     } catch {
-      toast.error("Couldn't create the campaign — try again");
+      toast.error(t("fundraise.couldnTCreateThe"));
     } finally {
       setSubmitting(false);
     }
@@ -510,15 +515,15 @@ function CreateCampaign({ currentUserId, onCreate, onBack }: {
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" as const, stiffness: 300, delay: 0.1 }}>
           <CheckCircle size={64} className="text-primary" />
         </motion.div>
-        <h2 className="font-black text-xl">Campaign Submitted!</h2>
-        <p className="text-muted-foreground text-sm max-w-xs">Your campaign has been submitted for review. We'll notify you within 24 hours once it's approved and live.</p>
+        <h2 className="font-black text-xl">{t("fundraise.campaignSubmitted")}</h2>
+        <p className="text-muted-foreground text-sm max-w-xs">{t("fundraise.yourCampaignHasBeen")}</p>
         <div className="bg-secondary/50 border border-border rounded-2xl p-4 text-left w-full max-w-xs space-y-1.5">
-          <div className="text-xs text-muted-foreground">Campaign title</div>
-          <div className="font-bold text-sm">{form.title}</div>
-          <div className="text-xs text-muted-foreground mt-1">Goal</div>
-          <div className="font-bold font-mono text-primary text-sm">{Number(form.goal).toLocaleString()} XAF</div>
+          <div className="text-xs text-muted-foreground">{t("fundraise.campaignTitle")}</div>
+          <div className="font-bold text-sm">{t(form.title)}</div>
+          <div className="text-xs text-muted-foreground mt-1">{t("fundraise.goal2")}</div>
+          <div className="font-bold font-mono text-primary text-sm">{Number(form.goal).toLocaleString()} {t("fundraise.xaf")}</div>
         </div>
-        <Button className="w-full max-w-xs" onClick={onBack}>Back to Browse</Button>
+        <Button className="w-full max-w-xs" onClick={onBack}>{t("fundraise.backToBrowse")}</Button>
       </motion.div>
     );
   }
@@ -535,8 +540,8 @@ function CreateCampaign({ currentUserId, onCreate, onBack }: {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h2 className="font-black text-base">Launch a Campaign</h2>
-          <p className="text-xs text-muted-foreground">Any PayRus member can fundraise for their cause</p>
+          <h2 className="font-black text-base">{t("fundraise.launchACampaign")}</h2>
+          <p className="text-xs text-muted-foreground">{t("fundraise.anyPayrusMemberCan")}</p>
         </div>
       </div>
 
@@ -544,24 +549,24 @@ function CreateCampaign({ currentUserId, onCreate, onBack }: {
         {/* Photo placeholder */}
         <label htmlFor="campaign-photo" className="h-28 border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 focus-within:border-primary transition-colors">
           <Camera size={24} className="text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">{photoName ?? "Add a campaign photo"}</span>
+          <span className="text-xs text-muted-foreground">{photoName ?? t("fundraise.addACampaignPhoto")}</span>
           <input id="campaign-photo" type="file" accept="image/*" className="sr-only" onChange={(e) => setPhotoName(e.target.files?.[0]?.name ?? null)} />
         </label>
 
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-muted-foreground">Campaign title *</label>
+          <label className="text-xs font-semibold text-muted-foreground">{t("fundraise.campaignTitle2")}</label>
           <Input
-            placeholder="e.g. Clean Water for Bukavu Village"
+            placeholder={t("fundraise.eGCleanWater")}
             value={form.title}
             onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
           />
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-muted-foreground">Your story *</label>
+          <label className="text-xs font-semibold text-muted-foreground">{t("fundraise.yourStory")}</label>
           <textarea
             className="w-full min-h-[100px] bg-input border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-            placeholder="Describe your cause, who will benefit, and how the funds will be used..."
+            placeholder={t("fundraise.describeYourCauseWho")}
             value={form.story}
             onChange={e => setForm(f => ({ ...f, story: e.target.value }))}
           />
@@ -569,7 +574,7 @@ function CreateCampaign({ currentUserId, onCreate, onBack }: {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-muted-foreground">Goal amount (XAF) *</label>
+            <label className="text-xs font-semibold text-muted-foreground">{t("fundraise.goalAmountXaf")}</label>
             <div className="relative">
               <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -582,7 +587,7 @@ function CreateCampaign({ currentUserId, onCreate, onBack }: {
             </div>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-muted-foreground">Deadline *</label>
+            <label className="text-xs font-semibold text-muted-foreground">{t("fundraise.deadline")}</label>
             <div className="relative">
               <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -596,7 +601,7 @@ function CreateCampaign({ currentUserId, onCreate, onBack }: {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-muted-foreground">Category</label>
+          <label className="text-xs font-semibold text-muted-foreground">{t("admin.payouttypespanel.category")}</label>
           <div className="flex gap-2 flex-wrap">
             {CATEGORY_OPTIONS.map(c => (
               <button
@@ -609,32 +614,32 @@ function CreateCampaign({ currentUserId, onCreate, onBack }: {
                     : "bg-secondary border-border text-muted-foreground hover:text-foreground"
                 )}
               >
-                {c.label}
+                {t(c.label)}
               </button>
             ))}
           </div>
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-muted-foreground">Organisation name (optional)</label>
+          <label className="text-xs font-semibold text-muted-foreground">{t("fundraise.organisationNameOptional")}</label>
           <Input
-            placeholder="e.g. COOPAGRI-KIN, GirlCode Nigeria..."
+            placeholder={t("fundraise.eGCoopagriKin")}
             value={form.org}
             onChange={e => setForm(f => ({ ...f, org: e.target.value }))}
           />
-          <p className="text-[10px] text-muted-foreground">NGOs and registered cooperatives will receive a verification badge after review.</p>
+          <p className="text-[10px] text-muted-foreground">{t("fundraise.ngosAndRegisteredCooperatives")}</p>
         </div>
 
         {/* Info box */}
         <div className="flex gap-2.5 bg-primary/5 border border-primary/20 rounded-xl p-3.5">
           <Target size={15} className="text-primary shrink-0 mt-0.5" />
           <div className="text-[11px] text-muted-foreground leading-relaxed">
-            Campaigns are reviewed within 24 hours. Funds are held in escrow and released to your PayRus account as milestones are met or at campaign close. PayRus charges <span className="text-foreground font-semibold">2.5% platform fee</span> on total funds raised.
+            <Trans i18nKey="fundraise.reviewNote" values={{ fee: t("fundraise.25PlatformFee") }} components={{ b: <span className="text-foreground font-semibold" /> }} />
           </div>
         </div>
 
         <Button className="w-full font-bold" disabled={submitting} onClick={() => void handleSubmit()}>
-          <Plus size={15} className="mr-2" /> {submitting ? "Submitting..." : "Submit Campaign"}
+          <Plus size={15} className="mr-2" /> {submitting ? t("fundraise.submitting") : t("fundraise.submitCampaign")}
         </Button>
       </div>
     </motion.div>
@@ -649,13 +654,14 @@ function MyCampaigns({ campaigns, onCreateNew, onSelect, onDonate }: {
   onSelect: (c: Campaign) => void;
   onDonate: (c: Campaign) => void;
 }) {
+  const { t } = useTranslation("common");
   const myCampaigns = campaigns;
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-sm">My Campaigns</h3>
+        <h3 className="font-bold text-sm">{t("fundraise.myCampaigns")}</h3>
         <Button size="sm" className="text-xs" onClick={onCreateNew}>
-          <Plus size={13} className="mr-1" /> New
+          <Plus size={13} className="mr-1" /> {t("dashboard.new")}
         </Button>
       </div>
       {myCampaigns.map(c => {
@@ -671,10 +677,10 @@ function MyCampaigns({ campaigns, onCreateNew, onSelect, onDonate }: {
                 {c.photo}
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-sm truncate">{c.title}</h4>
+                <h4 className="font-bold text-sm truncate">{t(c.title)}</h4>
                 <div className="text-[10px] text-muted-foreground flex gap-2 mt-0.5">
-                  <span className="flex items-center gap-1"><Users size={9} />{c.donors} donors</span>
-                  <span className="flex items-center gap-1"><Clock size={9} />{c.daysLeft}d left</span>
+                  <span className="flex items-center gap-1"><Users size={9} />{c.donors} {t("fundraise.donors")}</span>
+                  <span className="flex items-center gap-1"><Clock size={9} />{c.daysLeft}{t("fundraise.dLeft")}</span>
                 </div>
               </div>
               <span className="text-[9px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full">{progress}%</span>
@@ -685,15 +691,15 @@ function MyCampaigns({ campaigns, onCreateNew, onSelect, onDonate }: {
               </div>
               <div className="flex justify-between text-[10px] text-muted-foreground">
                 <span className="font-mono text-primary font-bold">{fmt(c.raised, c.currency)}</span>
-                <span>of {fmt(c.goal, c.currency)}</span>
+                <span>{t("fundraise.of")} {fmt(c.goal, c.currency)}</span>
               </div>
             </div>
             <div className="mt-3 flex gap-2">
-              <Button size="sm" variant="secondary" className="flex-1 text-xs" onClick={(e) => { e.stopPropagation(); toast.info("Share link copied!"); }}>
-                <Share2 size={11} className="mr-1" /> Share
+              <Button size="sm" variant="secondary" className="flex-1 text-xs" onClick={(e) => { e.stopPropagation(); toast.info(t("fundraise.shareLinkCopied")); }}>
+                <Share2 size={11} className="mr-1" /> {t("receipt.share")}
               </Button>
               <Button size="sm" className="flex-1 text-xs" onClick={(e) => { e.stopPropagation(); onDonate(c); }}>
-                <ChevronRight size={11} className="mr-1" /> View & Boost
+                <ChevronRight size={11} className="mr-1" /> {t("fundraise.viewBoost")}
               </Button>
             </div>
           </div>
@@ -706,6 +712,7 @@ function MyCampaigns({ campaigns, onCreateNew, onSelect, onDonate }: {
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 export default function Fundraise() {
+  const { t } = useTranslation("common");
   const [tab, setTab] = useState<TabKey>("browse");
   const [category, setCategory] = useState<Category>("all");
   const [search, setSearch] = useState("");
@@ -742,17 +749,17 @@ export default function Fundraise() {
     <div className="flex flex-col h-full">
       {/* Back navigation */}
       <div className="px-5 pt-5 pb-0 shrink-0">
-        <PageHeader title="Fundraise" className="mb-4 md:mb-6" />
+        <PageHeader title={t("nav.fundraise")} className="mb-4 md:mb-6" />
       </div>
       {/* Header */}
       <div className="px-5 pt-0 pb-0 shrink-0">
         <div className="flex items-center justify-between mb-1">
           <div>
-            <h1 className="text-xl font-black">Fundraising</h1>
-            <p className="text-xs text-muted-foreground">Community campaigns powered by PayRus</p>
+            <h1 className="text-xl font-black">{t("fundraise.fundraising")}</h1>
+            <p className="text-xs text-muted-foreground">{t("fundraise.communityCampaignsPoweredBy")}</p>
           </div>
           <Button size="sm" className="font-bold" onClick={() => { setSelected(null); setTab("create"); }}>
-            <Plus size={14} className="mr-1" /> Start Campaign
+            <Plus size={14} className="mr-1" /> {t("fundraise.startCampaign")}
           </Button>
         </div>
 
@@ -760,11 +767,11 @@ export default function Fundraise() {
         <div className="flex gap-3 mt-3 mb-4">
           {[
             { label: "Total raised", value: `${(totalRaised / 1_000_000).toFixed(1)}M XAF equiv.` },
-            { label: "Campaigns", value: `${displayCampaigns.length} active` },
+            { label: "Campaigns", value: t("fundraise.nActive", { n: displayCampaigns.length }) },
             { label: "Donors", value: totalDonors.toLocaleString() },
           ].map(s => (
             <div key={s.label} className="flex-1 bg-secondary/50 border border-border rounded-xl px-2.5 py-2">
-              <div className="text-[10px] text-muted-foreground">{s.label}</div>
+              <div className="text-[10px] text-muted-foreground">{t(s.label)}</div>
               <div className="font-black text-xs font-mono">{s.value}</div>
             </div>
           ))}
@@ -776,16 +783,16 @@ export default function Fundraise() {
             { key: "browse", label: "Browse" },
             { key: "mycampaigns", label: "My Campaigns" },
             { key: "create", label: "Create" },
-          ] as { key: TabKey; label: string }[]).map(t => (
+          ] as { key: TabKey; label: string }[]).map(tItem => (
             <button
-              key={t.key}
-              onClick={() => { setTab(t.key); setSelected(null); }}
+              key={tItem.key}
+              onClick={() => { setTab(tItem.key); setSelected(null); }}
               className={cn(
                 "text-xs font-bold px-4 py-2.5 border-b-2 transition-colors cursor-pointer",
-                tab === t.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                tab === tItem.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
               )}
             >
-              {t.label}
+              {t(tItem.label)}
             </button>
           ))}
         </div>
@@ -799,7 +806,7 @@ export default function Fundraise() {
               {/* Search */}
               <div className="relative">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input className="pl-9 text-sm" placeholder="Search campaigns, locations, creators..." value={search} onChange={e => setSearch(e.target.value)} />
+                <Input className="pl-9 text-sm" placeholder={t("fundraise.searchCampaignsLocationsCreators")} value={search} onChange={e => setSearch(e.target.value)} />
               </div>
 
               {/* Category filter */}
@@ -816,7 +823,7 @@ export default function Fundraise() {
                     )}
                   >
                     <cat.icon size={12} className={category === cat.key ? "text-primary-foreground" : cat.color} />
-                    {cat.label}
+                    {t(cat.label)}
                   </button>
                 ))}
               </div>
@@ -826,7 +833,7 @@ export default function Fundraise() {
                 <div>
                   <div className="flex items-center gap-1.5 mb-3">
                     <Star size={13} className="text-amber-700" />
-                    <span className="text-xs font-black uppercase tracking-wider">Featured</span>
+                    <span className="text-xs font-black uppercase tracking-wider">{t("fundraise.featured")}</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {featured.map(c => <CampaignCard key={c.id} campaign={c} onSelect={setSelected} onDonate={setDonating} />)}
@@ -839,7 +846,7 @@ export default function Fundraise() {
                 <div>
                   <div className="flex items-center gap-1.5 mb-3">
                     <Flame size={13} className="text-rose-700" />
-                    <span className="text-xs font-black uppercase tracking-wider">Trending</span>
+                    <span className="text-xs font-black uppercase tracking-wider">{t("fundraise.trending")}</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {trending.map(c => <CampaignCard key={c.id} campaign={c} onSelect={setSelected} onDonate={setDonating} />)}
@@ -850,10 +857,10 @@ export default function Fundraise() {
               {/* All / filtered */}
               <div>
                 <div className="flex items-center gap-1.5 mb-3">
-                  <span className="text-xs font-black uppercase tracking-wider">{category === "all" && !search ? "All Campaigns" : `Results (${filtered.length})`}</span>
+                  <span className="text-xs font-black uppercase tracking-wider">{category === "all" && !search ? t("fundraise.allCampaigns") : `Results (${filtered.length})`}</span>
                 </div>
                 {filtered.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground text-sm">No campaigns found for this search.</div>
+                  <div className="text-center py-12 text-muted-foreground text-sm">{t("fundraise.noCampaignsFoundFor")}</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {filtered.map(c => <CampaignCard key={c.id} campaign={c} onSelect={setSelected} onDonate={setDonating} />)}

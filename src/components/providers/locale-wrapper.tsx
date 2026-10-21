@@ -3,6 +3,7 @@ import {
   isSupportedLocale,
   SAVED_OR_DEFAULT_LOCALE,
   setLocaleInPath,
+  SUPPORTED_LOCALES,
 } from "@/i18n.ts";
 import { useEffect, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,8 +15,14 @@ export default function LocaleWrapper({ children }: { children: ReactNode }) {
   const location = useLocation();
 
   useEffect(() => {
-    if (lng && isSupportedLocale(lng) && i18n.language !== lng) {
-      void changeLocale(lng);
+    if (lng && isSupportedLocale(lng)) {
+      if (i18n.language !== lng) {
+        void changeLocale(lng);
+      } else {
+        // Already the active language (saved locale, direct load): the page attributes still need to follow the URL.
+        document.documentElement.lang = lng;
+        document.documentElement.dir = SUPPORTED_LOCALES[lng].dir ?? "ltr";
+      }
     }
   }, [lng, i18n.language]);
 

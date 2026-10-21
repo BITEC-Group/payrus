@@ -148,9 +148,10 @@ function ChipSVG({ color = "#d4af37" }: { color?: string }) {
 
 /* ─── Visa Logo SVG ────────────────────────────────────── */
 function VisaLogo({ className }: { className?: string }) {
+  const { t } = useTranslation("common");
   return (
     <svg viewBox="0 0 80 26" className={className} fill="none">
-      <text x="0" y="22" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="26" fill="white" letterSpacing="-1" opacity="0.95">VISA</text>
+      <text x="0" y="22" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="26" fill="white" letterSpacing="-1" opacity="0.95">{t("cards.visa")}</text>
     </svg>
   );
 }
@@ -190,6 +191,7 @@ function CardFace({
   selected: boolean;
   onClick: () => void;
 }) {
+  const { t } = useTranslation("common");
   const chipColor = card.accentColor;
 
   return (
@@ -207,7 +209,7 @@ function CardFace({
         <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-20 rounded-2xl">
           <div className="flex flex-col items-center gap-2">
             <Lock size={28} className="text-white/90" />
-            <span className="text-white/70 text-xs font-medium tracking-wider uppercase">Card Locked</span>
+            <span className="text-white/70 text-xs font-medium tracking-wider uppercase">{t("cards.cardLocked")}</span>
           </div>
         </div>
       )}
@@ -256,11 +258,11 @@ function CardFace({
         <div className="flex items-end justify-between">
           <div className="flex gap-6">
             <div>
-              <div className="text-[9px] text-white/40 uppercase tracking-widest mb-0.5">Card Holder</div>
+              <div className="text-[9px] text-white/40 uppercase tracking-widest mb-0.5">{t("cards.cardHolder")}</div>
               <div className="text-[11px] font-semibold text-white/90 font-mono tracking-wider">{card.holder}</div>
             </div>
             <div>
-              <div className="text-[9px] text-white/40 uppercase tracking-widest mb-0.5">Expires</div>
+              <div className="text-[9px] text-white/40 uppercase tracking-widest mb-0.5">{t("cards.details.expires")}</div>
               <div className="text-[11px] font-semibold text-white/90 font-mono">{card.expiry}</div>
             </div>
           </div>
@@ -381,7 +383,7 @@ export default function Cards() {
             <div className="rounded-lg bg-white px-2 py-1 shadow-md shadow-black/30">
               <PayRusLogo className="h-5 w-auto" />
             </div>
-            <h1 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-2">PayRus Card <CapabilityBadge capability="card.issue" /></h1>
+            <h1 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-2">{t("p2p.methodCard")} <CapabilityBadge capability="card.issue" /></h1>
           </div>
           <p className="text-xs text-muted-foreground">
             {t("cards.subtitle")}
@@ -556,7 +558,7 @@ export default function Cards() {
           {activeTab === "linked" && (
             <div className="p-5 space-y-3">
               <p className="text-xs text-muted-foreground">
-                {t("cards.linkedIntroPrefix")} <span className="text-primary font-semibold">One Limit</span>.{" "}
+                {t("cards.linkedIntroPrefix")} <span className="text-primary font-semibold">{t("cards.oneLimit")}</span>.{" "}
                 {t("cards.linkedIntroSuffix")}
               </p>
               {linkedAccounts === undefined ? (

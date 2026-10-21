@@ -131,7 +131,7 @@ export default function Disputes() {
         >
           <PhoneCall size={19} className="text-primary" />
           <span className="text-xs font-semibold text-foreground text-center">{t("disputes.callAgent")}</span>
-          <span className="text-[10px] text-muted-foreground text-center">FR · EN · PT · Lingala</span>
+          <span className="text-[10px] text-muted-foreground text-center">{t("disputes.frEnPtLingala")}</span>
         </button>
         <button
           onClick={() => toast.success(t("disputes.cardFrozen"))}

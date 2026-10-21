@@ -477,16 +477,14 @@ export default function PointOfSale() {
                 {t("pos.device.model")}
               </span>
               <span className="font-medium text-foreground">
-                Feitian F20 SmartPOS
+                {t("pos.feitianF20Smartpos")}
               </span>
             </div>
             <div className="flex items-center justify-between py-1.5">
               <span className="text-muted-foreground">
                 {t("pos.device.serial")}
               </span>
-              <span className="font-mono text-xs font-medium text-foreground">
-                FT-{profile?.type?.slice(0, 4).toUpperCase() ?? "0000"}-88231
-              </span>
+              <span className="font-mono text-xs font-medium text-foreground">{t("pos.ft88231", { v: profile?.type?.slice(0, 4).toUpperCase() ?? "0000" })}</span>
             </div>
             <div className="flex items-center justify-between py-1.5">
               <span className="text-muted-foreground">
@@ -501,7 +499,7 @@ export default function PointOfSale() {
                 {t("pos.device.sdk")}
               </span>
               <span className="font-mono text-xs font-medium text-foreground">
-                FTSDK 1.0.0.17
+                {t("pos.ftsdk100")}
               </span>
             </div>
             {diagnostics.map((d) => (

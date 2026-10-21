@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { walletProviderLabel } from "@/lib/i18n-labels.ts";
 import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
@@ -263,7 +264,7 @@ export default function WalletPage() {
                           <button key={w.id} type="button" onClick={() => setCurrency(w.currency)}
                             className={cn("w-full flex items-center justify-between rounded-xl border px-3 py-2 text-left cursor-pointer transition-colors",
                               w.currency === currency ? "border-primary bg-primary/5" : "border-border hover:border-primary/40")}>
-                            <span className="text-sm font-medium">{w.flag} {w.provider ?? w.currency} <span className="text-xs text-muted-foreground">· {w.currency}</span></span>
+                            <span className="text-sm font-medium">{w.flag} {walletProviderLabel(t, w.provider) ?? w.currency} <span className="text-xs text-muted-foreground">· {w.currency}</span></span>
                             <span className="text-sm font-bold font-mono">{w.balance.toLocaleString()}</span>
                           </button>
                         ))}
@@ -447,8 +448,8 @@ export default function WalletPage() {
                       {t("wallet.cryptoInstructions")}
                     </h3>
                     <div className="p-3 rounded-lg bg-secondary border border-border">
-                      <p className="text-[10px] text-muted-foreground mb-1">{t("wallet.cryptoNetwork")}: Tron (TRC-20)</p>
-                      <p className="text-xs font-mono font-medium text-foreground break-all">TPayRus7xKj...9cDf4Wm</p>
+                      <p className="text-[10px] text-muted-foreground mb-1">{t("wallet.cryptoNetwork")}{t("wallet.tronTrc20")}</p>
+                      <p className="text-xs font-mono font-medium text-foreground break-all">{t("wallet.tpayrus7xkj9cdf4wm")}</p>
                     </div>
                     <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                       <AlertCircle size={12} className="text-amber-500" />

@@ -139,7 +139,7 @@ export default function Payments() {
             {method === "mobile" && (
               <div className="space-y-1.5">
                 <label className="text-sm text-muted-foreground font-medium">{t("payments.recipientNumber")}</label>
-                <Input value={recipient} onChange={e => setRecipient(e.target.value)} placeholder="+243 8XX XXX XXXX" className="bg-card border-border" />
+                <Input value={recipient} onChange={e => setRecipient(e.target.value)} placeholder={t("payments.2438xxXxxXxxx")} className="bg-card border-border" />
               </div>
             )}
             {method === "qr" && (
@@ -149,7 +149,7 @@ export default function Payments() {
                     <div key={i} className={cn("rounded-sm", i % 3 === 0 || i % 7 === 0 ? "bg-gray-900" : "bg-transparent")} />
                   ))}
                 </div>
-                <p className="text-xs text-gray-500 mt-3 font-mono">PAYRUS-{txReference}</p>
+                <p className="text-xs text-gray-500 mt-3 font-mono">{t("payments.payrus")}{txReference}</p>
               </div>
             )}
             <div className="space-y-1.5">
@@ -158,7 +158,7 @@ export default function Payments() {
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-lg">$</span>
                 <Input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" className="pl-8 bg-card border-border text-2xl font-bold font-mono h-14" />
               </div>
-              {amount && <p className="text-xs text-muted-foreground">≈ {midMarketConvert(parseFloat(amount), "USD", "XAF").toLocaleString(undefined, { maximumFractionDigits: 0 })} XAF</p>}
+              {amount && <p className="text-xs text-muted-foreground">{t("payments.xaf", { amount: midMarketConvert(parseFloat(amount), "USD", "XAF").toLocaleString(undefined, { maximumFractionDigits: 0 }) })}</p>}
             </div>
             <div className="space-y-1.5">
               <label className="text-sm text-muted-foreground font-medium">{t("payments.descLabel")}</label>

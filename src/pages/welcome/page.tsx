@@ -71,7 +71,7 @@ export default function Welcome() {
             background: "radial-gradient(ellipse at 50% 40%, rgba(120,183,46,0.10) 0%, rgba(14,127,176,0.07) 55%, transparent 78%)",
           }}
         >
-          <img src={`${import.meta.env.BASE_URL}payrus-logo-lockup.png`} alt="PayRus" className="w-[220px] md:w-60 h-auto drop-shadow-[0_10px_22px_rgba(10,47,92,0.14)]" />
+          <img src={`${import.meta.env.BASE_URL}payrus-logo-lockup.png`} alt={t("landing.Masthead.payrus")} className="w-[220px] md:w-60 h-auto drop-shadow-[0_10px_22px_rgba(10,47,92,0.14)]" />
         </div>
 
         <div className="flex flex-col gap-2.5">

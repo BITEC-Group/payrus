@@ -98,6 +98,9 @@ i18n.use(initReactI18next).init({
   fallbackLng: DEFAULT_LOCALE,
   supportedLngs: SUPPORTED_LOCALES_ARRAY,
   defaultNS: "common",
+  // Locale files are flat ("nav.home": "..."), and some keys are whole English sentences (data labels), so neither '.' nor ':' may split a key.
+  keySeparator: false,
+  nsSeparator: false,
   interpolation: { escapeValue: false },
   react: { useSuspense: true },
 });

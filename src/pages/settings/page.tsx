@@ -523,7 +523,7 @@ function LiveFxTicker() {
         <div className="grid grid-cols-3 gap-2">
           {currencies.filter((c) => c.code !== "USD" && c.ratePerUsd != null).map((c) => (
             <div key={c.code} className="rounded-xl bg-secondary/40 px-2.5 py-2">
-              <div className="text-[10px] text-muted-foreground">USD/{c.code}</div>
+              <div className="text-[10px] text-muted-foreground">{t("settings.usd")}{c.code}</div>
               <div className="text-xs font-mono font-bold text-foreground">{c.ratePerUsd!.toLocaleString(undefined, { maximumFractionDigits: 4 })}</div>
             </div>
           ))}
@@ -549,7 +549,7 @@ function AboutSection() {
       <div className="flex flex-col items-center py-6 gap-3">
         <PayRusLogo className="h-12 w-auto" />
         <div className="text-center">
-          <div className="text-base font-black text-foreground">PayRus</div>
+          <div className="text-base font-black text-foreground">{t("landing.Masthead.payrus")}</div>
           <div className="text-xs text-muted-foreground">{t("settings.about.tagline")}</div>
         </div>
       </div>

@@ -679,7 +679,7 @@ export default function ProfileSelection() {
                                 legalRepIdType === idt ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border text-muted-foreground hover:text-foreground",
                               )}
                             >
-                              {t(`profile.kyc.id${idt === "national" ? "National" : idt === "passport" ? "Passport" : "Voter"}`)}
+                              {t(`profile.kyc.id${idt === "national" ? t("profile.national") : idt === "passport" ? t("profile.kyc.idPassport") : t("profile.voter")}`)}
                             </button>
                           ))}
                         </div>
@@ -758,7 +758,7 @@ export default function ProfileSelection() {
                                 idType === idt ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border text-muted-foreground hover:text-foreground",
                               )}
                             >
-                              {t(`profile.kyc.id${idt === "national" ? "National" : idt === "passport" ? "Passport" : "Voter"}`)}
+                              {t(`profile.kyc.id${idt === "national" ? t("profile.national") : idt === "passport" ? t("profile.kyc.idPassport") : t("profile.voter")}`)}
                             </button>
                           ))}
                         </div>

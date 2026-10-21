@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { txTypeLabel, walletProviderLabel } from "@/lib/i18n-labels.ts";
 import { useCurrentAppUser } from "@/hooks/use-current-app-user.ts";
 import { useCardsForUser, useLinkedPaymentMethods, useRecentTransfersForUser, useWalletViewsForUser } from "@/hooks/use-backend.ts";
 import { useProfile } from "@/contexts/profile-context.tsx";
@@ -87,7 +88,7 @@ export default function Index() {
   const walletsToShow = realWallets && realWallets.length > 0
     ? realWallets.map((w) => ({
         id: w.id,
-        code: w.provider,
+        code: walletProviderLabel(t, w.provider) ?? w.currency,
         flag: w.flag,
         balance: `${w.currency} ${w.balance.toLocaleString()}`,
         change: "● live",
@@ -117,16 +118,16 @@ export default function Index() {
           <div className="flex items-center gap-2.5">
             <img src={`${import.meta.env.BASE_URL}payrus-mark.png`} alt="" className="h-7 w-auto" />
             <div>
-              <div className="text-xs font-semibold text-[#66798F]">Good afternoon</div>
+              <div className="text-xs font-semibold text-[#66798F]">{t("Index.goodAfternoon")}</div>
               {displayName && (
                 <div className="text-[13px] font-bold text-[#0A2F5C] leading-tight" style={{ fontFamily: "'Sora', sans-serif" }}>{displayName}</div>
               )}
-              <div className="text-[15px] font-bold text-[#0A2F5C]" style={{ fontFamily: "'Sora', sans-serif" }}>Welcome</div>
+              <div className="text-[15px] font-bold text-[#0A2F5C]" style={{ fontFamily: "'Sora', sans-serif" }}>{t("Index.welcome")}</div>
             </div>
           </div>
           <Link
             to={`/${lng}/notifications`}
-            aria-label="Notifications"
+            aria-label={t("nav.notifications")}
             className="relative w-[38px] h-[38px] rounded-xl bg-white border border-[#E4EAF0] text-[#0A2F5C] flex items-center justify-center"
           >
             <Bell size={18} strokeWidth={1.8} />
@@ -150,8 +151,8 @@ export default function Index() {
               </svg>
 
               <div className="relative flex items-center justify-between">
-                <div className="text-[12.5px] font-semibold opacity-85 tracking-wide">TOTAL BALANCE · ALL CHANNELS</div>
-                <button type="button" aria-label="Toggle balance visibility" onClick={() => setShowBalance(v => !v)} className="opacity-90 cursor-pointer">
+                <div className="text-[12.5px] font-semibold opacity-85 tracking-wide">{t("Index.totalBalanceAllChannels")}</div>
+                <button type="button" aria-label={t("Index.toggleBalanceVisibility")} onClick={() => setShowBalance(v => !v)} className="opacity-90 cursor-pointer">
                   {showBalance ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
@@ -164,14 +165,14 @@ export default function Index() {
               </div>
               <div className="relative mt-3.5 flex flex-wrap items-center gap-2">
                 {hasRealWallets ? (
-                  <span className="text-xs opacity-80">across {walletsToShow.length} wallet{walletsToShow.length === 1 ? "" : "s"} · {channelsToShow.length} linked</span>
+                  <span className="text-xs opacity-80">{t("Index.acrossWalletLinked", { count: walletsToShow.length, linked: channelsToShow.length })}</span>
                 ) : currentUser ? (
-                  <span className="text-xs opacity-80">No wallets yet</span>
+                  <span className="text-xs opacity-80">{t("Index.noWalletsYet")}</span>
                 ) : (
                   <>
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.2)" }}>Sample data</span>
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(120,183,46,0.25)", color: "#B9E88F" }}>▲ 3.2% this month</span>
-                    <span className="text-xs opacity-80">across 7 wallets · 3 mobile money · 1 bank</span>
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.2)" }}>{t("Index.sampleData")}</span>
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: "rgba(120,183,46,0.25)", color: "#B9E88F" }}>{t("Index.32ThisMonth")}</span>
+                    <span className="text-xs opacity-80">{t("Index.across7Wallets3")}</span>
                   </>
                 )}
               </div>
@@ -179,8 +180,8 @@ export default function Index() {
 
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="text-[15px] font-bold text-[#0A2F5C]" style={{ fontFamily: "'Sora', sans-serif" }}>Your Wallets</span>
-                <span className="text-xs font-bold text-[#0E7FB0]">Tap to select</span>
+                <span className="text-[15px] font-bold text-[#0A2F5C]" style={{ fontFamily: "'Sora', sans-serif" }}>{t("Index.yourWallets")}</span>
+                <span className="text-xs font-bold text-[#0E7FB0]">{t("Index.tapToSelect")}</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {walletsToShow.map(({ id, code, flag, balance, change, up, accent }) => (
@@ -222,8 +223,8 @@ export default function Index() {
 
             <div className="rounded-[20px] bg-white border border-[#E4EAF0] p-4 flex flex-col gap-3" style={{ boxShadow: "0 1px 2px rgba(10,42,74,0.06)" }}>
               <div className="flex items-center justify-between">
-                <span className="text-[15px] font-bold text-[#0A2F5C]" style={{ fontFamily: "'Sora', sans-serif" }}>Connected Channels</span>
-                <span className="text-xs font-bold text-[#0E7FB0]">{walletsToShow.length} wallets · {channelsToShow.length} linked</span>
+                <span className="text-[15px] font-bold text-[#0A2F5C]" style={{ fontFamily: "'Sora', sans-serif" }}>{t("Index.connectedChannels")}</span>
+                <span className="text-xs font-bold text-[#0E7FB0]">{t("Index.walletsLinked", { wallets: walletsToShow.length, linked: channelsToShow.length })}</span>
               </div>
               <div className="flex gap-2 flex-wrap">
                 {channelsToShow.map(({ label, emoji }) => (
@@ -233,7 +234,7 @@ export default function Index() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <span className="text-[15px] font-bold text-[#0A2F5C]" style={{ fontFamily: "'Sora', sans-serif" }}>Recent Activity</span>
+              <span className="text-[15px] font-bold text-[#0A2F5C]" style={{ fontFamily: "'Sora', sans-serif" }}>{t("dashboard.recentActivity")}</span>
               <div className="flex flex-col gap-2.5">
                 {currentUser && recentTx && recentTx.length > 0 ? (
                   recentTx.map((tx) => {
@@ -241,14 +242,13 @@ export default function Index() {
                     const wallet = realWallets?.find(w => w.id === tx.walletViewId);
                     const typeIcons: Record<string, typeof Send> = { transfer: Send, payment: CreditCard, remittance: Globe, deposit: Plus, convert_out: Repeat, convert_in: Repeat };
                     const Icon = isCredit ? ArrowDownLeft : (typeIcons[tx.type] ?? Send);
-                    const typeLabels: Record<string, string> = { transfer: "Transfer", payment: "Payment", remittance: "Remittance", deposit: "Deposit", convert_out: "Conversion out", convert_in: "Conversion in" };
                     return (
-                      <Link key={tx.id} to={`/${lng}/transactions/${encodeURIComponent(tx.reference)}`} aria-label={`${typeLabels[tx.type] ?? tx.type} ${tx.reference}`} className="rounded-[20px] bg-white border border-[#E4EAF0] p-3.5 flex items-center gap-3 hover:border-[#0A2F5C]/30 transition-colors" style={{ boxShadow: "0 1px 2px rgba(10,42,74,0.06)" }}>
+                      <Link key={tx.id} to={`/${lng}/transactions/${encodeURIComponent(tx.reference)}`} aria-label={`${txTypeLabel(t, tx.type)} ${tx.reference}`} className="rounded-[20px] bg-white border border-[#E4EAF0] p-3.5 flex items-center gap-3 hover:border-[#0A2F5C]/30 transition-colors" style={{ boxShadow: "0 1px 2px rgba(10,42,74,0.06)" }}>
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: isCredit ? "#EAF3EC" : "#EDEBF7", color: isCredit ? "#3E8E3F" : "#0A2F5C" }}>
                           <Icon size={18} strokeWidth={1.8} />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="text-[13.5px] font-bold text-[#0B2A4A]">{typeLabels[tx.type] ?? tx.type} {wallet ? `· ${wallet.flag} ${wallet.currency}` : ""}</div>
+                          <div className="text-[13.5px] font-bold text-[#0B2A4A]">{txTypeLabel(t, tx.type)} {wallet ? `· ${wallet.flag} ${wallet.currency}` : ""}</div>
                           <div className="text-[11.5px] text-[#9BAAB9]">{new Date(tx.createdAt).toLocaleString()}</div>
                         </div>
                         <div className="text-sm font-extrabold" style={{ color: isCredit ? "#3E8E3F" : "#0B2A4A" }}>
@@ -258,7 +258,7 @@ export default function Index() {
                     );
                   })
                 ) : currentUser ? (
-                  <div className="rounded-[20px] bg-white border border-[#E4EAF0] p-4 text-center text-xs text-[#9BAAB9]">No activity yet — add money or send a transfer to see it here.</div>
+                  <div className="rounded-[20px] bg-white border border-[#E4EAF0] p-4 text-center text-xs text-[#9BAAB9]">{t("Index.noActivityYetAdd")}</div>
                 ) : (
                   activity.map(({ name, type, time, amount, positive, bg, fg, icon: Icon }) => (
                     <div key={name} className="rounded-[20px] bg-white border border-[#E4EAF0] p-3.5 flex items-center gap-3" style={{ boxShadow: "0 1px 2px rgba(10,42,74,0.06)" }}>
@@ -275,7 +275,7 @@ export default function Index() {
                 )}
               </div>
               <Link to={`/${lng}/transactions`} className="self-start inline-flex items-center gap-1 text-xs font-bold text-[#0E7FB0]">
-                See all activity <ArrowUpRight size={13} />
+                {t("Index.seeAllActivity")} <ArrowUpRight size={13} />
               </Link>
             </div>
           </div>
@@ -284,11 +284,11 @@ export default function Index() {
             <div className="rounded-[20px] bg-white border border-[#E4EAF0] p-4" style={{ boxShadow: "0 1px 2px rgba(10,42,74,0.06)" }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#9BAAB9]">Your Card</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#9BAAB9]">{t("Index.yourCard")}</div>
                   <div className="mt-1 text-sm font-bold text-[#0B2A4A]">•••• {primaryCard ? primaryCard.last4 : "4471"}</div>
                 </div>
                 <Link to={`/${lng}/cards`} className="inline-flex items-center gap-1 text-xs font-bold text-[#0E7FB0]">
-                  Manage card
+                  {t("Index.manageCard")}
                   <ChevronRight size={14} />
                 </Link>
               </div>
@@ -302,16 +302,16 @@ export default function Index() {
               >
                 <div className="flex items-center justify-between">
                   <img src={`${import.meta.env.BASE_URL}payrus-mark.png`} alt="" className="h-5 w-auto" draggable={false} />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/75">{primaryCard?.brand ?? "Visa"}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/75">{primaryCard?.brand ?? t("Index.visa")}</span>
                 </div>
                 <div className="mt-8 text-[15px] font-semibold tracking-[0.12em]" style={{ fontFamily: "'Sora', sans-serif" }}>•••• •••• •••• {primaryCard ? primaryCard.last4 : "4471"}</div>
                 <div className="mt-5 flex items-end justify-between">
                   <div>
-                    <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/60">Card holder</div>
+                    <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/60">{t("cards.details.holder")}</div>
                     <div className="mt-1 text-[13px] font-bold">{primaryCard ? primaryCard.holder : (displayName ?? "JEAN DUPONT").toUpperCase()}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/60">Expires</div>
+                    <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/60">{t("cards.details.expires")}</div>
                     <div className="mt-1 text-[13px] font-bold">{primaryCard?.expiry ?? "09/27"}</div>
                   </div>
                 </div>
@@ -319,7 +319,7 @@ export default function Index() {
             </div>
 
             <div className="rounded-[20px] bg-white border border-[#E4EAF0] p-4" style={{ boxShadow: "0 1px 2px rgba(10,42,74,0.06)" }}>
-              <span className="text-[15px] font-bold text-[#0A2F5C]" style={{ fontFamily: "'Sora', sans-serif" }}>Linked Services</span>
+              <span className="text-[15px] font-bold text-[#0A2F5C]" style={{ fontFamily: "'Sora', sans-serif" }}>{t("Index.linkedServices")}</span>
               <div className="mt-3 flex flex-col gap-2">
                 {channelsToShow.map(({ label, icon }, i) => {
                   const IconComp = icon ?? [Wallet, Send, Landmark][i] ?? Wallet;
@@ -347,7 +347,7 @@ export default function Index() {
                 className="mt-4 w-full rounded-2xl py-3 text-sm font-bold text-white flex items-center justify-center gap-2 cursor-pointer hover:opacity-90 transition-opacity"
                 style={{ background: "linear-gradient(90deg,#78B72E 0%,#17927E 55%,#0E7FB0 100%)", boxShadow: "0 10px 22px rgba(10,42,74,0.16)" }}
               >
-                Manage channels
+                {t("Index.manageChannels")}
                 <ChevronRight size={16} />
               </button>
             </div>

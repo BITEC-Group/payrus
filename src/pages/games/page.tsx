@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import PageHeader from "@/components/ui/page-header.tsx";
 import {
@@ -81,6 +81,7 @@ function LottoSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId, 
   onDeduct: (n: number) => void;
   onCredit: (n: number) => void;
 } & RealMoneyProps) {
+  const { t } = useTranslation("common");
   const [picked, setPicked] = useState<number[]>([]);
   const [drawResult, setDrawResult] = useState<number[] | null>(null);
   const [animating, setAnimating] = useState(false);
@@ -124,11 +125,11 @@ function LottoSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId, 
       if (resolved.status === "won") {
         toast.success(`🎉 ${m} matches! You won ${fmt(payout)}!`);
       } else {
-        toast.info("No prize this time. Better luck next time!");
+        toast.info(t("games.noPrizeThisTime"));
       }
     } catch {
       setAnimating(false);
-      toast.error("Couldn't place the bet — try again");
+      toast.error(t("games.couldnTPlaceThe"));
     }
   }
 
@@ -142,7 +143,7 @@ function LottoSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId, 
       return;
     }
     if (gameBalance < TICKET_COST) {
-      toast.error("Insufficient game wallet balance. Top up first.");
+      toast.error(t("games.insufficientGameWalletBalance"));
       return;
     }
     onDeduct(TICKET_COST);
@@ -184,22 +185,22 @@ function LottoSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId, 
     <div className="space-y-4">
       {/* Prize pool banner */}
       <div className="bg-gradient-to-br from-amber-900/40 to-amber-700/10 border border-amber-200 rounded-2xl p-5 text-center space-y-1">
-        <div className="text-[11px] font-bold text-amber-700 uppercase tracking-widest">Current Jackpot</div>
+        <div className="text-[11px] font-bold text-amber-700 uppercase tracking-widest">{t("games.currentJackpot")}</div>
         <div className="text-4xl font-black font-mono text-amber-300">{fmt(jackpot)}</div>
-        <div className="text-xs text-muted-foreground">Prize pool: {fmt(prizePool)} · Next draw: {nextDraw}</div>
+        <div className="text-xs text-muted-foreground">{t("games.prizePoolNextDraw", { pool: fmt(prizePool), nextDraw })}</div>
         <div className="flex items-center justify-center gap-3 mt-2 text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1"><Ticket size={11} />1 ticket = {fmt(TICKET_COST)}</span>
+          <span className="flex items-center gap-1"><Ticket size={11} />{t("games.1Ticket")} {fmt(TICKET_COST)}</span>
           <span>·</span>
-          <span className="flex items-center gap-1"><Users size={11} />12,840 tickets sold</span>
+          <span className="flex items-center gap-1"><Users size={11} />{t("games.12840TicketsSold")}</span>
         </div>
       </div>
 
       {/* Number grid */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold">Pick {LOTTO_PICK} numbers <span className="text-muted-foreground font-normal">({picked.length}/{LOTTO_PICK})</span></span>
+          <span className="text-xs font-bold">{t("games.pickNumbers", { n: LOTTO_PICK })} <span className="text-muted-foreground font-normal">({picked.length}/{LOTTO_PICK})</span></span>
           <button onClick={quickPick} className="text-xs text-primary font-semibold flex items-center gap-1 cursor-pointer hover:underline">
-            <Zap size={11} /> Quick Pick
+            <Zap size={11} /> {t("games.quickPick")}
           </button>
         </div>
         <div className="grid grid-cols-7 gap-1.5">
@@ -232,7 +233,7 @@ function LottoSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId, 
         {(animating || showResult) && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
             className="bg-card border border-border rounded-2xl p-4 text-center space-y-3">
-            <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Draw Result</div>
+            <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t("games.drawResult")}</div>
             {animating ? (
               <div className="flex justify-center gap-2">
                 {Array.from({ length: LOTTO_PICK }).map((_, i) => (
@@ -257,7 +258,7 @@ function LottoSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId, 
                   ))}
                 </div>
                 <div className={cn("text-sm font-bold", matches >= 3 ? "text-primary" : "text-muted-foreground")}>
-                  {matches === 6 ? "🎉 JACKPOT!" : matches >= 3 ? `${matches} matches — You won!` : `${matches} match${matches !== 1 ? "es" : ""} — No prize`}
+                  {matches === 6 ? t("games.jackpot") : matches >= 3 ? `${matches} matches — You won!` : `${matches} match${matches !== 1 ? "es" : ""} — No prize`}
                 </div>
               </div>
             ) : (
@@ -272,7 +273,7 @@ function LottoSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId, 
                   ))}
                 </div>
                 <div className={cn("text-sm font-bold", matches >= 3 ? "text-primary" : "text-muted-foreground")}>
-                  {matches === 6 ? "🎉 JACKPOT!" : matches >= 3 ? `${matches} matches — You won!` : "No prize this time"}
+                  {matches === 6 ? t("games.jackpot") : matches >= 3 ? `${matches} matches — You won!` : t("games.noPrizeThisTime2")}
                 </div>
               </div>
             )}
@@ -282,11 +283,11 @@ function LottoSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId, 
 
       {/* Prize table */}
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-border text-xs font-bold">Prize Table</div>
+        <div className="px-4 py-3 border-b border-border text-xs font-bold">{t("games.prizeTable")}</div>
         <div className="divide-y divide-border">
           {PRIZE_TABLE.map(p => (
             <div key={p.match} className="flex items-center justify-between px-4 py-2.5">
-              <div className="text-xs text-muted-foreground">{p.match} numbers matched</div>
+              <div className="text-xs text-muted-foreground">{p.match} {t("games.numbersMatched")}</div>
               <div className={cn("text-xs font-black font-mono", p.color)}>{fmt(p.amount)}</div>
             </div>
           ))}
@@ -295,11 +296,11 @@ function LottoSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId, 
 
       <Button className="w-full font-bold text-base py-6" onClick={playLotto} disabled={picked.length < LOTTO_PICK || animating}>
         <Ticket size={16} className="mr-2" />
-        Play Ticket — {fmt(TICKET_COST)}
+        {t("games.playTicket")} {fmt(TICKET_COST)}
       </Button>
 
       <p className="text-[10px] text-center text-muted-foreground">
-        10% of every ticket contributes to the <span className="text-primary font-semibold">PayRus Community Investment Fund</span>
+        {t("games.10OfEveryTicket")} <span className="text-primary font-semibold">{t("games.payrusCommunityInvestmentFund")}</span>
       </p>
     </div>
   );
@@ -322,6 +323,7 @@ function SportsSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId,
   onDeduct: (n: number) => void;
   onCredit: (n: number) => void;
 } & RealMoneyProps) {
+  const { t } = useTranslation("common");
   const [betSlip, setBetSlip] = useState<Bet[]>([]);
   const [stake, setStake] = useState("1000");
   const [sport, setSport] = useState<"football" | "basketball">("football");
@@ -358,25 +360,25 @@ function SportsSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId,
         toast.success(`🏆 All predictions correct! Won ${fmt(payout)}!`);
       } else {
         setWinAmount(0);
-        toast.info("Some predictions were wrong. Better luck next time!");
+        toast.info(t("games.somePredictionsWereWrong"));
       }
       setResolved(true);
       setBetSlip([]);
     } catch {
-      toast.error("Couldn't place the bet — try again");
+      toast.error(t("games.couldnTPlaceThe"));
     } finally {
       setPlacing(false);
     }
   }
 
   function submitBet() {
-    if (betSlip.length === 0) { toast.error("Add at least one selection"); return; }
-    if (stakeNum < 500) { toast.error("Minimum stake: 500 XAF"); return; }
+    if (betSlip.length === 0) { toast.error(t("games.addAtLeastOne")); return; }
+    if (stakeNum < 500) { toast.error(t("games.minimumStake500Xaf")); return; }
     if (isReal) {
       void submitBetReal();
       return;
     }
-    if (gameBalance < stakeNum) { toast.error("Insufficient game wallet balance"); return; }
+    if (gameBalance < stakeNum) { toast.error(t("games.insufficientGameWalletBalance2")); return; }
     onDeduct(stakeNum);
     setResolved(false);
     setTimeout(() => {
@@ -388,7 +390,7 @@ function SportsSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId,
         toast.success(`🏆 All predictions correct! Won ${fmt(potentialWin)}!`);
       } else {
         setWinAmount(0);
-        toast.info("Some predictions were wrong. Better luck next time!");
+        toast.info(t("games.somePredictionsWereWrong"));
       }
       setResolved(true);
       setBetSlip([]);
@@ -403,7 +405,7 @@ function SportsSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId,
           <button key={s} onClick={() => setSport(s)}
             className={cn("flex-1 py-2.5 rounded-xl text-xs font-bold border capitalize transition-colors cursor-pointer",
               sport === s ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border text-muted-foreground hover:text-foreground")}>
-            {s === "football" ? "⚽ Football" : "🏀 Basketball"}
+            {s === "football" ? t("games.football") : t("games.basketball")}
           </button>
         ))}
       </div>
@@ -416,13 +418,13 @@ function SportsSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId,
             <div key={m.id} className="bg-card border border-border rounded-2xl p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-sm">{m.home} <span className="text-muted-foreground font-normal">vs</span> {m.away}</div>
+                  <div className="font-bold text-sm">{m.home} <span className="text-muted-foreground font-normal">{t("games.vs")}</span> {m.away}</div>
                   <div className="text-[10px] text-muted-foreground flex gap-2 mt-0.5">
                     <span>{m.league}</span>
                     <span className="flex items-center gap-1"><Clock size={9} />{m.time}</span>
                   </div>
                 </div>
-                {betOnMatch && <span className="text-[9px] font-black bg-primary/15 border border-primary/30 text-primary px-2 py-0.5 rounded-full">Selected</span>}
+                {betOnMatch && <span className="text-[9px] font-black bg-primary/15 border border-primary/30 text-primary px-2 py-0.5 rounded-full">{t("p2p.new.selected")}</span>}
               </div>
               <div className={cn("grid gap-2", m.drawOdds > 0 ? "grid-cols-3" : "grid-cols-2")}>
                 {[
@@ -438,7 +440,7 @@ function SportsSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId,
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-secondary border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
                     )}>
-                    <span className="text-[10px] font-normal truncate max-w-full px-1">{opt.label}</span>
+                    <span className="text-[10px] font-normal truncate max-w-full px-1">{t(opt.label)}</span>
                     <span className="text-base font-black">{opt.odds.toFixed(2)}</span>
                   </button>
                 ))}
@@ -453,42 +455,42 @@ function SportsSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId,
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           className="bg-card border border-primary/30 rounded-2xl p-4 space-y-3 sticky bottom-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold">Bet Slip <span className="text-primary">{betSlip.length} selection{betSlip.length > 1 ? "s" : ""}</span></span>
+            <span className="text-xs font-bold">{t("games.betSlip")} <span className="text-primary">{betSlip.length} {t("games.selection")}{betSlip.length > 1 ? "s" : ""}</span></span>
             <button onClick={() => setBetSlip([])} className="text-muted-foreground hover:text-foreground cursor-pointer"><X size={14} /></button>
           </div>
           {betSlip.map(b => (
             <div key={b.matchId} className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground truncate flex-1">{b.home} vs {b.away}</span>
-              <span className="font-bold text-primary ml-2 shrink-0">{b.outcome === "draw" ? "Draw" : b.outcome === "home" ? "Home" : "Away"} @ {b.odds.toFixed(2)}</span>
+              <span className="text-muted-foreground truncate flex-1">{b.home} {t("games.vs")} {b.away}</span>
+              <span className="font-bold text-primary ml-2 shrink-0">{b.outcome === "draw" ? t("games.draw") : b.outcome === "home" ? t("shop.category.home") : t("games.away")} @ {b.odds.toFixed(2)}</span>
             </div>
           ))}
           <div className="border-t border-border pt-2 space-y-2">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Combined odds</span>
+              <span className="text-muted-foreground">{t("games.combinedOdds")}</span>
               <span className="font-black text-foreground">{totalOdds.toFixed(2)}x</span>
             </div>
             <div>
-              <label className="text-[11px] text-muted-foreground mb-1 block">Stake (XAF — min 500)</label>
+              <label className="text-[11px] text-muted-foreground mb-1 block">{t("games.stakeXafMin500")}</label>
               <Input type="number" value={stake} onChange={e => setStake(e.target.value)} className="font-mono" />
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Potential win</span>
+              <span className="text-muted-foreground">{t("games.potentialWin")}</span>
               <span className="font-black text-primary font-mono">{fmt(potentialWin)}</span>
             </div>
           </div>
           <Button className="w-full font-bold" onClick={submitBet} disabled={placing}>
             <Target size={14} className="mr-1.5" />
-            {placing ? "Placing…" : `Place Bet — ${fmt(stakeNum)}`}
+            {placing ? t("games.placing") : `Place Bet — ${fmt(stakeNum)}`}
           </Button>
         </motion.div>
       )}
 
       {resolved && winAmount === 0 && (
-        <div className="text-center py-4 text-sm text-muted-foreground">Keep playing — every bet contributes to the community fund.</div>
+        <div className="text-center py-4 text-sm text-muted-foreground">{t("games.keepPlayingEveryBet")}</div>
       )}
 
       <p className="text-[10px] text-center text-muted-foreground">
-        5% of all stakes go to the <span className="text-primary font-semibold">PayRus Community Investment Fund</span>
+        {t("games.5OfAllStakes")} <span className="text-primary font-semibold">{t("games.payrusCommunityInvestmentFund")}</span>
       </p>
     </div>
   );
@@ -506,6 +508,7 @@ function ScratchSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId
   onDeduct: (n: number) => void;
   onCredit: (n: number) => void;
 } & RealMoneyProps) {
+  const { t } = useTranslation("common");
   const CARD_COST = 1000;
   const [cells, setCells] = useState<ScratchCell[] | null>(null);
   const [allRevealed, setAllRevealed] = useState(false);
@@ -532,7 +535,7 @@ function ScratchSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId
       setTotalWon(null);
       setIsCardReal(true);
     } catch {
-      toast.error("Couldn't buy the card — try again");
+      toast.error(t("games.couldnTBuyThe"));
     } finally {
       setBuying(false);
     }
@@ -543,7 +546,7 @@ function ScratchSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId
       void buyCardReal();
       return;
     }
-    if (gameBalance < CARD_COST) { toast.error("Insufficient balance"); return; }
+    if (gameBalance < CARD_COST) { toast.error(t("games.insufficientBalance")); return; }
     onDeduct(CARD_COST);
     setJackpotPot(p => p + Math.round(CARD_COST * 0.1));
     const prizes = [...SCRATCH_PRIZES].sort(() => Math.random() - 0.5).slice(0, 9);
@@ -565,7 +568,7 @@ function ScratchSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId
         if (!isCardReal) onCredit(total);
         toast.success(`🎰 Scratch complete! You won ${fmt(total)}!`);
       } else {
-        toast.info("No prize this time. Try again!");
+        toast.info(t("games.noPrizeThisTime3"));
       }
     }
   }
@@ -581,7 +584,7 @@ function ScratchSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId
       if (!isCardReal) onCredit(total);
       toast.success(`🎰 You won ${fmt(total)}!`);
     } else {
-      toast.info("No prize this time!");
+      toast.info(t("games.noPrizeThisTime4"));
     }
   }
 
@@ -593,9 +596,9 @@ function ScratchSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId
           <Trophy size={22} className="text-violet-700" />
         </div>
         <div>
-          <div className="text-[10px] font-bold text-violet-700 uppercase tracking-widest">Jackpot Accumulator</div>
+          <div className="text-[10px] font-bold text-violet-700 uppercase tracking-widest">{t("games.jackpotAccumulator")}</div>
           <div className="text-2xl font-black font-mono text-violet-300">{fmt(jackpotPot)}</div>
-          <div className="text-[10px] text-muted-foreground">Grows with every card sold</div>
+          <div className="text-[10px] text-muted-foreground">{t("games.growsWithEveryCard")}</div>
         </div>
       </div>
 
@@ -610,13 +613,13 @@ function ScratchSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId
               { label: "Community share", value: "10% of cards" },
             ].map(s => (
               <div key={s.label} className="bg-card border border-border rounded-xl p-3">
-                <div className="text-[10px] text-muted-foreground">{s.label}</div>
+                <div className="text-[10px] text-muted-foreground">{t(s.label)}</div>
                 <div className="font-black text-sm">{s.value}</div>
               </div>
             ))}
           </div>
           <Button className="w-full font-bold text-base py-6" onClick={buyCard} disabled={buying}>
-            <Ticket size={16} className="mr-2" /> {buying ? "Buying…" : `Buy Scratch Card — ${fmt(CARD_COST)}`}
+            <Ticket size={16} className="mr-2" /> {buying ? t("games.buying") : `Buy Scratch Card — ${fmt(CARD_COST)}`}
           </Button>
         </div>
       )}
@@ -626,9 +629,9 @@ function ScratchSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId
         <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
           className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-black">Scratch to reveal</span>
+            <span className="text-sm font-black">{t("games.scratchToReveal")}</span>
             {!allRevealed && (
-              <button onClick={revealAll} className="text-xs text-primary font-semibold cursor-pointer hover:underline">Reveal All</button>
+              <button onClick={revealAll} className="text-xs text-primary font-semibold cursor-pointer hover:underline">{t("games.revealAll")}</button>
             )}
           </div>
           <div className="grid grid-cols-3 gap-3">
@@ -667,24 +670,24 @@ function ScratchSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId
                 <>
                   <CheckCircle size={28} className="text-primary mx-auto mb-1" />
                   <div className="font-black text-lg text-primary">{fmt(totalWon!)}</div>
-                  <div className="text-xs text-muted-foreground">Credited to your game wallet</div>
+                  <div className="text-xs text-muted-foreground">{t("games.creditedToYourGame")}</div>
                 </>
               ) : (
-                <div className="text-sm text-muted-foreground">No prize — try another card!</div>
+                <div className="text-sm text-muted-foreground">{t("games.noPrizeTryAnother")}</div>
               )}
             </motion.div>
           )}
 
           {allRevealed && (
             <Button variant="secondary" className="w-full" onClick={buyCard}>
-              <RotateCcw size={14} className="mr-1.5" /> Try Another Card
+              <RotateCcw size={14} className="mr-1.5" /> {t("games.tryAnotherCard")}
             </Button>
           )}
         </motion.div>
       )}
 
       <p className="text-[10px] text-center text-muted-foreground">
-        10% of every card sold goes to the <span className="text-primary font-semibold">PayRus Community Investment Fund</span>
+        {t("games.10OfEveryCard")} <span className="text-primary font-semibold">{t("games.payrusCommunityInvestmentFund")}</span>
       </p>
     </div>
   );
@@ -697,6 +700,7 @@ function GameWallet({ balance, onTopUp, onWithdraw }: {
   onTopUp: (n: number) => void;
   onWithdraw: (n: number) => void;
 }) {
+  const { t } = useTranslation("common");
   const [topUpAmount, setTopUpAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const PRESETS = [1000, 2000, 5000, 10000, 25000];
@@ -704,7 +708,7 @@ function GameWallet({ balance, onTopUp, onWithdraw }: {
 
   function handleTopUp() {
     const n = Number(topUpAmount);
-    if (!n || n < 500) { toast.error("Minimum top-up: 500 XAF"); return; }
+    if (!n || n < 500) { toast.error(t("games.minimumTopUp500")); return; }
     onTopUp(n);
     setTopUpAmount("");
     toast.success(`${fmt(n)} added to game wallet`);
@@ -712,8 +716,8 @@ function GameWallet({ balance, onTopUp, onWithdraw }: {
 
   function handleWithdraw() {
     const n = Number(withdrawAmount);
-    if (!n || n < 500) { toast.error("Minimum withdrawal: 500 XAF"); return; }
-    if (n > balance) { toast.error("Insufficient game wallet balance"); return; }
+    if (!n || n < 500) { toast.error(t("games.minimumWithdrawal500Xaf")); return; }
+    if (n > balance) { toast.error(t("games.insufficientGameWalletBalance2")); return; }
     onWithdraw(n);
     setWithdrawAmount("");
     toast.success(`${fmt(n)} returned to main balance`);
@@ -723,14 +727,14 @@ function GameWallet({ balance, onTopUp, onWithdraw }: {
     <div className="space-y-4">
       {/* Balance card */}
       <div className="bg-gradient-to-br from-primary/20 to-emerald-900/20 border border-primary/30 rounded-2xl p-5 text-center space-y-1">
-        <div className="text-[11px] font-bold text-primary uppercase tracking-widest">Game Wallet</div>
+        <div className="text-[11px] font-bold text-primary uppercase tracking-widest">{t("games.gameWallet")}</div>
         <div className="text-4xl font-black font-mono">{fmt(balance)}</div>
-        <div className="text-xs text-muted-foreground">Available to play</div>
+        <div className="text-xs text-muted-foreground">{t("games.availableToPlay")}</div>
       </div>
 
       {/* Top up */}
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-        <div className="font-bold text-sm">Top Up from Main Account</div>
+        <div className="font-bold text-sm">{t("games.topUpFromMain")}</div>
         <div className="flex gap-2 flex-wrap">
           {PRESETS.map(p => (
             <button key={p} onClick={() => setTopUpAmount(String(p))}
@@ -741,30 +745,30 @@ function GameWallet({ balance, onTopUp, onWithdraw }: {
           ))}
         </div>
         <div className="flex gap-2">
-          <Input type="number" placeholder="Amount (XAF)" value={topUpAmount} onChange={e => setTopUpAmount(e.target.value)} className="font-mono" />
+          <Input type="number" placeholder={t("games.amountXaf")} value={topUpAmount} onChange={e => setTopUpAmount(e.target.value)} className="font-mono" />
           <Button onClick={handleTopUp} className="shrink-0 font-bold"><Plus size={15} /></Button>
         </div>
       </div>
 
       {/* Withdraw */}
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-        <div className="font-bold text-sm">Withdraw Winnings</div>
+        <div className="font-bold text-sm">{t("games.withdrawWinnings")}</div>
         <div className="flex gap-2">
-          <Input type="number" placeholder="Amount (XAF)" value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} className="font-mono" />
+          <Input type="number" placeholder={t("games.amountXaf")} value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} className="font-mono" />
           <Button variant="secondary" onClick={handleWithdraw} className="shrink-0 font-bold"><Minus size={15} /></Button>
         </div>
-        <p className="text-[10px] text-muted-foreground">Winnings are deposited instantly to your main PayRus account.</p>
+        <p className="text-[10px] text-muted-foreground">{t("games.winningsAreDepositedInstantly")}</p>
       </div>
 
       {/* Community fund */}
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
         <div className="flex items-center gap-2">
           <TrendingUp size={15} className="text-primary" />
-          <span className="font-bold text-sm">Community Investment Fund</span>
+          <span className="font-bold text-sm">{t("games.communityInvestmentFund")}</span>
         </div>
         <div className="text-2xl font-black font-mono text-primary">{fmt(communityFund)}</div>
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          A portion of every game played is contributed to the PayRus Community Fund, which is deployed directly into <span className="text-foreground font-semibold">PayRus Invest</span> ventures — backing African farmers, entrepreneurs, and energy projects.
+          <Trans i18nKey="games.communityFundNote" components={{ b: <span className="text-foreground font-semibold" /> }} />
         </p>
         <div className="flex gap-2">
           {[
@@ -774,7 +778,7 @@ function GameWallet({ balance, onTopUp, onWithdraw }: {
           ].map(s => (
             <div key={s.label} className="flex-1 bg-secondary/50 border border-border rounded-xl px-2 py-2 text-center">
               <div className="font-black text-sm text-primary">{s.value}</div>
-              <div className="text-[9px] text-muted-foreground">{s.label}</div>
+              <div className="text-[9px] text-muted-foreground">{t(s.label)}</div>
             </div>
           ))}
         </div>
@@ -786,19 +790,20 @@ function GameWallet({ balance, onTopUp, onWithdraw }: {
 // Signed-in users bet directly against their real PayRus wallet — there's no
 // separate game-wallet balance to top up or withdraw from anymore.
 function RealGameWallet({ balance, currency }: { balance: number | undefined; currency: string }) {
+  const { t } = useTranslation("common");
   const communityFund = 12840000;
   return (
     <div className="space-y-4">
       <div className="bg-gradient-to-br from-primary/20 to-emerald-900/20 border border-primary/30 rounded-2xl p-5 text-center space-y-1">
-        <div className="text-[11px] font-bold text-primary uppercase tracking-widest">PayRus Balance</div>
+        <div className="text-[11px] font-bold text-primary uppercase tracking-widest">{t("games.payrusBalance")}</div>
         <div className="text-4xl font-black font-mono">{balance === undefined ? "—" : `${currency} ${balance.toLocaleString()}`}</div>
-        <div className="text-xs text-muted-foreground">Bets debit and payouts credit this balance directly</div>
+        <div className="text-xs text-muted-foreground">{t("games.betsDebitAndPayouts")}</div>
       </div>
 
       <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/20 rounded-2xl">
         <Wallet size={16} className="text-primary shrink-0 mt-0.5" />
         <p className="text-xs text-muted-foreground leading-relaxed">
-          There's no separate game wallet to top up or withdraw — every bet you place moves your real PayRus balance, and every win is deposited back instantly.
+          {t("games.thereSNoSeparate")}
         </p>
       </div>
 
@@ -806,11 +811,11 @@ function RealGameWallet({ balance, currency }: { balance: number | undefined; cu
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
         <div className="flex items-center gap-2">
           <TrendingUp size={15} className="text-primary" />
-          <span className="font-bold text-sm">Community Investment Fund</span>
+          <span className="font-bold text-sm">{t("games.communityInvestmentFund")}</span>
         </div>
         <div className="text-2xl font-black font-mono text-primary">{fmt(communityFund)}</div>
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          A portion of every game played is contributed to the PayRus Community Fund, which is deployed directly into <span className="text-foreground font-semibold">PayRus Invest</span> ventures — backing African farmers, entrepreneurs, and energy projects.
+          <Trans i18nKey="games.communityFundNote" components={{ b: <span className="text-foreground font-semibold" /> }} />
         </p>
         <div className="flex gap-2">
           {[
@@ -820,7 +825,7 @@ function RealGameWallet({ balance, currency }: { balance: number | undefined; cu
           ].map(s => (
             <div key={s.label} className="flex-1 bg-secondary/50 border border-border rounded-xl px-2 py-2 text-center">
               <div className="font-black text-sm text-primary">{s.value}</div>
-              <div className="text-[9px] text-muted-foreground">{s.label}</div>
+              <div className="text-[9px] text-muted-foreground">{t(s.label)}</div>
             </div>
           ))}
         </div>
@@ -832,13 +837,14 @@ function RealGameWallet({ balance, currency }: { balance: number | undefined; cu
 // ─── RESPONSIBLE GAMING ───────────────────────────────────────────────────────
 
 function ResponsibleGaming() {
+  const { t } = useTranslation("common");
   const [dailyLimit, setDailyLimit] = useState("5000");
   const [selfExcluded, setSelfExcluded] = useState(false);
   const [cooldown, setCooldown] = useState<number | null>(null);
   const [limitSaved, setLimitSaved] = useState(false);
 
   function saveLimit() {
-    if (!dailyLimit || Number(dailyLimit) < 500) { toast.error("Minimum daily limit: 500 XAF"); return; }
+    if (!dailyLimit || Number(dailyLimit) < 500) { toast.error(t("games.minimumDailyLimit500")); return; }
     setLimitSaved(true);
     toast.success(`Daily limit set to ${fmt(Number(dailyLimit))}`);
     setTimeout(() => setLimitSaved(false), 3000);
@@ -856,15 +862,15 @@ function ResponsibleGaming() {
       <div className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-2xl">
         <Shield size={18} className="text-primary shrink-0" />
         <div>
-          <div className="font-bold text-sm">Responsible Gaming</div>
-          <div className="text-xs text-muted-foreground">PayRus is committed to safe and responsible play for all users.</div>
+          <div className="font-bold text-sm">{t("games.responsibleGaming")}</div>
+          <div className="text-xs text-muted-foreground">{t("games.payrusIsCommittedTo")}</div>
         </div>
       </div>
 
       {/* Daily limit */}
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-        <div className="font-bold text-sm">Daily Spending Limit</div>
-        <p className="text-xs text-muted-foreground">Set the maximum you can spend on games per day. Once reached, all games are locked until midnight.</p>
+        <div className="font-bold text-sm">{t("games.dailySpendingLimit")}</div>
+        <p className="text-xs text-muted-foreground">{t("games.setTheMaximumYou")}</p>
         <div className="flex gap-2 flex-wrap">
           {[1000, 2000, 5000, 10000].map(p => (
             <button key={p} onClick={() => setDailyLimit(String(p))}
@@ -875,9 +881,9 @@ function ResponsibleGaming() {
           ))}
         </div>
         <div className="flex gap-2">
-          <Input type="number" placeholder="Custom limit (XAF)" value={dailyLimit} onChange={e => setDailyLimit(e.target.value)} className="font-mono" />
+          <Input type="number" placeholder={t("games.customLimitXaf")} value={dailyLimit} onChange={e => setDailyLimit(e.target.value)} className="font-mono" />
           <Button onClick={saveLimit} className="shrink-0 font-bold">
-            {limitSaved ? <CheckCircle size={15} /> : "Save"}
+            {limitSaved ? <CheckCircle size={15} /> : t("modules.save")}
           </Button>
         </div>
       </div>
@@ -886,22 +892,22 @@ function ResponsibleGaming() {
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Heart size={15} className="text-rose-700" />
-          <span className="font-bold text-sm">Self-Exclusion</span>
+          <span className="font-bold text-sm">{t("games.selfExclusion")}</span>
         </div>
         <p className="text-xs text-muted-foreground leading-relaxed">
-          If you feel gaming is affecting your wellbeing, you can temporarily lock your game wallet. This cannot be reversed until the exclusion period ends.
+          {t("games.ifYouFeelGaming")}
         </p>
         {selfExcluded ? (
           <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-xl text-xs text-destructive font-semibold">
             <AlertTriangle size={14} />
-            Self-exclusion active for {cooldown} day{cooldown !== 1 ? "s" : ""}. Games are locked.
+            {t("games.selfExclusionActive", { count: cooldown })}
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-2">
             {[1, 7, 30].map(days => (
               <button key={days} onClick={() => handleExclude(days)}
                 className="py-2.5 rounded-xl border border-destructive/30 bg-destructive/5 text-destructive text-xs font-bold cursor-pointer hover:bg-destructive/10 transition-colors">
-                {days === 1 ? "1 Day" : days === 7 ? "1 Week" : "30 Days"}
+                {days === 1 ? t("games.1Day") : days === 7 ? t("games.1Week") : t("games.30Days")}
               </button>
             ))}
           </div>
@@ -910,7 +916,7 @@ function ResponsibleGaming() {
 
       {/* Stats */}
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-        <div className="font-bold text-sm">This Month's Activity</div>
+        <div className="font-bold text-sm">{t("games.thisMonthSActivity")}</div>
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: "Spent", value: fmt(8500), color: "text-muted-foreground" },
@@ -919,7 +925,7 @@ function ResponsibleGaming() {
           ].map(s => (
             <div key={s.label} className="bg-secondary/50 border border-border rounded-xl px-2 py-2 text-center">
               <div className={cn("font-black text-sm font-mono", s.color)}>{s.value}</div>
-              <div className="text-[9px] text-muted-foreground">{s.label}</div>
+              <div className="text-[9px] text-muted-foreground">{t(s.label)}</div>
             </div>
           ))}
         </div>
@@ -929,7 +935,7 @@ function ResponsibleGaming() {
       <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
         <AlertTriangle size={15} className="text-amber-700 shrink-0 mt-0.5" />
         <div className="text-xs text-muted-foreground leading-relaxed">
-          Need help? Contact PayRus support or call the <span className="text-foreground font-semibold">free problem gambling helpline: 800-JEU-AIDE</span> (available 24/7 in French, English, and Lingala).
+          <Trans i18nKey="games.needHelp" values={{ helpline: t("games.freeProblemGamblingHelpline") }} components={{ b: <span className="text-foreground font-semibold" /> }} />
         </div>
       </div>
     </div>
@@ -981,12 +987,12 @@ export default function GamesPage() {
         <div className="flex items-center justify-between mb-1">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black">Play &amp; Grow</h1>
+              <h1 className="text-xl font-black">{t("nav.games")}</h1>
               <span className="text-[9px] font-black bg-primary/15 border border-primary/30 text-primary px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Games
+                {t("games.title")}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground">Games, sports predictions &amp; instant wins</p>
+            <p className="text-xs text-muted-foreground">{t("games.gamesSportsPredictionsInstant")}</p>
           </div>
           {/* Wallet quick view */}
           <button onClick={() => setTab("wallet")}
@@ -1006,7 +1012,7 @@ export default function GamesPage() {
             { label: "Next lotto draw", value: "Wed 20:00" },
           ].map(s => (
             <div key={s.label} className="flex-1 bg-secondary/50 border border-border rounded-xl px-2.5 py-2">
-              <div className="text-[10px] text-muted-foreground">{s.label}</div>
+              <div className="text-[10px] text-muted-foreground">{t(s.label)}</div>
               <div className="font-black text-xs font-mono text-primary">{s.value}</div>
             </div>
           ))}
@@ -1014,14 +1020,14 @@ export default function GamesPage() {
 
         {/* Tabs */}
         <div className="flex gap-0.5 overflow-x-auto border-b border-border pb-0">
-          {TABS.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)}
+          {TABS.map(tItem => (
+            <button key={tItem.key} onClick={() => setTab(tItem.key)}
               className={cn(
                 "flex items-center gap-1.5 text-xs font-bold whitespace-nowrap px-3.5 py-2.5 border-b-2 transition-colors cursor-pointer shrink-0",
-                tab === t.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                tab === tItem.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
               )}>
-              <t.icon size={12} />
-              {t.label}
+              <tItem.icon size={12} />
+              {t(tItem.label)}
             </button>
           ))}
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { countryName } from "@/lib/i18n-labels.ts";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAction } from "convex/react";
@@ -356,7 +357,7 @@ export default function Register() {
               >
                 <option value="" disabled>{t("register.countryPlaceholder")}</option>
                 {COUNTRY_OPTIONS.map((c) => (
-                  <option key={c.code} value={c.code}>{c.name} ({c.currency})</option>
+                  <option key={c.code} value={c.code}>{countryName(c.code, lng, c.name)} ({c.currency})</option>
                 ))}
               </select>
             </div>

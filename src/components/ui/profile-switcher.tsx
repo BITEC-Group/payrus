@@ -44,7 +44,7 @@ export default function ProfileSwitcher() {
   const [open, setOpen] = useState(false);
   const base = `/${lng ?? "en"}`;
 
-  const currentTypeInfo = TYPE_INFO.find(t => t.id === profile?.type);
+  const currentTypeInfo = TYPE_INFO.find(tItem => tItem.id === profile?.type);
   const CurrentIcon = currentTypeInfo?.icon ?? User;
 
   const handleSwitch = (type: ProfileType) => {
@@ -106,7 +106,7 @@ export default function ProfileSwitcher() {
               {/* Profile list - grouped */}
               <div className="py-1.5 max-h-80 overflow-y-auto">
                 {SWITCHER_GROUPS.map(group => {
-                  const groupProfiles = TYPE_INFO.filter(t => group.ids.includes(t.id));
+                  const groupProfiles = TYPE_INFO.filter(tItem => group.ids.includes(tItem.id));
                   return (
                     <div key={group.label}>
                       <div className="px-4 pt-2 pb-1">

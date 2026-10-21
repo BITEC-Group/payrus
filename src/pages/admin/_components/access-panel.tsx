@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Repeat, Trash2, Save, ShieldCheck } from "lucide-react";
@@ -47,6 +48,7 @@ const CONSOLE_ROLES = ["Personal", "Merchant", "Agent", "Treasury", "Institution
 const CONSOLE_TABS = ["overview", "transactions", "payouts", "merchants", "agents", "mandates", "grants", "members"];
 
 function ReassignRemoveSection() {
+  const { t } = useTranslation("common");
   const rows = useAdminListUsers();
   const roleSlugs = useRoleSlugs();
   const reassignRole = useAdminReassignUserRoleMutation();
@@ -65,7 +67,7 @@ function ReassignRemoveSection() {
       setExpandedRoleId(null);
       setPassword("");
     } catch {
-      toast.error("Couldn't reassign — check the password, or the user may already have that role");
+      toast.error(t("admin.accesspanel.couldnTReassignCheck"));
     } finally {
       setSaving(false);
     }
@@ -76,11 +78,11 @@ function ReassignRemoveSection() {
     setSaving(true);
     try {
       await removeRole({ roleId, password });
-      toast.success("Role removed");
+      toast.success(t("admin.accesspanel.roleRemoved"));
       setExpandedRoleId(null);
       setPassword("");
     } catch {
-      toast.error("Couldn't remove — check the admin password");
+      toast.error(t("admin.accesspanel.couldnTRemoveCheck"));
     } finally {
       setSaving(false);
     }
@@ -88,11 +90,11 @@ function ReassignRemoveSection() {
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5">
-      <div className="text-sm font-bold text-foreground mb-1">Reassign or remove a role</div>
+      <div className="text-sm font-bold text-foreground mb-1">{t("admin.accesspanel.reassignOrRemoveA")}</div>
       <div className="text-xs text-muted-foreground mb-4">
-        Change which role an existing profile holds, or remove one entirely — separate from "Add profile" (Manage Profiles tab), which only ever adds a new role.
+        {t("admin.accesspanel.changeWhichRoleAn")}
       </div>
-      {!rows && <div className="text-xs text-muted-foreground py-2">Loading...</div>}
+      {!rows && <div className="text-xs text-muted-foreground py-2">{t("common.loading")}</div>}
       <div className="space-y-3">
         {rows?.map((row) => (
           <div key={row.user.id} className="rounded-xl bg-secondary/30 p-3">
@@ -106,7 +108,7 @@ function ReassignRemoveSection() {
                       onClick={() => { setExpandedRoleId(expandedRoleId === role.id ? null : role.id); setNewRole(role.role as string); }}
                       className="text-[10px] font-semibold text-primary cursor-pointer shrink-0"
                     >
-                      {expandedRoleId === role.id ? "Cancel" : "Manage"}
+                      {expandedRoleId === role.id ? t("disputes.cancel") : t("admin.accesspanel.manage")}
                     </button>
                   </div>
                   {expandedRoleId === role.id && (
@@ -120,21 +122,21 @@ function ReassignRemoveSection() {
                       </select>
                       <input
                         type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Admin password" className="rounded-lg border border-border bg-card px-2 py-1.5 text-xs flex-1 min-w-[120px]"
+                        placeholder={t("admin.accesspanel.adminPassword")} className="rounded-lg border border-border bg-card px-2 py-1.5 text-xs flex-1 min-w-[120px]"
                       />
                       <button
                         onClick={() => void handleReassign(role.id)}
                         disabled={saving || !password}
                         className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-[11px] font-semibold cursor-pointer disabled:opacity-60"
                       >
-                        <Repeat size={11} /> Reassign
+                        <Repeat size={11} /> {t("admin.accesspanel.reassign")}
                       </button>
                       <button
                         onClick={() => void handleRemove(role.id)}
                         disabled={saving || !password}
                         className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-destructive/30 text-destructive text-[11px] font-semibold cursor-pointer disabled:opacity-60"
                       >
-                        <Trash2 size={11} /> Remove
+                        <Trash2 size={11} /> {t("team.remove")}
                       </button>
                     </div>
                   )}
@@ -149,6 +151,7 @@ function ReassignRemoveSection() {
 }
 
 function AppFeaturesSection() {
+  const { t } = useTranslation("common");
   const roleSlugs = useRoleSlugs();
   const [profileType, setProfileType] = useState<string>("personal");
   const features = useProfileFeatures(profileType);
@@ -174,7 +177,7 @@ function AppFeaturesSection() {
       setPassword("");
       setSelected(null);
     } catch {
-      toast.error("Incorrect admin password");
+      toast.error(t("admin.accesspanel.incorrectAdminPassword"));
     } finally {
       setSaving(false);
     }
@@ -182,9 +185,9 @@ function AppFeaturesSection() {
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5">
-      <div className="text-sm font-bold text-foreground mb-1">App/ feature visibility</div>
+      <div className="text-sm font-bold text-foreground mb-1">{t("admin.accesspanel.appFeatureVisibility")}</div>
       <div className="text-xs text-muted-foreground mb-4">
-        Which nav items each profile type sees — public.profile_features, read live by AppLayout.tsx. Admin always sees everything regardless of this list.
+        {t("admin.accesspanel.whichNavItemsEach")}
       </div>
       <select
         value={profileType}
@@ -194,13 +197,13 @@ function AppFeaturesSection() {
         {roleSlugs.map((r) => <option key={r} value={r}>{r}</option>)}
       </select>
       {features === undefined ? (
-        <div className="text-xs text-muted-foreground py-2">Loading...</div>
+        <div className="text-xs text-muted-foreground py-2">{t("common.loading")}</div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
           {APP_FEATURES.map((f) => (
             <label key={f.key} className="flex items-center gap-1.5 text-xs cursor-pointer">
               <input type="checkbox" checked={current.has(f.key)} onChange={() => toggle(f.key)} />
-              {f.label}
+              {t(f.label)}
             </label>
           ))}
         </div>
@@ -208,14 +211,14 @@ function AppFeaturesSection() {
       <div className="flex items-center gap-2 flex-wrap">
         <input
           type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-          placeholder="Admin password" className="rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs flex-1 min-w-[160px]"
+          placeholder={t("admin.accesspanel.adminPassword")} className="rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs flex-1 min-w-[160px]"
         />
         <button
           onClick={() => void handleSave()}
           disabled={saving || !password}
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold cursor-pointer disabled:opacity-60"
         >
-          <Save size={13} /> {saving ? "Saving..." : "Save"}
+          <Save size={13} /> {saving ? t("admin.accesspanel.saving") : t("modules.save")}
         </button>
       </div>
     </div>
@@ -223,6 +226,7 @@ function AppFeaturesSection() {
 }
 
 function ConsoleFeaturesSection() {
+  const { t } = useTranslation("common");
   const [role, setRole] = useState<(typeof CONSOLE_ROLES)[number]>("Personal");
   const [tabs, setTabs] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -261,7 +265,7 @@ function ConsoleFeaturesSection() {
       toast.success(`Updated tab visibility for ${role}`);
       setPassword("");
     } catch {
-      toast.error("Incorrect admin password");
+      toast.error(t("admin.accesspanel.incorrectAdminPassword"));
     } finally {
       setSaving(false);
     }
@@ -271,10 +275,10 @@ function ConsoleFeaturesSection() {
     <div className="bg-card border border-border rounded-2xl p-5">
       <div className="flex items-center gap-2 mb-1">
         <ShieldCheck size={14} className="text-primary" />
-        <div className="text-sm font-bold text-foreground">ops-console feature visibility</div>
+        <div className="text-sm font-bold text-foreground">{t("admin.accesspanel.opsConsoleFeatureVisibility")}</div>
       </div>
       <div className="text-xs text-muted-foreground mb-4">
-        Which dashboard tabs each ops-console role sees — public.console_role_tabs, read live by Console.tsx. This was read-only until now; a save here takes effect the next time that role loads the console.
+        {t("admin.accesspanel.whichDashboardTabsEach")}
       </div>
       <select
         value={role}
@@ -284,13 +288,13 @@ function ConsoleFeaturesSection() {
         {CONSOLE_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
       </select>
       {!tabs || loading ? (
-        <div className="text-xs text-muted-foreground py-2">Loading...</div>
+        <div className="text-xs text-muted-foreground py-2">{t("common.loading")}</div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
-          {CONSOLE_TABS.map((t) => (
-            <label key={t} className="flex items-center gap-1.5 text-xs capitalize cursor-pointer">
-              <input type="checkbox" checked={current.has(t)} onChange={() => toggle(t)} />
-              {t}
+          {CONSOLE_TABS.map((tItem) => (
+            <label key={tItem} className="flex items-center gap-1.5 text-xs capitalize cursor-pointer">
+              <input type="checkbox" checked={current.has(tItem)} onChange={() => toggle(tItem)} />
+              {tItem}
             </label>
           ))}
         </div>
@@ -298,14 +302,14 @@ function ConsoleFeaturesSection() {
       <div className="flex items-center gap-2 flex-wrap">
         <input
           type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-          placeholder="Admin password" className="rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs flex-1 min-w-[160px]"
+          placeholder={t("admin.accesspanel.adminPassword")} className="rounded-lg border border-border bg-secondary/40 px-3 py-2 text-xs flex-1 min-w-[160px]"
         />
         <button
           onClick={() => void handleSave()}
           disabled={saving || !password}
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold cursor-pointer disabled:opacity-60"
         >
-          <Save size={13} /> {saving ? "Saving..." : "Save"}
+          <Save size={13} /> {saving ? t("admin.accesspanel.saving") : t("modules.save")}
         </button>
       </div>
     </div>

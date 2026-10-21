@@ -636,7 +636,7 @@ export default function GroupTransfers() {
               <div className="rounded-md bg-white px-3 py-1.5 shadow-sm">
                 <PayRusLogo className="h-5 w-auto" />
               </div>
-              <div className="font-mono text-xs text-muted-foreground">REF: GRP-{Date.now().toString(36).toUpperCase()}</div>
+              <div className="font-mono text-xs text-muted-foreground">{t("groups.refGrp")}{Date.now().toString(36).toUpperCase()}</div>
             </div>
             <Button className="w-full gap-2 cursor-pointer" onClick={() => { setActiveView("groups"); setSelectedGroup(null); setBaseAmount(""); }}>
               <ArrowRight size={15} /> {t("groups.backToGroups")}

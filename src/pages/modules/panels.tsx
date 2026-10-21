@@ -143,7 +143,7 @@ export function BudgetsPanel({ userId, currency, moduleKey, modules, kinds }: { 
                 <div className="flex items-center gap-2 shrink-0">
                   {b.status !== "ok" && <AlertTriangle size={14} className={b.status === "over" ? "text-destructive" : "text-amber-500"} />}
                   <span className="tabular-nums">{money(b.spent, b.currency)} / {money(b.amount)}</span>
-                  <button className="text-muted-foreground hover:text-destructive cursor-pointer" aria-label="Delete" onClick={() => void del.mutateAsync({ userId, id: b.budgetId })}><Trash2 size={14} /></button>
+                  <button className="text-muted-foreground hover:text-destructive cursor-pointer" aria-label={t("webhooks.delete")} onClick={() => void del.mutateAsync({ userId, id: b.budgetId })}><Trash2 size={14} /></button>
                 </div>
               </div>
               <div className="h-2 rounded-full bg-secondary overflow-hidden"><div className={cn("h-full", tone(b.status))} style={{ width: `${Math.min(100, b.pct)}%` }} /></div>
@@ -240,7 +240,7 @@ export function PolicyPanel({ userId, kinds }: { userId: string; kinds: RecordKi
         {policies.map((x) => (
           <div key={x.id} className="flex items-center justify-between text-sm rounded-lg border border-border px-3 py-2">
             <span>{x.requiredApprovers} {t("policy.approvers", "approver(s)")} · {x.kindLabel ?? t("policy.every", "every approval type")} · ≥ {money(x.minAmount)}</span>
-            <button className="text-muted-foreground hover:text-destructive cursor-pointer" aria-label="Delete" onClick={() => void delPolicy.mutateAsync({ userId, id: x.id })}><Trash2 size={14} /></button>
+            <button className="text-muted-foreground hover:text-destructive cursor-pointer" aria-label={t("webhooks.delete")} onClick={() => void delPolicy.mutateAsync({ userId, id: x.id })}><Trash2 size={14} /></button>
           </div>
         ))}
       </div>
@@ -258,7 +258,7 @@ export function PolicyPanel({ userId, kinds }: { userId: string; kinds: RecordKi
         {limits.map((l) => (
           <div key={l.approverUserId} className="flex items-center justify-between text-sm rounded-lg border border-border px-3 py-2">
             <span>{l.approverName} — {t("policy.upTo", "up to")} {money(l.maxAmount)}</span>
-            <button className="text-muted-foreground hover:text-destructive cursor-pointer" aria-label="Remove" onClick={() => void setLimit.mutateAsync({ userId, approverId: l.approverUserId, max: null })}><Trash2 size={14} /></button>
+            <button className="text-muted-foreground hover:text-destructive cursor-pointer" aria-label={t("team.remove")} onClick={() => void setLimit.mutateAsync({ userId, approverId: l.approverUserId, max: null })}><Trash2 size={14} /></button>
           </div>
         ))}
         <div className="grid grid-cols-3 gap-2">

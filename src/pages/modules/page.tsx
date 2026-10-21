@@ -199,7 +199,7 @@ export function ModulesIndex() {
             {choices.map((s) => (
               <button key={s.slug} onClick={() => void pick(s.slug)} disabled={setSub.isPending}
                 className={cn("text-left rounded-lg border p-3 transition-colors cursor-pointer", current === s.slug ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/50")}>
-                <div className="flex items-center justify-between"><span className="font-medium text-sm">{s.label}</span>{current === s.slug && <CheckCircle2 size={15} className="text-primary" />}</div>
+                <div className="flex items-center justify-between"><span className="font-medium text-sm">{t(s.label)}</span>{current === s.slug && <CheckCircle2 size={15} className="text-primary" />}</div>
                 <p className="text-xs text-muted-foreground mt-0.5">{s.description}</p>
                 <p className="text-[11px] text-muted-foreground mt-1.5">{s.features.join(" · ")}</p>
                 {s.enhancedKyc && <p className="text-[11px] text-amber-600 mt-1">{t("modules.enhancedKyc", "Enhanced KYC/AML/FATF verification · dedicated relationship manager")}</p>}
@@ -230,7 +230,7 @@ export function ModulesIndex() {
       <div className="grid sm:grid-cols-2 gap-3">
         {(mods.data ?? []).map((m) => (
           <Link key={m.moduleKey} to={`/${lng}/modules/${m.moduleKey}`} className="rounded-xl border border-border bg-card p-4 hover:bg-secondary/40 transition-colors">
-            <div className="font-semibold text-sm">{m.label}</div>
+            <div className="font-semibold text-sm">{t(m.label)}</div>
             <p className="text-xs text-muted-foreground mt-1">{m.description}</p>
           </Link>
         ))}
@@ -318,7 +318,7 @@ export default function ModulePage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {kpis.map((k) => (
           <div key={k.key} className="rounded-xl bg-card border border-border p-4">
-            <div className="text-xs text-muted-foreground">{k.label}</div>
+            <div className="text-xs text-muted-foreground">{t(k.label)}</div>
             <div className="text-lg font-semibold mt-1 tabular-nums">{k.value}</div>
           </div>
         ))}
@@ -346,7 +346,7 @@ export default function ModulePage() {
       <div className="flex flex-wrap gap-2">
         {kind && <Button onClick={() => setCreating(true)}><Plus size={15} /> {t("modules.new", "New")} {kind.label.toLowerCase()}</Button>}
         {module === "payroll" && <Button variant="outline" onClick={() => void runPayroll()}><Repeat size={15} /> {t("modules.runPayroll", "Run payroll from employee register")}</Button>}
-        <Button variant="outline" onClick={exportRecords}><Download size={15} /> CSV</Button>
+        <Button variant="outline" onClick={exportRecords}><Download size={15} /> {t("modules.csv")}</Button>
         <Button variant="outline" onClick={() => void exportJournal()}><FileSpreadsheet size={15} /> {t("modules.journal", "Accounting journal (CSV)")}</Button>
       </div>
 
@@ -431,10 +431,10 @@ function CreateDialog({ kind, kinds, records, currency, onClose, onCreate }: {
               <div className="text-xs font-medium text-muted-foreground">{t("modules.lines", "Invoice lines")}</div>
               {lines.map((l, i) => (
                 <div key={i} className="grid grid-cols-12 gap-1.5">
-                  <Input className="col-span-12 sm:col-span-5" placeholder="Description" value={l.desc} onChange={(e) => setLines(lines.map((x, j) => j === i ? { ...x, desc: e.target.value } : x))} />
-                  <Input className="col-span-4 sm:col-span-2" type="number" placeholder="Qty" value={l.qty} onChange={(e) => setLines(lines.map((x, j) => j === i ? { ...x, qty: e.target.value } : x))} />
-                  <Input className="col-span-4 sm:col-span-3" type="number" placeholder="Unit price" value={l.unit_price} onChange={(e) => setLines(lines.map((x, j) => j === i ? { ...x, unit_price: e.target.value } : x))} />
-                  <Input className="col-span-4 sm:col-span-2" type="number" placeholder="VAT %" value={l.tax_rate} onChange={(e) => setLines(lines.map((x, j) => j === i ? { ...x, tax_rate: e.target.value } : x))} />
+                  <Input className="col-span-12 sm:col-span-5" placeholder={t("txd.note")} value={l.desc} onChange={(e) => setLines(lines.map((x, j) => j === i ? { ...x, desc: e.target.value } : x))} />
+                  <Input className="col-span-4 sm:col-span-2" type="number" placeholder={t("modules.qty")} value={l.qty} onChange={(e) => setLines(lines.map((x, j) => j === i ? { ...x, qty: e.target.value } : x))} />
+                  <Input className="col-span-4 sm:col-span-3" type="number" placeholder={t("modules.unitPrice")} value={l.unit_price} onChange={(e) => setLines(lines.map((x, j) => j === i ? { ...x, unit_price: e.target.value } : x))} />
+                  <Input className="col-span-4 sm:col-span-2" type="number" placeholder={t("modules.vat")} value={l.tax_rate} onChange={(e) => setLines(lines.map((x, j) => j === i ? { ...x, tax_rate: e.target.value } : x))} />
                 </div>
               ))}
               <Button type="button" variant="ghost" size="sm" onClick={() => setLines([...lines, { desc: "", qty: "1", unit_price: "", tax_rate: "0" }])}><Plus size={13} /> {t("modules.addLine", "Add line")}</Button>
@@ -491,7 +491,7 @@ function DetailSheet({ record, kinds, records, onClose, onMove }: {
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         {record && kind && (
           <>
-            <SheetHeader><SheetTitle>{kind.label} · {record.ref}</SheetTitle></SheetHeader>
+            <SheetHeader><SheetTitle>{t(kind.label)} · {record.ref}</SheetTitle></SheetHeader>
             <div className="p-4 space-y-4 text-sm">
               <div><div className="text-lg font-semibold">{record.title}</div>
                 <div className="text-muted-foreground">{record.counterparty}</div>
@@ -502,7 +502,7 @@ function DetailSheet({ record, kinds, records, onClose, onMove }: {
                 <div className="flex flex-wrap gap-2">
                   {next.map((to) => (
                     <Button key={to} size="sm" variant={["cancelled", "rejected", "written_off"].includes(to) ? "outline" : "default"} onClick={() => void onMove(record, to)}>
-                      {label(to)}{gated(to) ? " 🔒" : ""}{kind.settleStatus === to && kind.settle !== "none" ? (kind.settle === "in" ? " (+ money in)" : " (− money out)") : ""}
+                      {label(to)}{gated(to) ? " 🔒" : ""}{kind.settleStatus === to && kind.settle !== "none" ? (kind.settle === "in" ? t("modules.moneyIn") : t("modules.moneyOut")) : ""}
                     </Button>
                   ))}
                 </div>
@@ -534,9 +534,9 @@ function DetailSheet({ record, kinds, records, onClose, onMove }: {
                   <div className="font-medium">{t("modules.voteTally", "Vote tally")} — {t("modules.for", "for")} {String(record.data.for ?? 0)} · {t("modules.against", "against")} {String(record.data.against ?? 0)} · {t("modules.abstain", "abstain")} {String(record.data.abstain ?? 0)} ({t("modules.quorum", "quorum")} {String(record.data.quorum ?? "—")})</div>
                   {record.status === "open" && (
                     <div className="flex gap-1.5">
-                      <Input type="number" placeholder="For" value={tally.f} onChange={(e) => setTallyState({ ...tally, f: e.target.value })} />
-                      <Input type="number" placeholder="Against" value={tally.a} onChange={(e) => setTallyState({ ...tally, a: e.target.value })} />
-                      <Input type="number" placeholder="Abstain" value={tally.ab} onChange={(e) => setTallyState({ ...tally, ab: e.target.value })} />
+                      <Input type="number" placeholder={t("admin.escalationspanel.for")} value={tally.f} onChange={(e) => setTallyState({ ...tally, f: e.target.value })} />
+                      <Input type="number" placeholder={t("modules.against2")} value={tally.a} onChange={(e) => setTallyState({ ...tally, a: e.target.value })} />
+                      <Input type="number" placeholder={t("modules.abstain2")} value={tally.ab} onChange={(e) => setTallyState({ ...tally, ab: e.target.value })} />
                       <Button size="sm" onClick={async () => { if (!user) return; try { await setTally.mutateAsync({ actorId: user.id, recordId: record.id, votesFor: Number(tally.f) || 0, votesAgainst: Number(tally.a) || 0, abstain: Number(tally.ab) || 0 }); toast.success(t("modules.tallySaved", "Tally saved")); } catch (e) { toast.error((e as Error).message); } }}>{t("modules.save", "Save")}</Button>
                     </div>
                   )}

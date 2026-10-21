@@ -133,7 +133,7 @@ export function MfaSettingsCard({ recommend }: { recommend?: boolean }) {
       {enrol && (
         <div className="space-y-3 border-t border-border pt-3">
           <div className="text-xs text-muted-foreground">{t("mfa.scanQr")}</div>
-          <img src={enrol.qrCode} alt="TOTP QR code" className="mx-auto w-40 h-40 bg-white rounded-lg p-2" />
+          <img src={enrol.qrCode} alt={t("mfa.mfaui.totpQrCode")} className="mx-auto w-40 h-40 bg-white rounded-lg p-2" />
           <div className="text-[11px] text-center text-muted-foreground break-all">{t("mfa.orEnterSecret")} <span className="font-mono">{enrol.secret}</span></div>
           <MfaCodeForm
             label={t("mfa.verify")}

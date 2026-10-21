@@ -118,7 +118,7 @@ export default function ScanToPay() {
                   <div key={i} className={cn("rounded-sm", i % 3 === 0 || i % 5 === 0 ? "bg-gray-900" : "bg-transparent")} />
                 ))}
               </div>
-              <p className="text-xs text-gray-500 mt-3 font-mono">PAYRUS-TAG-8421</p>
+              <p className="text-xs text-gray-500 mt-3 font-mono">{t("scan.payrusTag8421")}</p>
             </div>
             <Button
               variant="secondary"

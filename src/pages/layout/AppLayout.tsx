@@ -25,10 +25,11 @@ import { useMyModules, useSubProfiles } from "@/hooks/use-institutional.ts";
 import { useWorkspaces } from "@/hooks/use-institutional-team.ts";
 
 export function PayRusLogo({ className }: { className?: string }) {
+  const { t } = useTranslation("common");
   return (
     <img
       src={`${import.meta.env.BASE_URL}payrus-logo-lockup.png`}
-      alt="PayRus — Payment Solutions & Services"
+      alt={t("layout.AppLayout.payrusPaymentSolutionsServices")}
       className={cn("object-contain select-none", className)}
       draggable={false}
     />
