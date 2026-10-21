@@ -91,7 +91,7 @@ export default function Index() {
         code: walletProviderLabel(t, w.provider) ?? w.currency,
         flag: w.flag,
         balance: `${w.currency} ${w.balance.toLocaleString()}`,
-        change: "● live",
+        change: t("● live"),
         up: true,
         accent: "#0E7FB0",
       }))
@@ -216,7 +216,7 @@ export default function Index() {
                   <div className="w-[52px] h-[52px] rounded-2xl flex items-center justify-center" style={{ background: bg, color: fg }}>
                     <Icon size={21} strokeWidth={1.9} />
                   </div>
-                  <span className="text-[11px] font-bold text-[#66798F]">{title}</span>
+                  <span className="text-[11px] font-bold text-[#66798F]">{t(title)}</span>
                 </Link>
               ))}
             </div>

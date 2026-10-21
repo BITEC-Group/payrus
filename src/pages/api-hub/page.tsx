@@ -200,7 +200,7 @@ function NetworksTab() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <MetricCard icon={Network} label={t("apihub.networksConnected")} value={`${connected.length} / ${NETWORKS.length}`} sub={t("apihub.pendingActivation", { n: 2 })} />
         <MetricCard icon={Zap} label={t("apihub.transactionsToday")} value={totalTx.toLocaleString()} sub={t("apihub.acrossAllNetworks")} />
-        <MetricCard icon={BarChart3} label={t("apihub.volumeTodayUsd")} value={`$${(totalVol / 1_000_000).toFixed(1)}M`} sub="+12.4% vs yesterday" color="text-amber-700" />
+        <MetricCard icon={BarChart3} label={t("apihub.volumeTodayUsd")} value={`$${(totalVol / 1_000_000).toFixed(1)}M`} sub={t("+12.4% vs yesterday")} color="text-amber-700" />
         <MetricCard icon={Activity} label={t("apihub.avgLatency")} value="89 ms" sub="P95: 210 ms" />
       </div>
 
@@ -259,7 +259,7 @@ function NetworksTab() {
               <div className="flex-1 min-w-0 text-left">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-semibold text-sm text-foreground">{net.name}</span>
-                  <span className="text-[10px] text-muted-foreground bg-secondary rounded px-1.5 py-0.5 border border-border">{net.type}</span>
+                  <span className="text-[10px] text-muted-foreground bg-secondary rounded px-1.5 py-0.5 border border-border">{t(net.type)}</span>
                 </div>
                 <p className="text-xs text-muted-foreground truncate mt-0.5">{t(net.description)}</p>
               </div>

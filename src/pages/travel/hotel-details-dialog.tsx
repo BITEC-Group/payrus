@@ -70,7 +70,7 @@ export default function HotelDetailsDialog({ hotel, reviews, liked, nights, onTo
                 <div key={r.id} className="rounded-xl border border-border p-3 text-[12px]">
                   <div className="flex items-center justify-between mb-1"><span className="font-semibold">{r.userName}</span><span className="text-[10px] text-muted-foreground">{formatDate(r.createdAt, i18n.language)}</span></div>
                   <StarsDisplay count={r.rating} size={10} />
-                  <p className="text-muted-foreground mt-1">{r.comment}</p>
+                  <p className="text-muted-foreground mt-1">{t(r.comment)}</p>
                 </div>
               ))}
             </div>
