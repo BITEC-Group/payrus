@@ -3490,5 +3490,15 @@
   "Luanda · Multicaixa Express": "Luanda · Multicaixa Express",
   "31 agents · open": "31 agentes · abierto",
   "Batch #4471": "Lote n.º 4471",
-  "Batch #4470": "Lote n.º 4470"
+  "Batch #4470": "Lote n.º 4470",
+  "dbnotif.title.paymentSent": "Pago enviado",
+  "dbnotif.title.payoutSent": "Desembolso enviado",
+  "dbnote.gameBet": "Apuesta de juego: {{kind}}",
+  "dbnote.gameBetWin": "Premio de apuesta: {{kind}}",
+  "dbnote.travelInstallment": "Cargo de cuota de viaje",
+  "dbnote.travelDemoFunds": "Fondos de demostración de viaje",
+  "dbnote.refund": "Reembolso: {{item}}",
+  "dbnote.fundraise": "Recaudación: {{title}}",
+  "dbnote.payoutTo": "Pago a {{name}}",
+  "Cards": "Tarjetas"
 }

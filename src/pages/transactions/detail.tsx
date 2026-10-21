@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { localizeTransferNote } from "@/lib/db-notifications.ts";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -131,7 +132,7 @@ export default function TransactionDetailPage() {
         <Row label={t("txd.type")}>{typeLabel(tr.type)}</Row>
         <Row label={t("txd.date")}>{new Date(tr.createdAt).toLocaleString()}</Row>
         {detail?.wallet && <Row label={t("txd.wallet")}><Link to={`${base}/wallet`} className="text-primary hover:underline">{detail.wallet.provider} · {detail.wallet.currency}</Link></Row>}
-        {tr.note && <Row label={t("txd.note")}>{tr.note}</Row>}
+        {tr.note && <Row label={t("txd.note")}>{localizeTransferNote(tr.note, t)}</Row>}
         {fee != null && <Row label={t("txd.fee")}>{fee.toLocaleString(undefined, { maximumFractionDigits: 2 })} {tr.currency}</Row>}
         {tr.partnerTxId && <Row label={t("txd.partnerRef")}><span className="font-mono text-xs">{tr.partnerTxId}</span></Row>}
       </Section>

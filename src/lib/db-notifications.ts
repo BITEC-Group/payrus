@@ -10,6 +10,8 @@ const TITLES: Record<string, string> = {
   "Currency converted": "dbnotif.title.convert",
   "Remittance sent": "dbnotif.title.remittance",
   "Transfer sent": "dbnotif.title.transfer",
+  "Payment sent": "dbnotif.title.paymentSent",
+  "Payout sent": "dbnotif.title.payoutSent",
   "Transaction completed": "dbnotif.title.txCompleted",
   "Transaction updated": "dbnotif.title.txUpdated",
   "Transaction cancelled": "dbnotif.title.txCancelled",
@@ -45,4 +47,23 @@ export function localizeNotification(n: { title: string; body: string }, t: TFun
     if (m) { body = t(key, params(m)); break; }
   }
   return { title, body };
+}
+
+/** Notes the backend writes on transfers ("Game bet: sports", "Payout to Amina") in the active language; any other note is shown as written. */
+const NOTES: Array<[RegExp, string, (m: RegExpMatchArray) => Record<string, string>]> = [
+  [/^Game bet: (.+)$/, "dbnote.gameBet", (m) => ({ kind: m[1] })],
+  [/^Game bet win: (.+)$/, "dbnote.gameBetWin", (m) => ({ kind: m[1] })],
+  [/^Travel installment charge$/, "dbnote.travelInstallment", () => ({})],
+  [/^Travel demo funds$/, "dbnote.travelDemoFunds", () => ({})],
+  [/^Refund: (.+)$/, "dbnote.refund", (m) => ({ item: m[1] })],
+  [/^Fundraise: (.+)$/, "dbnote.fundraise", (m) => ({ title: m[1] })],
+  [/^Payout to (.+)$/, "dbnote.payoutTo", (m) => ({ name: m[1] })],
+];
+
+export function localizeTransferNote(note: string, t: TFunction): string {
+  for (const [re, key, params] of NOTES) {
+    const m = note.match(re);
+    if (m) return t(key, params(m));
+  }
+  return note;
 }

@@ -3490,5 +3490,15 @@
   "Luanda · Multicaixa Express": "Luanda · Multicaixa Express",
   "31 agents · open": "31 agents · open",
   "Batch #4471": "Batch #4471",
-  "Batch #4470": "Batch #4470"
+  "Batch #4470": "Batch #4470",
+  "dbnotif.title.paymentSent": "Payment sent",
+  "dbnotif.title.payoutSent": "Payout sent",
+  "dbnote.gameBet": "Game bet: {{kind}}",
+  "dbnote.gameBetWin": "Game bet win: {{kind}}",
+  "dbnote.travelInstallment": "Travel installment charge",
+  "dbnote.travelDemoFunds": "Travel demo funds",
+  "dbnote.refund": "Refund: {{item}}",
+  "dbnote.fundraise": "Fundraise: {{title}}",
+  "dbnote.payoutTo": "Payout to {{name}}",
+  "Cards": "Cards"
 }
