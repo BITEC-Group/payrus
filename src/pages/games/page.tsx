@@ -1,3 +1,5 @@
+import { formatCompact } from "@/lib/format-compact.ts";
+import { weekdayName } from "@/lib/i18n-labels.ts";
 import { useState, useEffect, useRef } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
@@ -59,9 +61,7 @@ const SCRATCH_PRIZES = [0, 0, 0, 500, 0, 1000, 0, 5000, 0, 50000];
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 
 function fmt(n: number) {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M XAF`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K XAF`;
-  return `${n.toLocaleString()} XAF`;
+  return `${formatCompact(n, 2)} XAF`;
 }
 
 function randomPick(n: number, max: number): number[] {
@@ -81,7 +81,7 @@ function LottoSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId, 
   onDeduct: (n: number) => void;
   onCredit: (n: number) => void;
 } & RealMoneyProps) {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const [picked, setPicked] = useState<number[]>([]);
   const [drawResult, setDrawResult] = useState<number[] | null>(null);
   const [animating, setAnimating] = useState(false);
@@ -89,7 +89,7 @@ function LottoSection({ gameBalance, onDeduct, onCredit, isReal, currentUserId, 
   const [showResult, setShowResult] = useState(false);
 
   // Next draw countdown (static demo)
-  const nextDraw = "Mercredi 20:00";
+  const nextDraw = `${weekdayName(3, i18n.language)} 20:00`;
   const prizePool = 48750000;
   const jackpot = 120000000;
 
@@ -1008,7 +1008,7 @@ export default function GamesPage() {
         <div className="flex gap-3 mt-3 mb-4">
           {[
             { label: isReal ? "PayRus balance" : "Game wallet", value: isReal ? (realBalance === undefined ? "—" : `${currency} ${realBalance.toLocaleString()}`) : fmt(gameBalance) },
-            { label: "Community fund", value: "12.8M XAF" },
+            { label: "Community fund", value: `${formatCompact(12_800_000)} XAF` },
             { label: "Next lotto draw", value: "Wed 20:00" },
           ].map(s => (
             <div key={s.label} className="flex-1 bg-secondary/50 border border-border rounded-xl px-2.5 py-2">

@@ -3965,5 +3965,20 @@
   "Smooth connection in Addis and the crew were great. Paid in three instalments with no hassle.": "Correspondance fluide à Addis-Abeba et un équipage formidable. Payé en trois fois sans souci.",
   "Fantastic pool and breakfast. The PayRus member price was the best I found.": "Piscine et petit-déjeuner fantastiques. Le prix membre PayRus était le meilleur que j'aie trouvé.",
   "Comfortable overnight flight, good meal service. Boarding was a little slow.": "Vol de nuit confortable, bon service de repas. L'embarquement a été un peu lent.",
-  "On time both ways and the member discount applied automatically at checkout.": "À l'heure à l'aller comme au retour, et la remise membre s'est appliquée automatiquement au paiement."
+  "On time both ways and the member discount applied automatically at checkout.": "À l'heure à l'aller comme au retour, et la remise membre s'est appliquée automatiquement au paiement.",
+  "fundraise.totalRaisedEquiv": "{{amount}} XAF équiv.",
+  "dbnote.tontinePayout": "Versement de tontine : {{x}}",
+  "dbnote.tontine": "Tontine : {{x}}",
+  "dbnote.invest": "Investissement : {{x}}",
+  "dbnote.savings": "Épargne : {{x}}",
+  "dbnote.bill": "Facture : {{x}}",
+  "dbnote.bills": "Paiement de factures",
+  "dbnote.loyaltySpend": "Dépense fidélité : {{x}}",
+  "dbnote.expenseReimbursement": "Remboursement de frais : {{x}}",
+  "dbnote.sandboxFunds": "Fonds de test sandbox",
+  "dbnote.pitchRepayment": "Remboursement du projet",
+  "500K – 5M XAF deployed": "500 k – 5 M XAF déployés",
+  "5M – 10M XAF deployed": "5 M – 10 M XAF déployés",
+  "< 500K XAF deployed": "< 500 k XAF déployés",
+  "10M+ XAF deployed": "10 M+ XAF déployés"
 }

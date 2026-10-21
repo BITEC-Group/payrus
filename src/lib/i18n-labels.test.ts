@@ -7,7 +7,7 @@ import fr from "@/locales/fr/common.json";
 import pt from "@/locales/pt/common.json";
 
 import { localizeNotification, localizeTransferNote } from "./db-notifications.ts";
-import { monthLabel, potDueLabel, txTypeLabel } from "./i18n-labels.ts";
+import { monthLabel, potDueLabel, txTypeLabel, weekdayName } from "./i18n-labels.ts";
 
 beforeAll(async () => {
   await i18n.init({
@@ -70,6 +70,11 @@ describe("transfer notes written by the database", () => {
     ["fr", "Sofitel Abidjan (instalment 1/3)", "Sofitel Abidjan (échéance 1/3)"],
     ["es", "Air France KIN→CDG (instalment 2/3)", "Air France KIN→CDG (cuota 2/3)"],
     ["pt", "Serena Hotel (instalment 3/3)", "Serena Hotel (prestação 3/3)"],
+    ["fr", "Bill: SEEG — Water", "Facture : SEEG — Water"],
+    ["es", "Tontine: Njangi Douala Sud", "Tontina: Njangi Douala Sud"],
+    ["pt", "Invest: Kinshasa Solar Micro-Grid", "Investimento: Kinshasa Solar Micro-Grid"],
+    ["fr", "Sandbox test funds", "Fonds de test sandbox"],
+    ["es", "Loyalty spend: Live-verify Cafe", "Gasto de fidelidad: Live-verify Cafe"],
     ["pt", "Refund: Serena Hotel Nairobi", "Reembolso: Serena Hotel Nairobi"],
     ["es", "Fundraise: Live-verify campaign", "Recaudación: Live-verify campaign"],
   ];
@@ -114,5 +119,14 @@ describe("plan, card and bill labels", () => {
     await i18n.changeLanguage("fr");
     expect(i18n.t("stats.pendingTx", { count: 1 })).toBe("1 transaction");
     expect(i18n.t("stats.pendingTx", { count: 2 })).toBe("2 transactions");
+  });
+});
+
+describe("weekday names", () => {
+  it("names the weekday in the requested language", () => {
+    expect(weekdayName(3, "en")).toBe("Wednesday");
+    expect(weekdayName(3, "fr")).toBe("Mercredi");
+    expect(weekdayName(3, "es")).toBe("Miércoles");
+    expect(weekdayName(3, "pt").toLowerCase()).toContain("quarta");
   });
 });

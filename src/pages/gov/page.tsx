@@ -1,3 +1,4 @@
+import { formatCompact } from "@/lib/format-compact.ts";
 import { useState } from "react";
 import { localizeTransferNote } from "@/lib/db-notifications.ts";
 import { txTypeLabel } from "@/lib/i18n-labels.ts";
@@ -148,10 +149,7 @@ function categoryColor(c: Integration["category"]) {
   }[c];
 }
 function compactNumber(n: number) {
-  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(2)}B`;
-  if (n >= 1_000_000)     return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000)         return `${(n / 1_000).toFixed(0)}K`;
-  return n.toLocaleString();
+  return formatCompact(n, n >= 1_000_000_000 ? 2 : 1);
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────

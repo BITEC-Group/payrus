@@ -1,3 +1,4 @@
+import { formatCompact } from "@/lib/format-compact.ts";
 import { Trans, useTranslation } from "react-i18next";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -132,9 +133,7 @@ function pct(raised: number, goal: number) {
 }
 
 function fmt(n: number, currency: string) {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M ${currency}`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K ${currency}`;
-  return `${n.toLocaleString()} ${currency}`;
+  return `${formatCompact(n)} ${currency}`;
 }
 
 const CATEGORY_PHOTO: Record<string, { emoji: string; color: string }> = {
@@ -766,7 +765,7 @@ export default function Fundraise() {
         {/* Stats strip */}
         <div className="flex gap-3 mt-3 mb-4">
           {[
-            { label: "Total raised", value: `${(totalRaised / 1_000_000).toFixed(1)}M XAF equiv.` },
+            { label: "Total raised", value: t("fundraise.totalRaisedEquiv", { amount: formatCompact(totalRaised) }) },
             { label: "Campaigns", value: t("fundraise.nActive", { n: displayCampaigns.length }) },
             { label: "Donors", value: totalDonors.toLocaleString() },
           ].map(s => (
