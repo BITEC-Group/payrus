@@ -1,16 +1,26 @@
+import { useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import * as inst from "@/lib/institutional.ts";
+import { localizeApproval, localizeKind, localizeModule, localizeSubProfile } from "@/lib/catalog-i18n.ts";
 
-// Static-ish registries (sub-profiles, modules, record kinds) change only via migrations.
+// Static-ish registries (sub-profiles, modules, record kinds) change only via migrations. They are stored in English, so
+// they are translated in `select`: the cache keeps the stored text and a language switch re-renders without refetching.
 export function useSubProfiles() {
-  return useQuery({ queryKey: ["inst", "subProfiles"], queryFn: inst.listSubProfiles, staleTime: 300_000, retry: false });
+  const { t } = useTranslation("common");
+  const select = useCallback((d: inst.SubProfile[]) => d.map((s) => localizeSubProfile(t, s)), [t]);
+  return useQuery({ queryKey: ["inst", "subProfiles"], queryFn: inst.listSubProfiles, select, staleTime: 300_000, retry: false });
 }
 export function useRecordKinds() {
-  return useQuery({ queryKey: ["inst", "kinds"], queryFn: inst.listKinds, staleTime: 300_000, retry: false });
+  const { t } = useTranslation("common");
+  const select = useCallback((d: inst.RecordKind[]) => d.map((k) => localizeKind(t, k)), [t]);
+  return useQuery({ queryKey: ["inst", "kinds"], queryFn: inst.listKinds, select, staleTime: 300_000, retry: false });
 }
 export function useMyModules(userId: string | undefined, role: string | undefined) {
+  const { t } = useTranslation("common");
+  const select = useCallback((d: Awaited<ReturnType<typeof inst.myModules>>) => d.map((m) => localizeModule(t, m)), [t]);
   return useQuery({
-    queryKey: ["inst", "myModules", userId, role], queryFn: () => inst.myModules(userId!, role!),
+    queryKey: ["inst", "myModules", userId, role], queryFn: () => inst.myModules(userId!, role!), select,
     enabled: !!userId && !!role, staleTime: 60_000, retry: false,
   });
 }
@@ -21,8 +31,10 @@ export function useInstRecords(userId: string | undefined, module?: string) {
   });
 }
 export function usePendingApprovals(actorId: string | undefined) {
+  const { t } = useTranslation("common");
+  const select = useCallback((d: inst.PendingApproval[]) => d.map((a) => localizeApproval(t, a)), [t]);
   return useQuery({
-    queryKey: ["inst", "approvals", actorId], queryFn: () => inst.pendingApprovals(actorId!),
+    queryKey: ["inst", "approvals", actorId], queryFn: () => inst.pendingApprovals(actorId!), select,
     enabled: !!actorId, staleTime: 30_000, retry: false,
   });
 }

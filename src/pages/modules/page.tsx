@@ -17,6 +17,7 @@ import {
   useRunRecurring, useSetMySubProfile, useSetRecurrence, useSetTally, useSubProfiles, useTransitionInstRecord,
 } from "@/hooks/use-institutional.ts";
 import { journal, type InstRecord, type RecordKind } from "@/lib/institutional.ts";
+import { catText, statusText } from "@/lib/catalog-i18n.ts";
 import { useApprovalProgress } from "@/hooks/use-institutional-ops.ts";
 import { AgeingPanel, BudgetsPanel, PolicyPanel, ReconcilePanel } from "./panels.tsx";
 import { WebhooksPanel } from "./webhooks-panel.tsx";
@@ -199,7 +200,7 @@ export function ModulesIndex() {
             {choices.map((s) => (
               <button key={s.slug} onClick={() => void pick(s.slug)} disabled={setSub.isPending}
                 className={cn("text-left rounded-lg border p-3 transition-colors cursor-pointer", current === s.slug ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/50")}>
-                <div className="flex items-center justify-between"><span className="font-medium text-sm">{t(s.label)}</span>{current === s.slug && <CheckCircle2 size={15} className="text-primary" />}</div>
+                <div className="flex items-center justify-between"><span className="font-medium text-sm">{s.label}</span>{current === s.slug && <CheckCircle2 size={15} className="text-primary" />}</div>
                 <p className="text-xs text-muted-foreground mt-0.5">{s.description}</p>
                 <p className="text-[11px] text-muted-foreground mt-1.5">{s.features.join(" · ")}</p>
                 {s.enhancedKyc && <p className="text-[11px] text-amber-600 mt-1">{t("modules.enhancedKyc", "Enhanced KYC/AML/FATF verification · dedicated relationship manager")}</p>}
@@ -230,7 +231,7 @@ export function ModulesIndex() {
       <div className="grid sm:grid-cols-2 gap-3">
         {(mods.data ?? []).map((m) => (
           <Link key={m.moduleKey} to={`/${lng}/modules/${m.moduleKey}`} className="rounded-xl border border-border bg-card p-4 hover:bg-secondary/40 transition-colors">
-            <div className="font-semibold text-sm">{t(m.label)}</div>
+            <div className="font-semibold text-sm">{m.label}</div>
             <p className="text-xs text-muted-foreground mt-1">{m.description}</p>
           </Link>
         ))}
@@ -282,7 +283,7 @@ export default function ModulePage() {
     try {
       const res = await transition.mutateAsync({ actorId: user.id, recordId: r.id, to });
       if (res.status !== to && res.data.approvals_need) toast.info(t("modules.approvalRecorded", "Approval recorded: {{have}} of {{need}}. More approvers are needed.", { have: String(res.data.approvals_have), need: String(res.data.approvals_need) }));
-      else toast.success(`${r.ref} → ${label(res.status)}`);
+      else toast.success(`${r.ref} → ${statusText(t, res.status)}`);
     }
     catch (e) { toast.error((e as Error).message); }
   }
@@ -314,7 +315,7 @@ export default function ModulePage() {
   const shown = rs.filter((r) => !kind || r.kind === kind.slug);
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-5">
-      <PageHeader title={meta?.label ?? label(module)} subtitle={meta?.description} />
+      <PageHeader title={meta?.label ?? catText(t, label(module))} subtitle={meta?.description} />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {kpis.map((k) => (
           <div key={k.key} className="rounded-xl bg-card border border-border p-4">
@@ -344,7 +345,7 @@ export default function ModulePage() {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {kind && <Button onClick={() => setCreating(true)}><Plus size={15} /> {t("modules.new", "New")} {kind.label.toLowerCase()}</Button>}
+        {kind && <Button onClick={() => setCreating(true)}><Plus size={15} /> {t("modules.newKind", "New {{kind}}", { kind: kind.label.toLowerCase() })}</Button>}
         {module === "payroll" && <Button variant="outline" onClick={() => void runPayroll()}><Repeat size={15} /> {t("modules.runPayroll", "Run payroll from employee register")}</Button>}
         <Button variant="outline" onClick={exportRecords}><Download size={15} /> {t("modules.csv")}</Button>
         <Button variant="outline" onClick={() => void exportJournal()}><FileSpreadsheet size={15} /> {t("modules.journal", "Accounting journal (CSV)")}</Button>
@@ -362,7 +363,7 @@ export default function ModulePage() {
                 <td className="p-3 whitespace-nowrap text-muted-foreground">{r.ref}{r.data.recurrence ? <Repeat size={11} className="inline ml-1" /> : null}</td>
                 <td className="p-3"><div className="font-medium">{r.title}</div>{r.counterparty && <div className="text-xs text-muted-foreground">{r.counterparty}</div>}</td>
                 <td className="p-3 text-right tabular-nums whitespace-nowrap">{r.amount > 0 ? money(r.amount, r.currency) : "—"}</td>
-                <td className="p-3"><span className={cn("px-2 py-0.5 rounded-full text-xs", tone(r.status))}>{label(r.status)}</span></td>
+                <td className="p-3"><span className={cn("px-2 py-0.5 rounded-full text-xs", tone(r.status))}>{statusText(t, r.status)}</span></td>
                 <td className="p-3 text-right text-xs text-muted-foreground">{r.dueDate ? <span className="inline-flex items-center gap-1"><Clock size={11} />{r.dueDate}</span> : null}</td>
               </tr>
             ))}
@@ -408,10 +409,10 @@ function CreateDialog({ kind, kinds, records, currency, onClose, onCreate }: {
   return (
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>{t("modules.new", "New")} {kind.label.toLowerCase()}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{t("modules.newKind", "New {{kind}}", { kind: kind.label.toLowerCase() })}</DialogTitle></DialogHeader>
         <div className="space-y-3">
           {kind.parentKind && (
-            <Field label={`${parentKind?.label ?? "Parent"} *`}>
+            <Field label={`${parentKind?.label ?? t("modules.parent", "Parent")} *`}>
               <select className="w-full h-9 rounded-md border border-input bg-background px-2 text-sm" value={parentId} onChange={(e) => setParentId(e.target.value)}>
                 <option value="">—</option>{parents.map((p) => <option key={p.id} value={p.id}>{p.ref} · {p.title}</option>)}
               </select>
@@ -448,7 +449,7 @@ function CreateDialog({ kind, kinds, records, currency, onClose, onCreate }: {
             <Field key={f.key} label={`${f.label}${f.required ? " *" : ""}`}>
               {f.type === "select" ? (
                 <select className="w-full h-9 rounded-md border border-input bg-background px-2 text-sm" value={vals[f.key] ?? ""} onChange={(e) => setVals({ ...vals, [f.key]: e.target.value })}>
-                  <option value="">—</option>{f.options?.map((o) => <option key={o} value={o}>{o}</option>)}
+                  <option value="">—</option>{f.options?.map((o) => <option key={o} value={o}>{catText(t, o)}</option>)}
                 </select>
               ) : f.type === "textarea" ? <Textarea value={vals[f.key] ?? ""} onChange={(e) => setVals({ ...vals, [f.key]: e.target.value })} />
                 : <Input type={f.type === "number" ? "number" : f.type === "date" ? "date" : "text"} value={vals[f.key] ?? ""} onChange={(e) => setVals({ ...vals, [f.key]: e.target.value })} />}
@@ -491,18 +492,18 @@ function DetailSheet({ record, kinds, records, onClose, onMove }: {
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         {record && kind && (
           <>
-            <SheetHeader><SheetTitle>{t(kind.label)} · {record.ref}</SheetTitle></SheetHeader>
+            <SheetHeader><SheetTitle>{kind.label} · {record.ref}</SheetTitle></SheetHeader>
             <div className="p-4 space-y-4 text-sm">
               <div><div className="text-lg font-semibold">{record.title}</div>
                 <div className="text-muted-foreground">{record.counterparty}</div>
                 <div className="mt-1 flex items-center gap-2"><span className="font-semibold">{record.amount > 0 ? money(record.amount, record.currency) : ""}</span>
-                  <span className={cn("px-2 py-0.5 rounded-full text-xs", tone(record.status))}>{label(record.status)}</span></div></div>
+                  <span className={cn("px-2 py-0.5 rounded-full text-xs", tone(record.status))}>{statusText(t, record.status)}</span></div></div>
 
               {next.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {next.map((to) => (
                     <Button key={to} size="sm" variant={["cancelled", "rejected", "written_off"].includes(to) ? "outline" : "default"} onClick={() => void onMove(record, to)}>
-                      {label(to)}{gated(to) ? " 🔒" : ""}{kind.settleStatus === to && kind.settle !== "none" ? (kind.settle === "in" ? t("modules.moneyIn") : t("modules.moneyOut")) : ""}
+                      {statusText(t, to)}{gated(to) ? " 🔒" : ""}{kind.settleStatus === to && kind.settle !== "none" ? (kind.settle === "in" ? t("modules.moneyIn") : t("modules.moneyOut")) : ""}
                     </Button>
                   ))}
                 </div>
@@ -512,21 +513,25 @@ function DetailSheet({ record, kinds, records, onClose, onMove }: {
 
               <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5">
                 {record.dueDate && <><dt className="text-muted-foreground">{t("modules.due", "Due date")}</dt><dd>{record.dueDate}</dd></>}
-                {Object.entries(record.data).filter(([k]) => !skip.has(k)).map(([k, v]) => (
-                  <div key={k} className="contents"><dt className="text-muted-foreground">{label(k)}</dt><dd className="break-words">{typeof v === "number" ? v.toLocaleString() : String(v)}</dd></div>
-                ))}
+                {Object.entries(record.data).filter(([k]) => !skip.has(k)).map(([k, v]) => {
+                  const field = kind.fields.find((f) => f.key === k);
+                  return (
+                    <div key={k} className="contents"><dt className="text-muted-foreground">{field?.label ?? catText(t, label(k))}</dt>
+                      <dd className="break-words">{typeof v === "number" ? v.toLocaleString() : field?.type === "select" ? catText(t, String(v)) : String(v)}</dd></div>
+                  );
+                })}
               </dl>
 
               {Array.isArray(record.data.lines) && (
-                <Table2 head={["Item", "Qty", "Unit", "VAT %", "Net"]} rows={(record.data.lines as Record<string, unknown>[]).map((l) =>
+                <Table2 head={[t("modules.th.item", "Item"), t("modules.th.qty", "Qty"), t("modules.th.unitPrice", "Unit price"), t("modules.th.vat", "VAT %"), t("modules.th.net", "Net")]} rows={(record.data.lines as Record<string, unknown>[]).map((l) =>
                   [String(l.desc ?? l.name ?? ""), String(l.qty ?? ""), money(Number(l.unit_price ?? l.gross ?? 0)), String(l.tax_rate ?? l.deduction_pct ?? ""), l.net !== undefined ? money(Number(l.net)) : money(Number(l.qty) * Number(l.unit_price))])} />
               )}
               {Array.isArray(record.data.allocations) && (
-                <Table2 head={["Holder", "Units", "Amount"]} rows={(record.data.allocations as { name: string; units: number; amount: number }[]).map((a) => [a.name, a.units.toLocaleString(), money(a.amount, record.currency)])} />
+                <Table2 head={[t("modules.th.holder", "Holder"), t("modules.th.units", "Units"), t("modules.col.amount", "Amount")]} rows={(record.data.allocations as { name: string; units: number; amount: number }[]).map((a) => [a.name, a.units.toLocaleString(), money(a.amount, record.currency)])} />
               )}
               {isLoan && amort.data && (
                 <div><div className="font-medium mb-1">{t("modules.schedule", "Repayment schedule")} · {money(Number(record.data.installment ?? 0), record.currency)} / {t("modules.month", "month")}</div>
-                  <Table2 head={["#", "Payment", "Interest", "Principal", "Balance"]} rows={amort.data.map((r) => [String(r.period), money(r.payment), money(r.interest), money(r.principal), money(r.balance)])} /></div>
+                  <Table2 head={["#", t("modules.th.payment", "Payment"), t("modules.th.interest", "Interest"), t("modules.th.principal", "Principal"), t("modules.th.balance", "Balance")]} rows={amort.data.map((r) => [String(r.period), money(r.payment), money(r.interest), money(r.principal), money(r.balance)])} /></div>
               )}
 
               {kind.calc === "resolution" && (
@@ -549,7 +554,7 @@ function DetailSheet({ record, kinds, records, onClose, onMove }: {
                   <div className="font-medium flex items-center gap-1.5"><Repeat size={14} />{t("modules.recurring", "Recurring")}{record.data.recurrence ? ` — ${JSON.stringify(record.data.recurrence)}` : ""}</div>
                   <div className="flex gap-2">
                     <select className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={every} onChange={(e) => setEvery(e.target.value)}>
-                      {["week", "month", "quarter", "year"].map((e) => <option key={e} value={e}>{label(e)}</option>)}
+                      {["week", "month", "quarter", "year"].map((e) => <option key={e} value={e}>{statusText(t, e)}</option>)}
                     </select>
                     <Button size="sm" onClick={async () => { if (!user) return; try { await setRecurrence.mutateAsync({ userId: record.ownerUserId, recordId: record.id, every, next: new Date(Date.now() + 864e5).toISOString().slice(0, 10) }); toast.success(t("modules.recurringSet", "Recurrence set — starts tomorrow")); } catch (e) { toast.error((e as Error).message); } }}>{t("modules.repeat", "Repeat")}</Button>
                     {record.data.recurrence ? <Button size="sm" variant="outline" onClick={async () => { if (!user) return; await setRecurrence.mutateAsync({ userId: record.ownerUserId, recordId: record.id, every: null }); }}>{t("modules.stop", "Stop")}</Button> : null}
@@ -559,7 +564,8 @@ function DetailSheet({ record, kinds, records, onClose, onMove }: {
 
               {children.length > 0 && (
                 <div><div className="font-medium mb-1">{t("modules.linked", "Linked records")}</div>
-                  <Table2 head={["Ref", "Type", "Amount", "Status"]} rows={children.map((c) => [c.ref, c.kind.replace(/_/g, " "), money(c.amount, c.currency), label(c.status)])} /></div>
+                  <Table2 head={[t("modules.col.ref", "Reference"), t("modules.th.type", "Type"), t("modules.col.amount", "Amount"), t("modules.col.status", "Status")]}
+                    rows={children.map((c) => [c.ref, kinds.find((k) => k.slug === c.kind)?.label ?? c.kind.replace(/_/g, " "), money(c.amount, c.currency), statusText(t, c.status)])} /></div>
               )}
             </div>
           </>
