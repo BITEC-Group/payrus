@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { localizeTransferNote } from "@/lib/db-notifications.ts";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "motion/react";
 import { Search, ArrowUpRight, ArrowDownLeft, Send, CreditCard, Globe, Plus, Repeat, ChevronRight } from "lucide-react";
@@ -134,7 +135,7 @@ export default function Transactions() {
                 <Icon size={18} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-foreground truncate">{tx.note || typeLabels[tx.type] || tx.type}</div>
+                <div className="text-sm font-medium text-foreground truncate">{tx.note ? localizeTransferNote(tx.note, t) : (typeLabels[tx.type] || tx.type)}</div>
                 <div className="text-xs text-muted-foreground flex items-center gap-2">
                   <span>{new Date(tx.createdAt).toLocaleString()}</span>
                   <span className="px-1.5 py-0.5 rounded-md bg-secondary text-xs">{typeLabels[tx.type] ?? tx.type}</span>

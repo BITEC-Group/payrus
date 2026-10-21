@@ -82,7 +82,7 @@ export default function PaymentLinks() {
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("links.accepted")}</div>
             <div className="flex flex-wrap gap-1.5">
               {ACCEPTED.map(a => (
-                <span key={a} className="text-xs px-2 py-1 rounded-md bg-secondary text-foreground font-medium">{a}</span>
+                <span key={a} className="text-xs px-2 py-1 rounded-md bg-secondary text-foreground font-medium">{t(a)}</span>
               ))}
             </div>
           </div>

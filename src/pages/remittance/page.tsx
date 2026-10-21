@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { localizeTransferNote } from "@/lib/db-notifications.ts";
 import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
@@ -395,7 +396,7 @@ export default function Remittance() {
                         <span className="font-mono text-muted-foreground">{x.reference}</span>
                         <span className="font-semibold">{x.amount.toLocaleString()} {x.currency}</span>
                       </div>
-                      {x.note && <p className="text-xs text-muted-foreground truncate">{x.note}</p>}
+                      {x.note && <p className="text-xs text-muted-foreground truncate">{localizeTransferNote(x.note, t)}</p>}
                       <div className="flex items-center gap-1">
                         {STATE_STEPS.map((st, i) => (
                           <div key={st} className="flex-1 flex items-center gap-1">

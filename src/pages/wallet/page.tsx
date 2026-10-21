@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { localizeTransferNote } from "@/lib/db-notifications.ts";
 import { walletProviderLabel } from "@/lib/i18n-labels.ts";
 import { transactionErrorMessage } from "@/lib/transaction-errors.ts";
 import { useSearchParams } from "react-router-dom";
@@ -282,7 +283,7 @@ export default function WalletPage() {
                       {recentDeposits.map((tx) => (
                         <div key={tx.id} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
                           <div>
-                            <p className="text-sm font-medium text-foreground">{tx.note ?? t("wallet.methodBank")}</p>
+                            <p className="text-sm font-medium text-foreground">{tx.note ? localizeTransferNote(tx.note, t) : t("wallet.methodBank")}</p>
                             <p className="text-xs text-muted-foreground">{new Date(tx.createdAt).toLocaleDateString()}</p>
                           </div>
                           <div className="text-right">

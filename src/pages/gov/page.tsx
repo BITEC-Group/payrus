@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { localizeTransferNote } from "@/lib/db-notifications.ts";
+import { txTypeLabel } from "@/lib/i18n-labels.ts";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -210,8 +212,8 @@ export default function GovHub() {
   const recentTxToShow = hasReal && realTransfers && realTransfers.length > 0
     ? realTransfers.map(tr => ({
         id: tr.id, type: (REAL_TX_CREDIT_TYPES.has(tr.type) ? "collection" : "disbursement") as Transaction["type"],
-        description: tr.note ?? tr.reference, amount: tr.amount, currency: tr.currency as Currency,
-        source: tr.type, status: "completed" as const, time: new Date(tr.createdAt).toLocaleTimeString(),
+        description: tr.note ? localizeTransferNote(tr.note, t) : tr.reference, amount: tr.amount, currency: tr.currency as Currency,
+        source: txTypeLabel(t, tr.type), status: "completed" as const, time: new Date(tr.createdAt).toLocaleTimeString(),
       }))
     : RECENT_TRANSACTIONS;
 

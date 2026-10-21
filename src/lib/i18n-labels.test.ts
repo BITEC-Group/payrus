@@ -6,7 +6,7 @@ import es from "@/locales/es/common.json";
 import fr from "@/locales/fr/common.json";
 import pt from "@/locales/pt/common.json";
 
-import { localizeNotification } from "./db-notifications.ts";
+import { localizeNotification, localizeTransferNote } from "./db-notifications.ts";
 import { monthLabel, txTypeLabel } from "./i18n-labels.ts";
 
 beforeAll(async () => {
@@ -58,5 +58,25 @@ describe("database notifications", () => {
   it("shows an unrecognised message as written", async () => {
     await i18n.changeLanguage("fr");
     expect(localizeNotification({ title: "Something custom", body: "Free text from staff" }, i18n.t)).toEqual({ title: "Something custom", body: "Free text from staff" });
+  });
+});
+
+describe("transfer notes written by the database", () => {
+  const cases: Array<[string, string, string]> = [
+    ["fr", "Game bet: sports", "Pari de jeu : sports"],
+    ["es", "Game bet win: lotto", "Premio de apuesta: lotto"],
+    ["pt", "Payout to Tito salumu", "Pagamento a Tito salumu"],
+    ["fr", "Travel installment charge", "Prélèvement d'échéance de voyage"],
+    ["pt", "Refund: Serena Hotel Nairobi", "Reembolso: Serena Hotel Nairobi"],
+    ["es", "Fundraise: Live-verify campaign", "Recaudación: Live-verify campaign"],
+  ];
+  it.each(cases)("%s: %s", async (lng, note, expected) => {
+    await i18n.changeLanguage(lng);
+    expect(localizeTransferNote(note, i18n.t)).toBe(expected);
+  });
+
+  it("shows any other note as written", async () => {
+    await i18n.changeLanguage("fr");
+    expect(localizeTransferNote("Birthday gift", i18n.t)).toBe("Birthday gift");
   });
 });
