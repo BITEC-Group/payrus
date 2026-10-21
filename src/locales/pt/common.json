@@ -3911,5 +3911,12 @@
   "install.step1": "Toque no botão Partilhar na barra de ferramentas do navegador.",
   "install.step2": "Escolha «Adicionar ao ecrã principal».",
   "install.step3": "Toque em Adicionar. O PayRus abre depois como uma aplicação a partir do ecrã principal.",
-  "install.close": "Fechar"
+  "install.close": "Fechar",
+  "cat.unmatched": "não conciliado",
+  "cat.matched": "conciliado",
+  "cat.ignored": "ignorado",
+  "cat.queued": "em fila",
+  "cat.sending": "a enviar",
+  "cat.dead": "esgotado",
+  "cat.failed": "falhou"
 }

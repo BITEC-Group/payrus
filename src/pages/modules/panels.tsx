@@ -106,7 +106,7 @@ export function ReconcilePanel({ userId, currency }: { userId: string; currency:
         <Card title={t("recon.done", "Reconciled and ignored")}>
           <div className="space-y-1 text-xs text-muted-foreground">
             {lines.filter((l) => l.status !== "unmatched").slice(0, 25).map((l) => (
-              <div key={l.id} className="flex justify-between gap-2"><span className="truncate">{l.lineDate} · {l.description || "—"}</span><span className="whitespace-nowrap">{money(l.amount, l.currency)} · {l.status}</span></div>
+              <div key={l.id} className="flex justify-between gap-2"><span className="truncate">{l.lineDate} · {l.description || "—"}</span><span className="whitespace-nowrap">{money(l.amount, l.currency)} · {catText(t, l.status)}</span></div>
             ))}
           </div>
         </Card>

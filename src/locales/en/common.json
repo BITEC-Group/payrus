@@ -3911,5 +3911,12 @@
   "install.step1": "Tap the Share button in the browser toolbar.",
   "install.step2": "Choose “Add to Home Screen”.",
   "install.step3": "Tap Add. PayRus then opens like an app from your home screen.",
-  "install.close": "Close"
+  "install.close": "Close",
+  "cat.unmatched": "unmatched",
+  "cat.matched": "matched",
+  "cat.ignored": "ignored",
+  "cat.queued": "queued",
+  "cat.sending": "sending",
+  "cat.dead": "dead",
+  "cat.failed": "failed"
 }
