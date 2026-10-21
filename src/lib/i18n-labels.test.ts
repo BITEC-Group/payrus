@@ -100,6 +100,11 @@ describe("plan, card and bill labels", () => {
     ["fr", "Free", "Gratuit"], ["pt", "Grow", "Crescimento"], ["es", "Virtual", "Virtual"], ["fr", "Virtual", "Virtuelle"],
     ["pt", "Monthly subscription", "Subscrição mensal"], ["es", "Libreville · utilities", "Libreville · servicios públicos"],
     ["fr", "plans.value.priority", "prioritaire"], ["es", "savings.ongoing", "En curso"],
+    ["fr", "Add Money", "Ajouter de l'argent"], ["pt", "Convert", "Converter"], ["es", "● live", "● en vivo"],
+    ["fr", "Interbank", "Interbancaire"], ["pt", "Clearing", "Compensação"], ["es", "+12.4% vs yesterday", "+12,4 % respecto a ayer"],
+    ["fr", "Society for Worldwide Interbank Financial Telecommunication", "Société de télécommunications financières interbancaires mondiales"],
+    ["es", "travel.amenity.priority_boarding", "Embarque prioritario"], ["pt", "travel.amenity.lounge", "Sala VIP"],
+    ["fr", "Smooth overnight flight, boarding was a little slow.", "Vol de nuit agréable, l'embarquement a été un peu lent."],
   ])("%s %s -> %s", async (lng, key, expected) => {
     await i18n.changeLanguage(lng);
     expect(i18n.t(key)).toBe(expected);

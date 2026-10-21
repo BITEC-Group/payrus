@@ -128,7 +128,7 @@ export default function ReviewsSection({ kind, reviews, items, userId, defaultIt
                   <div className="text-[10px] text-muted-foreground">{formatDate(review.createdAt, i18n.language)}</div>
                 </div>
               </div>
-              <p className="text-[12px] text-muted-foreground mt-3 leading-relaxed">{review.comment}</p>
+              <p className="text-[12px] text-muted-foreground mt-3 leading-relaxed">{t(review.comment)}</p>
             </div>
           ))}
         </div>
