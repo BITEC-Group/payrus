@@ -3904,5 +3904,12 @@
   "cat.Pay / settle": "Pay / settle",
   "cat.Manage team": "Manage team",
   "cat.Manage webhooks": "Manage webhooks",
-  "cat.Budgets and approval rules": "Budgets and approval rules"
+  "cat.Budgets and approval rules": "Budgets and approval rules",
+  "install.button": "Install app",
+  "install.title": "Add PayRus to your home screen",
+  "install.intro": "Open PayRus like an app, full screen, straight from your home screen.",
+  "install.step1": "Tap the Share button in the browser toolbar.",
+  "install.step2": "Choose “Add to Home Screen”.",
+  "install.step3": "Tap Add. PayRus then opens like an app from your home screen.",
+  "install.close": "Close"
 }

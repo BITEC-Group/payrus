@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import LocaleSwitcher from "@/components/ui/locale-switcher.tsx";
+import InstallButton from "@/components/ui/install-button.tsx";
 
 /* Icons traced from the PayRus onboarding mockup (Onboarding.dc.html) */
 type IconProps = { size?: number };
@@ -60,7 +61,8 @@ export default function Welcome() {
         <circle cx="140" cy="140" r="140" fill="#0E7FB0" opacity="0.13" />
       </svg>
 
-      <div className="relative z-10 flex justify-end px-6 pt-5">
+      <div className="relative z-10 flex justify-end items-center gap-2 px-6 pt-5">
+        <InstallButton />
         <LocaleSwitcher />
       </div>
 

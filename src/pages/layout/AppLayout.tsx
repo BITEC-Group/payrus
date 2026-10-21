@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils.ts";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import LocaleSwitcher from "@/components/ui/locale-switcher.tsx";
+import InstallButton from "@/components/ui/install-button.tsx";
 import ProfileSwitcher from "@/components/ui/profile-switcher.tsx";
 import { useProfile } from "@/contexts/profile-context.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet.tsx";
@@ -296,6 +297,9 @@ export default function AppLayout() {
           <div className="px-1 pt-1">
             <LocaleSwitcher />
           </div>
+          <div className="px-1">
+            <InstallButton className="w-full justify-start" />
+          </div>
         </div>
 
         {/* Profile switcher + auth */}
@@ -505,6 +509,9 @@ export default function AppLayout() {
             </button>
             <div className="px-1 pt-1">
               <LocaleSwitcher />
+            </div>
+            <div className="px-1">
+              <InstallButton className="w-full justify-start" />
             </div>
           </div>
         </SheetContent>
