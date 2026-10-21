@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import type { TFunction } from "i18next";
 import { labelWithPercent } from "@/lib/i18n-labels.ts";
 import { Trans, useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
@@ -504,8 +505,8 @@ function fmt(n: number, currency: string) {
   return `${n.toLocaleString()} ${currency}`;
 }
 
-function catLabel(cat: PitchCategory) {
-  return CATEGORIES.find(c => c.key === cat)?.label ?? cat;
+function catLabel(t: TFunction, cat: PitchCategory) {
+  return t(CATEGORIES.find(c => c.key === cat)?.label ?? cat);
 }
 
 function RiskBadge({ risk }: { risk: RiskLevel }) {
@@ -583,7 +584,7 @@ function PitchCard({ pitch, onSelect, onInvest }: {
           )}
         </div>
         <div className="absolute top-2 right-2 text-[9px] font-black bg-black/40 backdrop-blur-sm border border-white/10 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">
-          {catLabel(pitch.category)}
+          {catLabel(t, pitch.category)}
         </div>
         {/* Return badge */}
         <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-primary/90 text-primary-foreground text-[10px] font-black px-2.5 py-1 rounded-xl">
@@ -852,7 +853,7 @@ function PitchDetail({ pitch, onBack, onInvest }: {
             <span>{pitch.founder}</span>
             <span>·</span>
             <span className="flex items-center gap-1"><MapPin size={10} />{pitch.location}</span>
-            <span className="uppercase text-[9px] font-black bg-secondary px-2 py-0.5 rounded-full border border-border">{catLabel(pitch.category)}</span>
+            <span className="uppercase text-[9px] font-black bg-secondary px-2 py-0.5 rounded-full border border-border">{catLabel(t, pitch.category)}</span>
             <RiskBadge risk={pitch.risk} />
           </div>
         </div>

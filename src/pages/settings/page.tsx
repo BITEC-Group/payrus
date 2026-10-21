@@ -178,7 +178,7 @@ function ProfileSection() {
           right={<span className="text-[11px] text-muted-foreground">{phone}</span>}
           onClick={() => toast.success(t("settings.profile.editPhone"))} />
         <SettingRow icon={Building2} label={t("settings.profile.accountType")}
-          description={profile?.type?.replace(/_/g, " ")}
+          description={profile?.type ? t(`profile.type.${profile.type}`, { defaultValue: profile.type.replace(/_/g, " ") }) : undefined}
           onClick={() => toast.info(t("settings.profile.switchProfileHint"))} />
       </div>
 

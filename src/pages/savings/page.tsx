@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { potDueLabel } from "@/lib/i18n-labels.ts";
 import { motion, AnimatePresence } from "motion/react";
 import PageHeader from "@/components/ui/page-header.tsx";
 import {
@@ -207,7 +208,7 @@ function ChartTip({ active, payload, label }: TooltipProps) {
 }
 
 function PotCard({ pot, index, onFund }: { pot: SavingsPot; index: number; onFund: (pot: SavingsPot) => void }) {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const pct = Math.round((pot.current / pot.target) * 100);
   const Icon = pot.icon;
   const completed = pct >= 100;
@@ -232,7 +233,7 @@ function PotCard({ pot, index, onFund }: { pot: SavingsPot; index: number; onFun
         <div className="flex-1 min-w-0">
           <div className="text-sm font-bold text-foreground truncate">{t(pot.name)}</div>
           <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
-            <Calendar size={9} /> {pot.dueDate} · {pot.interestRate}% APY
+            <Calendar size={9} /> {potDueLabel(t, pot.dueDate, i18n.language)} · {t("savings.apy", { rate: pot.interestRate })}
           </div>
         </div>
       </div>

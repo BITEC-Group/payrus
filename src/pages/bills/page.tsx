@@ -90,8 +90,8 @@ export default function Bills() {
               {b.paused ? <Pause size={18} /> : <b.icon size={18} />}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-foreground truncate">{b.name}</div>
-              <div className="text-xs text-muted-foreground truncate">{b.meta}</div>
+              <div className="text-sm font-medium text-foreground truncate">{t(b.name)}</div>
+              <div className="text-xs text-muted-foreground truncate">{t(b.meta)}</div>
             </div>
             <div className="text-right shrink-0 space-y-1.5">
               {!b.paused && (

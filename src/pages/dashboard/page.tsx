@@ -206,7 +206,7 @@ export default function Dashboard() {
   const stats = [
     { label: t("stats.sent"), value: "XAF 726k", change: "+12%", up: true },
     { label: t("stats.fxSavings"), value: "XAF 22,500", change: "+5%", up: true },
-    { label: t("stats.pending"), value: "XAF 51k", change: "2 txns", up: false },
+    { label: t("stats.pending"), value: "XAF 51k", change: t("stats.pendingTx", { count: 2 }), up: false },
   ];
 
   return (

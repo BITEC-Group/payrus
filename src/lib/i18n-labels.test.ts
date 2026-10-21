@@ -7,7 +7,7 @@ import fr from "@/locales/fr/common.json";
 import pt from "@/locales/pt/common.json";
 
 import { localizeNotification, localizeTransferNote } from "./db-notifications.ts";
-import { monthLabel, txTypeLabel } from "./i18n-labels.ts";
+import { monthLabel, potDueLabel, txTypeLabel } from "./i18n-labels.ts";
 
 beforeAll(async () => {
   await i18n.init({
@@ -67,6 +67,9 @@ describe("transfer notes written by the database", () => {
     ["es", "Game bet win: lotto", "Premio de apuesta: lotto"],
     ["pt", "Payout to Tito salumu", "Pagamento a Tito salumu"],
     ["fr", "Travel installment charge", "Prélèvement d'échéance de voyage"],
+    ["fr", "Sofitel Abidjan (instalment 1/3)", "Sofitel Abidjan (échéance 1/3)"],
+    ["es", "Air France KIN→CDG (instalment 2/3)", "Air France KIN→CDG (cuota 2/3)"],
+    ["pt", "Serena Hotel (instalment 3/3)", "Serena Hotel (prestação 3/3)"],
     ["pt", "Refund: Serena Hotel Nairobi", "Reembolso: Serena Hotel Nairobi"],
     ["es", "Fundraise: Live-verify campaign", "Recaudación: Live-verify campaign"],
   ];
@@ -78,5 +81,33 @@ describe("transfer notes written by the database", () => {
   it("shows any other note as written", async () => {
     await i18n.changeLanguage("fr");
     expect(localizeTransferNote("Birthday gift", i18n.t)).toBe("Birthday gift");
+  });
+});
+
+describe("savings goal dates", () => {
+  it("translates month-year dates, Ongoing and ISO dates", async () => {
+    await i18n.changeLanguage("fr");
+    expect(potDueLabel(i18n.t, "Ongoing", "fr")).toBe("En cours");
+    expect(potDueLabel(i18n.t, "Sep 2026", "fr").toLowerCase()).toContain("sept");
+    expect(potDueLabel(i18n.t, "Dec 2026", "es").toLowerCase()).toContain("dic");
+    expect(potDueLabel(i18n.t, "2026-12-31", "pt").toLowerCase()).toContain("dez");
+    expect(potDueLabel(i18n.t, "Someday", "fr")).toBe("Someday");
+  });
+});
+
+describe("plan, card and bill labels", () => {
+  it.each([
+    ["fr", "Free", "Gratuit"], ["pt", "Grow", "Crescimento"], ["es", "Virtual", "Virtual"], ["fr", "Virtual", "Virtuelle"],
+    ["pt", "Monthly subscription", "Subscrição mensal"], ["es", "Libreville · utilities", "Libreville · servicios públicos"],
+    ["fr", "plans.value.priority", "prioritaire"], ["es", "savings.ongoing", "En curso"],
+  ])("%s %s -> %s", async (lng, key, expected) => {
+    await i18n.changeLanguage(lng);
+    expect(i18n.t(key)).toBe(expected);
+  });
+
+  it("pluralises the pending-transaction count", async () => {
+    await i18n.changeLanguage("fr");
+    expect(i18n.t("stats.pendingTx", { count: 1 })).toBe("1 transaction");
+    expect(i18n.t("stats.pendingTx", { count: 2 })).toBe("2 transactions");
   });
 });

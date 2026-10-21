@@ -35,7 +35,7 @@ function Value({ v }: { v: number | boolean | string | undefined }) {
   if (v === true) return <CheckCircle2 size={15} className="text-primary" />;
   if (v === false) return <Minus size={14} className="text-muted-foreground" />;
   if (v === -1) return <span>{t("plans.unlimited", "Unlimited")}</span>;
-  return <span>{typeof v === "number" ? v.toLocaleString() : String(v)}</span>;
+  return <span>{typeof v === "number" ? v.toLocaleString() : t(`plans.value.${v}`, { defaultValue: String(v) })}</span>;
 }
 
 function PlanGrid({ plans, rows, currentSlug, canChange, busy, onChoose }: {
@@ -70,7 +70,7 @@ function PlanGrid({ plans, rows, currentSlug, canChange, busy, onChoose }: {
             <div className="mt-auto">
               {mine ? null : p.slug === "enterprise"
                 ? <p className="text-xs text-muted-foreground">{t("plans.contact", "Arranged with your relationship manager.")}</p>
-                : <Button size="sm" variant="outline" className="w-full" disabled={!canChange || busy} onClick={() => onChoose(p.slug)}>{t("plans.choose", "Switch to {{plan}}", { plan: p.label })}</Button>}
+                : <Button size="sm" variant="outline" className="w-full" disabled={!canChange || busy} onClick={() => onChoose(p.slug)}>{t("plans.choose", "Switch to {{plan}}", { plan: t(p.label) })}</Button>}
             </div>
           </div>
         );

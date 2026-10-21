@@ -246,7 +246,7 @@ function CardFace({
         {/* Row 2: Chip + card type badge */}
         <div className="flex items-center gap-3">
           <ChipSVG color={chipColor} />
-          <span className="text-[10px] text-white/50 uppercase tracking-widest font-mono">{card.type}</span>
+          <span className="text-[10px] text-white/50 uppercase tracking-widest font-mono">{t(card.type)}</span>
         </div>
 
         {/* Row 3: Card number */}
@@ -476,7 +476,7 @@ export default function Cards() {
                   <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium", card.locked ? "bg-destructive/20 text-destructive" : "bg-primary/10 text-primary")}>
                     {card.locked ? t("cards.locked") : t("cards.active")}
                   </span>
-                  <span className="text-[10px] text-muted-foreground">{card.type}</span>
+                  <span className="text-[10px] text-muted-foreground">{t(card.type)}</span>
                 </div>
               </div>
 
