@@ -3904,5 +3904,12 @@
   "cat.Pay / settle": "Payer / régler",
   "cat.Manage team": "Gérer l'équipe",
   "cat.Manage webhooks": "Gérer les webhooks",
-  "cat.Budgets and approval rules": "Budgets et règles d'approbation"
+  "cat.Budgets and approval rules": "Budgets et règles d'approbation",
+  "install.button": "Installer l'application",
+  "install.title": "Ajouter PayRus à l'écran d'accueil",
+  "install.intro": "Ouvrez PayRus comme une application, en plein écran, directement depuis votre écran d'accueil.",
+  "install.step1": "Touchez le bouton Partager dans la barre d'outils du navigateur.",
+  "install.step2": "Choisissez « Sur l'écran d'accueil ».",
+  "install.step3": "Touchez Ajouter. PayRus s'ouvre ensuite comme une application depuis votre écran d'accueil.",
+  "install.close": "Fermer"
 }
