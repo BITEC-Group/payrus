@@ -49,9 +49,12 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit --audit-level=high
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # The gitleaks GitHub Action needs a paid licence on organisation repositories; the open-source binary does not.
+      - name: Secret scan (gitleaks)
+        run: |
+          V=$(curl -fsS https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep -m1 '"tag_name"' | cut -d'"' -f4)
+          curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/${V}/gitleaks_${V#v}_linux_x64.tar.gz" | tar -xz gitleaks
+          ./gitleaks detect --source . --redact --verbose
       - uses: github/codeql-action/init@v3
         with:
           languages: javascript-typescript
@@ -72,7 +75,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: npx --yes @cyclonedx/cyclonedx-npm@latest --output-file sbom.cdx.json
+      - run: pnpm sbom --sbom-format cyclonedx --prod > sbom.cdx.json
       - uses: actions/upload-artifact@v4
         with:
           name: sbom
