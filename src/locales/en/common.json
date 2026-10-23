@@ -3980,5 +3980,16 @@
   "500K – 5M XAF deployed": "500K – 5M XAF deployed",
   "5M – 10M XAF deployed": "5M – 10M XAF deployed",
   "< 500K XAF deployed": "< 500K XAF deployed",
-  "10M+ XAF deployed": "10M+ XAF deployed"
+  "10M+ XAF deployed": "10M+ XAF deployed",
+  "install.titleDock": "Add PayRus to your Dock",
+  "install.introDock": "Open PayRus like an app, in its own window, straight from your Dock.",
+  "install.dock1": "In the menu bar, open the File menu.",
+  "install.dock2": "Choose “Add to Dock…”.",
+  "install.dock3": "Click Add. PayRus then opens like an app from your Dock.",
+  "install.inappNote": "This in-app browser cannot install apps. Open this page in Safari first (Share menu > “Open in Safari”, or copy the link), then follow these steps.",
+  "install.share": "Open the Share menu",
+  "install.copy": "Copy link",
+  "install.copied": "Link copied",
+  "install.shareFailed": "Couldn't open the Share menu. Copy the link from the address bar instead.",
+  "install.shareText": "Install PayRus on your device"
 }
