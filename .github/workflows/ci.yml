@@ -33,6 +33,27 @@ jobs:
       - run: npx --yes @redocly/cli@latest lint docs/api/openapi.yaml --skip-rule=no-empty-servers
       - run: npx --yes @asyncapi/cli@latest validate docs/api/asyncapi.yaml
 
+  regression:
+    # The repo's own spec tests (routes, MFA guards, RLS hides private data from anonymous callers, role/profile
+    # invariants, every table/RPC the apps call exists) run on every push, so they no longer depend on a local run.
+    # Only the publishable URL and anon key are used - the same public values the deployed bundle ships.
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: "https://iqbsxyltixztmysqsbig.supabase.co"
+      VITE_SUPABASE_ANON_KEY: "sb_publishable_F5j6JBm34JwQKJjbouvEBg_-KyCxYWv"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm regression
+      - run: node scripts/spec-tests/static.mjs || true # reports findings; the blocking gate is pnpm regression
+
   security:
     # PRS-NFR-008: SCA, secret scan and SAST must pass before release; findings need a recorded risk acceptance to be waived.
     runs-on: ubuntu-latest

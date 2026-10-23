@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/spa-shells.mjs",
     "test": "vitest run",
     "regression": "node scripts/regression-check.mjs",
     "lint": "eslint .",

@@ -255,7 +255,7 @@ export default function WalletPage() {
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-sm text-foreground">{t("wallet.myWallets")}</h3>
                       <button type="button" onClick={() => setShowAddWallet(true)} data-testid="add-wallet-button"
-                        className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline cursor-pointer">
+                        className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline cursor-pointer min-h-[44px] min-w-[44px] justify-center md:min-h-0 md:min-w-0">
                         <Plus size={12} /> {t("wallet.add.button")}
                       </button>
                     </div>
