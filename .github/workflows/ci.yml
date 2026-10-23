@@ -56,7 +56,7 @@ jobs:
           curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/${V}/gitleaks_${V#v}_linux_x64.tar.gz" | tar -xz gitleaks
           ./gitleaks detect --source . --redact --report-format json --report-path gitleaks.json || {
             # list each finding (rule, file, line, commit; the secret itself stays redacted) as an annotation on the run
-            node -e 'for (const f of JSON.parse(require("fs").readFileSync("gitleaks.json","utf8"))) console.log("::error title=gitleaks "+f.RuleID+"::"+f.File+":"+f.StartLine+" in "+f.Commit.slice(0,7))'
+            node -e 'const m={};for(const f of JSON.parse(require("fs").readFileSync("gitleaks.json","utf8"))){const k=f.RuleID+" "+f.File;(m[k]??=new Set()).add(f.Commit.slice(0,7)+":"+f.StartLine)}for(const [k,v] of Object.entries(m))console.log("::error title=gitleaks::"+k+" x"+v.size+" e.g. "+[...v].slice(0,3).join(","))'
             exit 1
           }
       - uses: github/codeql-action/init@v3

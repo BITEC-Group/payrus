@@ -4,5 +4,11 @@ title = "PayRus secret-scan rules"
 useDefault = true
 
 [allowlist]
-description = "The Supabase publishable (anon) key is public by design: it ships in every client bundle and is limited by row-level security. Service-role and secret keys are never allowed."
-regexes = ['''sb_publishable_[A-Za-z0-9_-]+''']
+description = "Public values the generic-api-key rule mistakes for secrets."
+regexTarget = "line"
+regexes = [
+  # The Supabase publishable (anon) key is public by design: it ships in every client bundle and is limited by row-level security. Service-role and secret keys are never allowed.
+  '''sb_publishable_[A-Za-z0-9_-]+''',
+  # Translation-key references such as titleKey: "notifications.n1Title" (a name ending in Key, a dotted lowercase path as the value).
+  '''[A-Za-z]*Key\w*["']?\s*[:=]\s*["'][a-z][A-Za-z0-9]*(\.[A-Za-z0-9_]+)+["']''',
+]
