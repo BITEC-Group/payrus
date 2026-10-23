@@ -4032,7 +4032,7 @@
   "dbnotif.body.overdue": "{{ref}} · {{name}} lleva {{days}} días de retraso ({{amount}} {{currency}}).",
   "dbnotif.body.escalationRejected": "Su escalada ({{kind}}) fue rechazada: {{reason}}",
   "dbnotif.kind.other": "otro",
-  "invest.justNow": "ahora mesmo",
+  "invest.justNow": "ahora mismo",
   "invest.ticker.1": "🌿 KivuFarm — {{amount}} XAF invertidos por Diallo K.",
   "invest.ticker.2": "⚡ LumiCongo — Hito 1 completado ✓",
   "invest.ticker.3": "☕ KigaliCaféCo — Nuevo patrocinador desde Bruselas",
