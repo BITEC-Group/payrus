@@ -706,7 +706,7 @@
   "travel.classEconomy": "Économie",
   "travel.classBusiness": "Affaires",
   "travel.seatsRemaining": "{{count}} places restantes",
-  "travel.nonStopLabel": "Non-stop",
+  "travel.nonStopLabel": "Sans escale",
   "travel.stopsCount": "{{count}} escale",
   "travel.payInThreeButton": "Payer en 3 fois",
   "travel.bookNowButton": "Réserver maintenant",
