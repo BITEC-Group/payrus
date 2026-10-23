@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { StaffMfaGate } from "@/components/mfa/mfa-ui.tsx";
 import { AdminCockpitGate } from "@/pages/admin/cockpit-gate.tsx";
+import ConsentGate from "@/components/ui/consent-gate.tsx";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useServiceWorker } from "@/hooks/use-service-worker.ts";
 import { DefaultProviders } from "./components/providers/default.tsx";
@@ -9,6 +10,7 @@ import { SAVED_OR_DEFAULT_LOCALE, setLocaleInPath } from "./i18n.ts";
 import "./i18n.ts";
 import AppLayout from "./pages/layout/AppLayout.tsx";
 import Welcome from "./pages/welcome/page.tsx";
+import StatusPage from "./pages/status/page.tsx";
 import SignIn from "./pages/signin/page.tsx";
 import Register from "./pages/register/page.tsx";
 import Recover from "./pages/recover/page.tsx";
@@ -65,6 +67,7 @@ export default function App() {
   return (
     <DefaultProviders>
       <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <ConsentGate />
         <Suspense fallback={<div className="min-h-screen bg-background" />}>
           <Routes>
             <Route path="/" element={<RootRedirect />} />
@@ -78,6 +81,7 @@ export default function App() {
               }
             >
               <Route path="welcome" element={<Welcome />} />
+              <Route path="status" element={<StatusPage />} />
               <Route path="signin" element={<SignIn />} />
               <Route path="register" element={<Register />} />
               <Route path="recover" element={<Recover />} />

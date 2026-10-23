@@ -174,6 +174,51 @@ if (existsSync(catalogue)) {
   rec("TC-29-2", protectedByOwners === true && existsSync(join(appRoot, ".github", "CODEOWNERS")), protectedByOwners === null ? "CODEOWNERS + scripts/apply-branch-protection.sh are in the repo, but the GitHub branch-protection setting could not be read (gh not signed in) — run the script as a repo admin, then re-run this suite" : protectedByOwners ? "main requires Code Owner review, verified through the GitHub API" : "main does not require Code Owner review yet — run scripts/apply-branch-protection.sh");
 }
 
+// ---- QA audit of 23 Oct 2026 (TCX-NEW-01..06 and the minor findings) ----------------------------------------
+{
+  const picker = read(join(consoleRoot, "src", "screens", "ProfilePicker.tsx"));
+  const conApp = read(join(consoleRoot, "src", "App.tsx"));
+  const ident = read(join(consoleRoot, "src", "lib", "identity.ts"));
+  const grantInCode = (conSrc.concat(appSrc)).filter((f) => /rpc\(\s*["']admin_grant_admin_role["']/.test(read(f)));
+  rec("TCX-NEW-01", !/type="password"/.test(picker) && !/grantAdminRole\s*\(/.test(conApp + ident) && grantInCode.length === 0,
+    "Console profile picker has no admin-password field, and no client calls admin_grant_admin_role (admin grants go through admin_request_admin_grant, approved by a second admin)");
+
+  const app = read(join(appRoot, "src", "App.tsx"));
+  const gate = read(join(appRoot, "src", "components", "ui", "consent-gate.tsx"));
+  const layout = read(join(appRoot, "src", "pages", "layout", "AppLayout.tsx"));
+  rec("TCX-NEW-02", /<ConsentGate\s*\/>/.test(app) && !/<ConsentGate/.test(layout) && /isError/.test(gate) && /refetchOnMount/.test(gate),
+    "consent gate is mounted at the app root (not inside AppLayout, which returns early), re-checks on every mount/focus, and fails closed with a retry when the check errors");
+
+  const deployApp = read(join(appRoot, ".github", "workflows", "deploy-pages.yml"));
+  const deployCon = read(join(consoleRoot, ".github", "workflows", "deploy-pages.yml"));
+  const settings = read(join(appRoot, "src", "pages", "settings", "page.tsx"));
+  rec("TCX-NEW-03", /gh release create/.test(deployApp) && /gh release create/.test(deployCon) && /__APP_COMMIT__/.test(settings) && /__APP_COMMIT__/.test(read(join(consoleRoot, "src", "screens", "Settings.tsx"))),
+    "both deploy workflows create a release tag and notes after Pages accepts the deploy, and Settings → About shows the build version and commit in both apps (defined; first run is the proof)");
+  rec("TC-BR-01", !/ISO 27001|BCEAO/.test(settings), "Settings → About no longer claims certifications or regulators that the capability registry does not evidence");
+
+  const shim = read(join(appRoot, "src", "lib", "locale-defaults.ts"));
+  rec("TCX-NEW-04", /document\.documentElement\.lang/.test(shim) && /^import "\.\/lib\/locale-defaults\.ts"/m.test(read(join(appRoot, "src", "main.tsx"))) && /^import "\.\/lib\/locale-defaults\.ts"/m.test(read(join(consoleRoot, "src", "main.tsx"))),
+    "number and date formatting follow the selected language in both apps (unit-tested: 0,7467 in French)");
+
+  const kyc = read(join(consoleRoot, "src", "screens", "Kyc.tsx"));
+  const prof = read(join(appRoot, "src", "pages", "profile", "page.tsx"));
+  rec("TCX-NEW-05", /submitKybParties/.test(kyc) && /submitKybParties/.test(prof) && /kyb_submit_parties/.test(read(join(appRoot, "src", "lib", "backend.ts"))),
+    "both apps capture the organisation's owners (UBOs) and authorised representative for business workspaces; the database refuses activation until they exist");
+
+  const pkg = read(join(appRoot, "package.json"));
+  rec("TCX-NEW-06", /spa-shells\.mjs/.test(pkg) && existsSync(join(appRoot, "scripts", "spa-shells.mjs")),
+    "the build writes a real index.html for every static <locale>/<route>, so GitHub Pages answers deep links with 200 (dynamic :param routes keep the 404 fallback)");
+
+  // WCAG AA contrast of the muted text token on its usual backgrounds
+  const css = read(join(appRoot, "src", "index.css"));
+  const tok = (n) => (css.match(new RegExp("^\\s*--" + n + ":\\s*(#[0-9a-fA-F]{6})", "m")) || [])[1];
+  const lum = (h) => { const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const fg = tok("muted-foreground"), bgs = ["secondary", "background", "card"].map(tok).filter(Boolean);
+  const worst = Math.min(...bgs.map((b) => ratio(fg, b)));
+  rec("TC-NFR-09", worst >= 4.5, "muted text contrast on its backgrounds: worst " + worst.toFixed(2) + ":1 (AA needs 4.5:1)");
+}
+
 writeFileSync(join(outDir, "static.json"), JSON.stringify(results, null, 1));
 const fails = Object.values(results).filter((r) => r.status === "FAIL").length;
 console.log(`\n${Object.keys(results).length} test ids recorded, ${fails} failing -> spec-tests/results/static.json`);

@@ -1032,8 +1032,10 @@ export async function adminCreateUser(args: {
 }
 
 export async function adminGrantAdminRole(args: { userId: string; password: string }): Promise<string> {
-  const res = await supabase.rpc("admin_grant_admin_role", { p_user_id: args.userId, p_password: args.password });
-  return (mustHaveData(res, "adminGrantAdminRole") as Record<string, unknown>).id as string;
+  // Two-person rule: this only files a request (returns its id); a different admin approves it in the Console.
+  const res = await supabase.rpc("admin_request_admin_grant", { p_user_id: args.userId, p_password: args.password });
+  if (res.error) throw new Error(res.error.message);
+  return (res.data as string | null) ?? "";
 }
 
 export interface FxMarginConfig {
@@ -2211,4 +2213,18 @@ export async function getTransactionDetail(reference: string): Promise<Transacti
       pickupAmount: num(pay.pickup_amount), receiveAmount: Number(pay.receive_amount), toCurrency: pay.to_currency as string, channelType: (pay.channel_type as string) ?? null, createdAt: pay.created_at as string,
     } : null,
   };
+}
+
+// PRS-KYC-007: the owner submits the organisation's owners (UBOs) and its authorised representative.
+export async function submitKybParties(args: {
+  userId: string; roleId: string; declaredOwners: number;
+  parties: { type: "ubo" | "authorised_rep"; name: string; ownershipPct?: number }[];
+}): Promise<string[]> {
+  const res = await supabase.rpc("kyb_submit_parties", {
+    p_user_id: args.userId, p_role_id: args.roleId, p_declared_ubo_count: args.declaredOwners,
+    p_parties: args.parties.map((p) => ({ type: p.type, name: p.name, ownership_pct: p.ownershipPct ?? null })),
+  });
+  // PGRST202 = migration 0071 not applied on this project yet: the role is still saved, KYB just is not recorded.
+  if (res.error && res.error.code !== "PGRST202") throw new Error(res.error.message);
+  return (res.data as string[] | null) ?? [];
 }

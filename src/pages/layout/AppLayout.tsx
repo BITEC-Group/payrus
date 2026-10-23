@@ -19,7 +19,6 @@ import { useProfileFeatures, useMyPermissions, useMyOrgMemberships } from "@/hoo
 import SystemStatusPill from "@/components/ui/system-status-pill.tsx";
 import EnvBanner from "@/components/ui/env-banner.tsx";
 import { subjectOf } from "@/lib/session-subject.ts";
-import ConsentGate from "@/components/ui/consent-gate.tsx";
 import { MfaStepUpHost } from "@/components/mfa/mfa-ui.tsx";
 import { supabase } from "@/lib/supabase-client.ts";
 import FxRatePill from "@/components/ui/fx-rate-pill.tsx";
@@ -336,7 +335,6 @@ export default function AppLayout() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-h-0 min-w-0">
         <EnvBanner />
-        <ConsentGate />
         {/* Mobile top bar */}
         <header className="flex md:hidden items-center justify-between px-4 py-3 border-b border-border bg-background shrink-0 safe-area-top">
           <button

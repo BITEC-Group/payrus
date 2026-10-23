@@ -60,7 +60,7 @@
   --secondary: #ebf1f6;
   --secondary-foreground: #0b2a4a;
   --muted: #ebf1f6;
-  --muted-foreground: #5c7086;
+  --muted-foreground: #566a80; /* AA on --secondary (4.89:1); was #5c7086 = 4.48:1 (QA audit 23 Oct) */
   --accent: #0e7fb0;
   --accent-foreground: #ffffff;
   --destructive: #c33f55;

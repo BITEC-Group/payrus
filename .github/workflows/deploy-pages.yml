@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # create the release tag after a successful deploy
   pages: write
   id-token: write
 
@@ -30,6 +30,11 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+
+      - name: Compute release tag (shown in Settings → About, and used to tag this deploy)
+        run: |
+          echo "APP_VERSION=release-$(date -u +%Y-%m-%d)-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+          echo "APP_COMMIT=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
 
       - run: pnpm build
         env:
@@ -56,3 +61,16 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  tag-release:
+    # The tag and notes are created only after Pages accepted the deploy, so a tag always names a live build.
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create release tag and notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="release-$(date -u +%Y-%m-%d)-${GITHUB_SHA::7}"
+          gh release create "$TAG" --target "$GITHUB_SHA" --generate-notes --title "$TAG (deployed from rebuild)" || echo "tag $TAG already exists"

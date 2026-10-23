@@ -537,11 +537,11 @@ function LiveFxTicker() {
 function AboutSection() {
   const { t } = useTranslation("common");
 
+  const env = (import.meta.env.VITE_APP_ENV as string | undefined) ?? (import.meta.env.DEV ? "development" : "sandbox");
   const infoRows = [
-    { label: t("settings.about.appVersion"), value: "2.1.4 (build 241101)" },
-    { label: t("settings.about.environment"), value: "Production · PayRus Cloud" },
-    { label: t("settings.about.compliance"), value: "BCC · BEAC · BCEAO · ISO 27001" },
-    { label: t("settings.about.encryption"), value: "TLS 1.3 · AES-256" },
+    { label: t("about.version"), value: __APP_VERSION__ },
+    { label: t("about.build"), value: __APP_COMMIT__ },
+    { label: t("settings.about.environment"), value: t(`env.name.${env}`, { defaultValue: env }) },
   ];
 
   return (

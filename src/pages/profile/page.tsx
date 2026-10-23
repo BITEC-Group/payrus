@@ -11,6 +11,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils.ts";
 import { api } from "@/convex/_generated/api.js";
+import { submitKybParties } from "@/lib/backend.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
@@ -219,6 +220,8 @@ export default function ProfileSelection() {
   const [legalRepIdType, setLegalRepIdType] = useState<IdType>("national");
   const [legalRepIdNumber, setLegalRepIdNumber] = useState("");
   const [legalRepPhone, setLegalRepPhone] = useState("");
+  const [declaredOwners, setDeclaredOwners] = useState(1);
+  const [owners, setOwners] = useState<{ name: string; pct: string }[]>([{ name: "", pct: "" }]);
 
   const selectedConfig = ALL_PROFILES.find(p => p.id === selected);
   const base = `/${lng ?? "en"}`;
@@ -338,7 +341,7 @@ export default function ProfileSelection() {
       // Real, persisted role — reached either from the sign-in existence
       // check, or from an already-logged-in session adding another role.
       try {
-        await upsertRole({
+        const savedRoleId = await upsertRole({
           userId: effectiveUserId,
           role: selected,
           kind: isOrgRole ? "organisation" : "individual",
@@ -352,6 +355,15 @@ export default function ProfileSelection() {
             legalRepName, legalRepIdType, legalRepIdNumber, legalRepPhone,
           } : {}),
         });
+        if (isOrgRole && savedRoleId) {
+          await submitKybParties({
+            userId: effectiveUserId, roleId: savedRoleId, declaredOwners,
+            parties: [
+              ...owners.filter((o) => o.name.trim().length >= 2).map((o) => ({ type: "ubo" as const, name: o.name.trim(), ownershipPct: o.pct ? Number(o.pct) : undefined })),
+              { type: "authorised_rep" as const, name: legalRepName.trim() },
+            ],
+          });
+        }
         if (subProfile) {
           // Best effort: the role is already saved, and the specialisation can be changed later under Business modules.
           try { await setSubProfileMutation.mutateAsync({ userId: effectiveUserId, role: selected, subProfile }); }
@@ -402,7 +414,7 @@ export default function ProfileSelection() {
   const kycReady = steps.map(s => {
     switch (s) {
       case "orgDoc": return registrationDocId != null;
-      case "orgLegalRep": return legalRepName.trim().length > 0 && legalRepIdNumber.trim().length > 0 && legalRepPhone.trim().length > 0;
+      case "orgLegalRep": return legalRepName.trim().length > 0 && legalRepIdNumber.trim().length > 0 && legalRepPhone.trim().length > 0 && owners.filter((o) => o.name.trim().length >= 2).length >= declaredOwners;
       case "phone": return phone.trim().length >= 6 && otp.trim().length === 6;
       case "details": return (knowsDob || dob.trim().length > 0) && (knowsAddress || address.trim().length > 0);
       case "id": return !!idFrontDocId && !!idBackDocId;
@@ -694,6 +706,26 @@ export default function ProfileSelection() {
                           <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                           <Input value={legalRepPhone} onChange={e => setLegalRepPhone(e.target.value)} className="bg-background border-border pl-9" />
                         </div>
+                      </div>
+                      <div className="space-y-3 pt-2 border-t border-border">
+                        <p className="text-sm font-semibold">{t("profile.org.ubo.title")}</p>
+                        <p className="text-xs text-muted-foreground">{t("profile.org.ubo.sub")}</p>
+                        <div className="space-y-1.5">
+                          <Label className="text-sm text-muted-foreground font-medium">{t("profile.org.ubo.count")}</Label>
+                          <Input type="number" min={1} max={20} value={declaredOwners} className="bg-background border-border w-28"
+                            onChange={e => setDeclaredOwners(Math.max(1, Math.min(20, Number(e.target.value) || 1)))} />
+                        </div>
+                        {owners.map((o, i) => (
+                          <div key={i} className="flex gap-2">
+                            <Input aria-label={t("profile.org.ubo.name")} placeholder={t("profile.org.ubo.name")} value={o.name} className="bg-background border-border flex-[2]"
+                              onChange={e => setOwners(owners.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
+                            <Input aria-label={t("profile.org.ubo.pct")} placeholder={t("profile.org.ubo.pct")} type="number" min={0} max={100} value={o.pct} className="bg-background border-border flex-1"
+                              onChange={e => setOwners(owners.map((x, j) => (j === i ? { ...x, pct: e.target.value } : x)))} />
+                          </div>
+                        ))}
+                        {owners.length < declaredOwners && (
+                          <Button type="button" variant="outline" className="min-h-[44px]" onClick={() => setOwners([...owners, { name: "", pct: "" }])}>{t("profile.org.ubo.add")}</Button>
+                        )}
                       </div>
                     </div>
                   )}
