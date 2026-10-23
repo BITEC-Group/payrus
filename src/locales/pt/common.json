@@ -4026,5 +4026,19 @@
   "status.severity.major": "Grave",
   "status.severity.critical": "Crítico",
   "about.version": "Versão",
-  "about.build": "Compilação"
+  "about.build": "Compilação",
+  "dbnotif.title.secondNotice": "Segundo aviso registado",
+  "dbnotif.title.escalationRejected": "Escalonamento rejeitado",
+  "dbnotif.body.overdue": "{{ref}} · {{name}} está em atraso há {{days}} dias ({{amount}} {{currency}}).",
+  "dbnotif.body.escalationRejected": "O seu escalonamento ({{kind}}) foi rejeitado: {{reason}}",
+  "dbnotif.kind.other": "outro",
+  "invest.justNow": "agora mesmo",
+  "invest.ticker.1": "🌿 KivuFarm — {{amount}} XAF investidos por Diallo K.",
+  "invest.ticker.2": "⚡ LumiCongo — Marco 1 concluído ✓",
+  "invest.ticker.3": "☕ KigaliCaféCo — Novo apoiante de Bruxelas",
+  "invest.ticker.4": "📚 EduBridge Kenya — {{pct}}% financiado!",
+  "invest.ticker.5": "❄️ FrozenPath — {{amount}} XAF investidos",
+  "invest.ticker.6": "🏍️ RapidMoto Angola — Nova proposta no ar",
+  "invest.ticker.7": "🌿 KivuFarm — {{amount}} XAF investidos por Nkemdirim A.",
+  "invest.ticker.8": "⚡ LumiCongo — Reembolso de agosto de 2026 recebido"
 }

@@ -49,6 +49,8 @@ describe("database notifications", () => {
     ["es", { title: "Wallet created", body: "Your AED wallet is ready. Top it up to start using it." }, { title: "Monedero creado", body: "Su monedero AED está listo. Recárguelo para empezar a usarlo." }],
     ["fr", { title: "Card issued", body: "Your virtual card ending 3640 is ready." }, { title: "Carte émise", body: "Votre carte virtuelle se terminant par 3640 est prête." }],
     ["fr", { title: "Welcome to PayRus, Amina!", body: "Your test account is ready. No email confirmation and no two-factor code are needed. Your starter wallet and virtual card open in XAF (Cameroon) with a zero balance: top up to start. Sample contacts are in your address book to send money to. Everything here is simulated, so no real money moves." }, { title: "Bienvenue sur PayRus, Amina !", body: "Votre compte de test est prêt. Aucune confirmation par e-mail ni code à deux facteurs n'est nécessaire. Votre portefeuille et votre carte virtuelle s'ouvrent en XAF (Cameroon) avec un solde nul : rechargez pour commencer. Des contacts d'exemple sont dans votre carnet d'adresses pour envoyer de l'argent. Tout est simulé ici : aucun argent réel n'est déplacé." }],
+    ["fr", { title: "Second notice recorded", body: "INV-2026-000009 · Latepayer is 20 days overdue (5000.00 XAF)." }, { title: "Deuxième relance enregistrée", body: "INV-2026-000009 · Latepayer a 20 jours de retard (5000.00 XAF)." }],
+    ["pt", { title: "Escalation rejected", body: "Your escalation (other) was rejected: closing it" }, { title: "Escalonamento rejeitado", body: "O seu escalonamento (outro) foi rejeitado: closing it" }],
   ];
   it.each(cases)("%s: %j", async (lng, input, expected) => {
     await i18n.changeLanguage(lng);
