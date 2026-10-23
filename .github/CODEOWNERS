@@ -1,0 +1,7 @@
+# PRS-AI-006: financial, regulatory, security and identity changes - including anything an AI agent authored -
+# need a human code-owner review. Enable "Require review from Code Owners" in the branch protection rules for this to bind.
+*                      @infobitecconsulting-maker
+/src/lib/              @infobitecconsulting-maker
+/src/components/mfa/   @infobitecconsulting-maker
+/.github/              @infobitecconsulting-maker
+/docs/api/             @infobitecconsulting-maker

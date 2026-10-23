@@ -19,7 +19,7 @@ beforeAll(async () => {
 
 describe("transaction type labels", () => {
   it.each([
-    ["en", "deposit", "Deposit"], ["fr", "deposit", "Dépôt"], ["pt", "deposit", "Depósito"], ["es", "deposit", "Depósito"],
+    ["en", "deposit", "Top-up"], ["fr", "deposit", "Recharge"], ["pt", "deposit", "Carregamento"], ["es", "deposit", "Recarga"],
     ["en", "convert_out", "Conversion out"], ["fr", "convert_out", "Conversion sortante"], ["pt", "remittance", "Remessa"], ["es", "remittance", "Remesa"],
   ])("%s %s -> %s", async (lng, type, label) => {
     await i18n.changeLanguage(lng);
@@ -44,7 +44,7 @@ describe("month labels", () => {
 
 describe("database notifications", () => {
   const cases: Array<[string, { title: string; body: string }, { title: string; body: string }]> = [
-    ["fr", { title: "Deposit received", body: "USD 787.71 added to your wallet" }, { title: "Dépôt reçu", body: "USD 787.71 ajoutés à votre portefeuille" }],
+    ["fr", { title: "Deposit received", body: "USD 787.71 added to your wallet" }, { title: "Recharge reçue", body: "USD 787.71 ajoutés à votre portefeuille" }],
     ["pt", { title: "Currency converted", body: "XAF 80,000.00 converted to USD" }, { title: "Moeda convertida", body: "XAF 80,000.00 convertidos em USD" }],
     ["es", { title: "Wallet created", body: "Your AED wallet is ready. Top it up to start using it." }, { title: "Monedero creado", body: "Su monedero AED está listo. Recárguelo para empezar a usarlo." }],
     ["fr", { title: "Card issued", body: "Your virtual card ending 3640 is ready." }, { title: "Carte émise", body: "Votre carte virtuelle se terminant par 3640 est prête." }],

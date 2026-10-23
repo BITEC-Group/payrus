@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { subjectOf } from "@/lib/session-subject.ts";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LocaleSwitcher from "@/components/ui/locale-switcher.tsx";
@@ -59,7 +60,7 @@ export default function AuthCallback() {
         (typeof meta.name === "string" && meta.name) ||
         undefined;
       const { userId, name: resolvedName } = await callUpsertSupabaseUser({
-        supabaseUserId: session.user.id,
+        supabaseUserId: subjectOf(session) ?? "",
         email: session.user.email,
         name,
       });

@@ -1,0 +1,82 @@
+name: CI (quality, security, provenance)
+
+on:
+  pull_request:
+  push:
+    branches: [rebuild, main]
+  schedule:
+    - cron: "0 5 * * 1" # weekly dependency/vulnerability re-scan
+
+permissions:
+  contents: read
+  security-events: write
+  id-token: write
+  attestations: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+      # PRS-NFR-021 / INT-001: the HTTP/RPC surface stays described in OpenAPI 3.1 and AsyncAPI, and both must validate.
+      - run: npx --yes @redocly/cli@latest lint docs/api/openapi.yaml --skip-rule=no-empty-servers
+      - run: npx --yes @asyncapi/cli@latest validate docs/api/asyncapi.yaml
+
+  security:
+    # PRS-NFR-008: SCA, secret scan and SAST must pass before release; findings need a recorded risk acceptance to be waived.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --audit-level=high
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v3
+
+  sbom:
+    # PRS-NFR-014: SBOM and signed build provenance for every build.
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: npx --yes @cyclonedx/cyclonedx-npm@latest --output-file sbom.cdx.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.cdx.json
+      - uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: dist/**

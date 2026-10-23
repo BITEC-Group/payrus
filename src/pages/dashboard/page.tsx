@@ -223,7 +223,7 @@ export default function Dashboard() {
         <div className="relative">
           <button
             onClick={() => navigate(`${base}/notifications`)}
-            className="w-9 h-9 rounded-lg bg-secondary border border-border flex items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors">
+            className="w-11 h-11 md:w-9 md:h-9 rounded-lg bg-secondary border border-border flex items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors">
             <Bell size={16} className="text-muted-foreground" />
           </button>
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-destructive rounded-full text-[9px] text-white font-bold flex items-center justify-center">3</span>
@@ -315,7 +315,7 @@ export default function Dashboard() {
           <div>
             <div className="flex items-center justify-between mb-2.5">
               <h2 className="text-sm font-semibold text-foreground">{t("dashboard.mobileWallets")}</h2>
-              <button type="button" onClick={() => navigate(`/${lng}/settings`, { state: { section: "payments" } })} className="text-[11px] text-primary flex items-center gap-1 cursor-pointer hover:underline">
+              <button type="button" onClick={() => navigate(`/${lng}/settings`, { state: { section: "payments" } })} className="text-[11px] text-primary flex items-center gap-1 min-h-[44px] md:min-h-0 cursor-pointer hover:underline">
                 <Plus size={11} /> {t("dashboard.linkWallet")}
               </button>
             </div>
@@ -384,7 +384,7 @@ export default function Dashboard() {
       <div>
         <div className="flex items-center justify-between mb-2.5">
           <h2 className="text-sm font-semibold text-foreground">{t("dashboard.sendAgain")}</h2>
-          <Link to={`${base}/remittance`} className="text-[11px] text-primary flex items-center gap-1 hover:underline cursor-pointer">
+          <Link to={`${base}/remittance`} className="text-[11px] text-primary flex items-center gap-1 min-h-[44px] md:min-h-0 hover:underline cursor-pointer">
             {t("dashboard.seeAll")} <ChevronRight size={11} />
           </Link>
         </div>
@@ -434,7 +434,7 @@ export default function Dashboard() {
       <div>
         <div className="flex items-center justify-between mb-2.5">
           <h2 className="text-sm font-semibold text-foreground">{t("dashboard.recentActivity")}</h2>
-          <Link to={`${base}/transactions`} className="text-[11px] text-primary flex items-center gap-1 hover:underline cursor-pointer">
+          <Link to={`${base}/transactions`} className="text-[11px] text-primary flex items-center gap-1 min-h-[44px] md:min-h-0 hover:underline cursor-pointer">
             {t("dashboard.viewAll")} <ChevronRight size={11} />
           </Link>
         </div>

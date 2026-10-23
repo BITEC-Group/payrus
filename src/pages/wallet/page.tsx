@@ -322,7 +322,7 @@ export default function WalletPage() {
             {step === "method" && (
               <motion.div key="method" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="space-y-3">
                 <div className="flex items-center gap-3 mb-4">
-                  <button onClick={goBack} className="w-9 h-9 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-primary/5 transition-colors cursor-pointer">
+                  <button onClick={goBack} className="w-11 h-11 md:w-9 md:h-9 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-primary/5 transition-colors cursor-pointer">
                     <ArrowLeft size={16} className="text-muted-foreground" />
                   </button>
                   <div>
@@ -352,7 +352,7 @@ export default function WalletPage() {
             {step === "details" && (
               <motion.div key="details" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="space-y-4">
                 <div className="flex items-center gap-3 mb-4">
-                  <button onClick={goBack} className="w-9 h-9 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-primary/5 transition-colors cursor-pointer">
+                  <button onClick={goBack} className="w-11 h-11 md:w-9 md:h-9 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-primary/5 transition-colors cursor-pointer">
                     <ArrowLeft size={16} className="text-muted-foreground" />
                   </button>
                   {selectedMethod && (
@@ -508,7 +508,7 @@ export default function WalletPage() {
             {step === "confirm" && (
               <motion.div key="confirm" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="space-y-4">
                 <div className="flex items-center gap-3 mb-4">
-                  <button onClick={goBack} className="w-9 h-9 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-primary/5 transition-colors cursor-pointer">
+                  <button onClick={goBack} className="w-11 h-11 md:w-9 md:h-9 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-primary/5 transition-colors cursor-pointer">
                     <ArrowLeft size={16} className="text-muted-foreground" />
                   </button>
                   <h2 className="font-bold text-foreground">{t("wallet.confirmTopUp")}</h2>
