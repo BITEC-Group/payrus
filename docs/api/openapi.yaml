@@ -1871,7 +1871,7 @@ paths:
               type: object
               properties:
                 text: { type: string }
-                text: { type: string }
+                text_2: { type: string }
       responses:
         "200": { description: "text" }
         "400": { description: Rejected by a business rule (message names the rule) }
@@ -1902,7 +1902,7 @@ paths:
               type: object
               properties:
                 bytea: { type: string }
-                bytea: { type: string }
+                bytea_2: { type: string }
                 text: { type: string }
       responses:
         "200": { description: "bytea" }
@@ -1919,8 +1919,8 @@ paths:
               type: object
               properties:
                 bytea: { type: string }
-                bytea: { type: string }
-                bytea: { type: string }
+                bytea_2: { type: string }
+                bytea_3: { type: string }
                 text: { type: string }
       responses:
         "200": { description: "bytea" }
@@ -2100,7 +2100,7 @@ paths:
               type: object
               properties:
                 bytea: { type: string }
-                bytea: { type: string }
+                bytea_2: { type: string }
                 text: { type: string }
       responses:
         "200": { description: "bytea" }
@@ -2117,8 +2117,8 @@ paths:
               type: object
               properties:
                 bytea: { type: string }
-                bytea: { type: string }
-                bytea: { type: string }
+                bytea_2: { type: string }
+                bytea_3: { type: string }
                 text: { type: string }
       responses:
         "200": { description: "bytea" }
@@ -2409,7 +2409,7 @@ paths:
               type: object
               properties:
                 bytea: { type: string }
-                bytea: { type: string }
+                bytea_2: { type: string }
                 text: { type: string }
       responses:
         "200": { description: "bytea" }
@@ -4919,7 +4919,7 @@ paths:
               type: object
               properties:
                 bytea: { type: string }
-                bytea: { type: string }
+                bytea_2: { type: string }
       responses:
         "200": { description: "text" }
         "400": { description: Rejected by a business rule (message names the rule) }
@@ -4935,7 +4935,7 @@ paths:
               type: object
               properties:
                 bytea: { type: string }
-                bytea: { type: string }
+                bytea_2: { type: string }
       responses:
         "200": { description: "bytea" }
         "400": { description: Rejected by a business rule (message names the rule) }
@@ -4967,7 +4967,7 @@ paths:
               type: object
               properties:
                 bytea: { type: string }
-                bytea: { type: string }
+                bytea_2: { type: string }
       responses:
         "200": { description: "bytea" }
         "400": { description: Rejected by a business rule (message names the rule) }
@@ -5015,7 +5015,7 @@ paths:
               type: object
               properties:
                 text: { type: string }
-                text: { type: string }
+                text_2: { type: string }
       responses:
         "200": { description: "bytea" }
         "400": { description: Rejected by a business rule (message names the rule) }
