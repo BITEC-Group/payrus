@@ -1,0 +1,56 @@
+asyncapi: 3.0.0
+info:
+  title: PayRus institutional webhook events
+  version: 2026-10-22
+  description: Events delivered to subscriber webhooks, signed with the webhook secret (whsec_...). Generated from inst_webhook_events().
+channels:
+  record_created:
+    address: record.created
+    messages:
+      record_created:
+        payload:
+          type: object
+          properties:
+            event: { type: string, const: record.created }
+            data: { type: object }
+            created_at: { type: string, format: date-time }
+  record_status_changed:
+    address: record.status_changed
+    messages:
+      record_status_changed:
+        payload:
+          type: object
+          properties:
+            event: { type: string, const: record.status_changed }
+            data: { type: object }
+            created_at: { type: string, format: date-time }
+  record_settled:
+    address: record.settled
+    messages:
+      record_settled:
+        payload:
+          type: object
+          properties:
+            event: { type: string, const: record.settled }
+            data: { type: object }
+            created_at: { type: string, format: date-time }
+  bank_line_reconciled:
+    address: bank_line.reconciled
+    messages:
+      bank_line_reconciled:
+        payload:
+          type: object
+          properties:
+            event: { type: string, const: bank_line.reconciled }
+            data: { type: object }
+            created_at: { type: string, format: date-time }
+  followup_sent:
+    address: followup.sent
+    messages:
+      followup_sent:
+        payload:
+          type: object
+          properties:
+            event: { type: string, const: followup.sent }
+            data: { type: object }
+            created_at: { type: string, format: date-time }

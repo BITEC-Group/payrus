@@ -43,7 +43,7 @@ export default function PageHeader({
         <button
           onClick={handleBack}
           aria-label={t("common.back", { defaultValue: "Back" })}
-          className="w-9 h-9 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-primary/5 transition-colors cursor-pointer shrink-0"
+          className="w-11 h-11 md:w-9 md:h-9 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-primary/5 transition-colors cursor-pointer shrink-0"
         >
           <ArrowLeft size={16} className="text-muted-foreground" />
         </button>

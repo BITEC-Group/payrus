@@ -18,6 +18,8 @@ import { clearLocalUserId, getLocalUserId } from "@/lib/local-user.ts";
 import { useProfileFeatures, useMyPermissions, useMyOrgMemberships } from "@/hooks/use-backend.ts";
 import SystemStatusPill from "@/components/ui/system-status-pill.tsx";
 import EnvBanner from "@/components/ui/env-banner.tsx";
+import { subjectOf } from "@/lib/session-subject.ts";
+import ConsentGate from "@/components/ui/consent-gate.tsx";
 import { MfaStepUpHost } from "@/components/mfa/mfa-ui.tsx";
 import { supabase } from "@/lib/supabase-client.ts";
 import FxRatePill from "@/components/ui/fx-rate-pill.tsx";
@@ -80,7 +82,7 @@ export default function AppLayout() {
       if (cancelled) return;
       const cachedUserId = getLocalUserId();
       if (!cachedUserId) return;
-      const sessionUserId = data.session?.user?.id;
+      const sessionUserId = subjectOf(data.session);
       if (!sessionUserId || (currentUser && currentUser.authUserId !== sessionUserId)) {
         clearProfile();
         clearLocalUserId();
@@ -334,11 +336,12 @@ export default function AppLayout() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-h-0 min-w-0">
         <EnvBanner />
+        <ConsentGate />
         {/* Mobile top bar */}
         <header className="flex md:hidden items-center justify-between px-4 py-3 border-b border-border bg-background shrink-0 safe-area-top">
           <button
             onClick={goHome}
-            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity min-h-[44px] min-w-[44px]"
             aria-label={t("nav.dashboard")}
           >
             <PayRusLogo className="h-6 w-auto" />
@@ -347,7 +350,7 @@ export default function AppLayout() {
             {currentUser && (
               <button
                 onClick={() => navigate(`${base}/notifications`)}
-                className="relative w-9 h-9 rounded-lg bg-secondary flex items-center justify-center cursor-pointer"
+                className="relative w-11 h-11 md:w-9 md:h-9 rounded-lg bg-secondary flex items-center justify-center cursor-pointer"
               >
                 <Bell size={16} className="text-foreground" />
                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive rounded-full text-[9px] text-white font-bold flex items-center justify-center">3</span>
@@ -355,7 +358,7 @@ export default function AppLayout() {
             )}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center cursor-pointer"
+              className="w-11 h-11 md:w-9 md:h-9 rounded-lg bg-secondary flex items-center justify-center cursor-pointer"
             >
               <Menu size={18} className="text-foreground" />
             </button>

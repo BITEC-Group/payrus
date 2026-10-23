@@ -5,6 +5,7 @@
 import { readFileSync, readdirSync, statSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const appRoot = resolve(here, "..", "..");
@@ -60,8 +61,21 @@ if (existsSync(catalogue)) {
   rec("TCX-UX-01", /USD/.test(nf("fr-FR", "USD", 1234.5)) && /XAF/.test(nf("fr-FR", "XAF", 1234.5)), `fr-FR renders "${nf("fr-FR", "USD", 1234.5)}" / "${nf("fr-FR", "XAF", 1234.5)}"`);
   const dec = (cur) => new Intl.NumberFormat("en", { style: "currency", currency: cur, currencyDisplay: "code" }).resolvedOptions().maximumFractionDigits;
   rec("TCX-BR-04", dec("XAF") === 0 && dec("EUR") === 2 && dec("USD") === 2, `precision per currency, not per device (XAF ${dec("XAF")}, EUR ${dec("EUR")})`);
-  const locales = readdirSync(join(appRoot, "src", "locales"));
-  rec("TCX-BR-04", locales.every((l) => ["en", "fr"].includes(l)), `locales shipped: ${locales.join(", ")} — PT/ES must be absent until enabled (UX-001/BR-007)`);
+  // Owner decision 2026-10-22: PT and ES are enabled (supersedes "PT/ES later" in UX-001/BR-007). Enabled = complete.
+  const dir = join(appRoot, "src", "locales");
+  const locs = readdirSync(dir).filter((d) => statSync(join(dir, d)).isDirectory());
+  const flat = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === "string"));
+  const enDict = flat(JSON.parse(readFileSync(join(dir, "en", "common.json"), "utf8")));
+  const ph = (t) => (t.match(/{{\s*[\w.]+\s*}}/g) ?? []).map((x) => x.replace(/\s/g, "")).sort().join(",");
+  const problems = [];
+  for (const l of locs) {
+    const d = flat(JSON.parse(readFileSync(join(dir, l, "common.json"), "utf8")));
+    const missing = Object.keys(enDict).filter((k) => !(k in d)).length;
+    const empty = Object.values(d).filter((v) => !v.trim()).length;
+    const badPh = Object.keys(enDict).filter((k) => k in d && ph(enDict[k]) !== ph(d[k])).length;
+    if (missing || empty || badPh) problems.push(l + ": " + missing + " missing, " + empty + " empty, " + badPh + " placeholder mismatches");
+  }
+  rec("TCX-BR-04", problems.length === 0 && locs.length === 4, problems.length ? problems.join("; ") : "locales " + locs.join(", ") + " enabled; every enabled locale has all " + Object.keys(enDict).length + " keys, no empty values, placeholders intact");
 }
 
 // ---- WAL-005: forbidden wording (deposit / savings account / interest) --------------------------
@@ -69,7 +83,7 @@ if (existsSync(catalogue)) {
   const allow = existsSync(join(root, "spec-tests", "authorised-wording.json")) ? JSON.parse(readFileSync(join(root, "spec-tests", "authorised-wording.json"), "utf8")) : { keys: [] };
   const re = /\b(deposit|savings account|interest|dépôt|compte d.épargne|intérêt|depósito|conta poupança|juros|cuenta de ahorro|interés)\b/i;
   let hits = 0; const byLocale = {};
-  for (const lng of readdirSync(join(appRoot, "src", "locales"))) {
+  for (const lng of readdirSync(join(appRoot, "src", "locales")).filter((d) => statSync(join(appRoot, "src", "locales", d)).isDirectory())) {
     const dir = join(appRoot, "src", "locales", lng);
     for (const f of readdirSync(dir)) {
       const j = JSON.parse(readFileSync(join(dir, f), "utf8"));
@@ -102,8 +116,9 @@ if (existsSync(catalogue)) {
   const leaks = [];
   for (const f of [...appSrc, ...conSrc]) {
     const rel = f.split(/[\\/]src[\\/]/)[1];
-    if (/lib[\\/](backend|identity|supabase-client|supabase-providers|mfa|post-auth-routing|local-user|org-backend|admin|geocode)/.test(rel)) continue;
-    if (/session\??\.user\??\.id|auth_user_id/.test(read(f))) leaks.push(rel);
+    if (/lib[\\/](backend|identity|session-subject|supabase-client|supabase-providers|mfa|post-auth-routing|local-user|org-backend|admin|geocode)/.test(rel)) continue;
+    const code = read(f).split(/\r?\n/).filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join("\n");
+    if (/session\??\.user\??\.id|auth_user_id/.test(code)) leaks.push(rel);
   }
   rec("TCX-IAM-03", leaks.length === 0, leaks.length ? `provider user id referenced outside the identity layer: ${leaks.slice(0, 6).join(", ")}` : "no client references a provider user id outside the identity layer (customer_id = public.users.id)");
 }
@@ -139,15 +154,24 @@ if (existsSync(catalogue)) {
   rec("TCX-OPS-04", /SystemStatusPill/.test(layout) && !/Systems operational/.test(layout), "status indicator is a live probe, never static text");
 }
 
-// ---- Engineering-process evidence (NFR-013/014, INT-001/002, AI-006) ------------------------------------
+// ---- Engineering-process evidence (NFR-008/013/014, INT-001/002, AI-006) ---------------------------------
 {
+  const ci = read(join(appRoot, ".github", "workflows", "ci.yml"));
   const wf = existsSync(join(appRoot, ".github", "workflows")) ? readdirSync(join(appRoot, ".github", "workflows")) : [];
-  rec("TC-NFR-13", false, `no IaC pipeline with plan/apply, drift detection and rollback in the repo (only: ${wf.join(", ") || "none"}; migrations are pasted by hand into the SQL editor)`);
-  rec("TC-NFR-14", false, "no SBOM / signed build provenance produced by the build");
-  rec("TC-NFR-08", false, "no SAST/DAST/SCA/secret-scan stage in CI");
-  rec("TC-NFR-21", !!["openapi.yaml", "openapi.json"].find((n) => existsSync(join(root, n)) || existsSync(join(appRoot, "docs", n))), "no OpenAPI 3.1 description of the HTTP/RPC surface is published");
-  rec("TC-INT-01", false, "no AsyncAPI / JSON-schema registry for events (webhook payloads are untyped jsonb)");
-  rec("TC-29-2", false, "no CODEOWNERS / branch protection evidence that AI-authored financial/security changes need human sign-off");
+  rec("TC-NFR-13", false, `no IaC pipeline with plan/apply, drift detection and rollback: migrations are pasted by hand into the SQL editor and supabase/ is not in version control (workflows: ${wf.join(", ")})`);
+  rec("TC-NFR-14", /cyclonedx/.test(ci) && /attest-build-provenance/.test(ci), "ci.yml produces a CycloneDX SBOM and signed build provenance — defined, but not yet run on GitHub (first run is the proof)");
+  rec("TC-NFR-08", /gitleaks/.test(ci) && /codeql/i.test(ci) && /pnpm audit/.test(ci), "ci.yml runs SCA, secret scan and CodeQL — defined, but no run exists yet to show zero unresolved Critical/High");
+  const oa = read(join(appRoot, "docs", "api", "openapi.yaml"));
+  rec("TC-NFR-21", /^openapi: 3\.1/m.test(oa) && /redocly/.test(ci), `OpenAPI 3.1 generated from the migrations (${(oa.match(/operationId:/g) || []).length} operations) and linted in CI`);
+  const aa = read(join(appRoot, "docs", "api", "asyncapi.yaml"));
+  rec("TC-INT-01", /^asyncapi: 3/m.test(aa) && /asyncapi\/cli/.test(ci), `AsyncAPI 3 describes ${(aa.match(/address:/g) || []).length} webhook events and is validated in CI`);
+  // Decided by asking GitHub (needs `gh auth login` as a repo admin); without that the setting cannot be verified.
+  let protectedByOwners = null;
+  try {
+    const r = spawnSync("gh", ["api", "repos/infobitecconsulting-maker/payrus/branches/main/protection/required_pull_request_reviews", "--jq", ".require_code_owner_reviews"], { encoding: "utf8" });
+    if (r.status === 0) protectedByOwners = r.stdout.trim() === "true";
+  } catch { /* gh missing */ }
+  rec("TC-29-2", protectedByOwners === true && existsSync(join(appRoot, ".github", "CODEOWNERS")), protectedByOwners === null ? "CODEOWNERS + scripts/apply-branch-protection.sh are in the repo, but the GitHub branch-protection setting could not be read (gh not signed in) — run the script as a repo admin, then re-run this suite" : protectedByOwners ? "main requires Code Owner review, verified through the GitHub API" : "main does not require Code Owner review yet — run scripts/apply-branch-protection.sh");
 }
 
 writeFileSync(join(outDir, "static.json"), JSON.stringify(results, null, 1));
