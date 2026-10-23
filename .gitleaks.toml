@@ -1,0 +1,8 @@
+title = "PayRus secret-scan rules"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "The Supabase publishable (anon) key is public by design: it ships in every client bundle and is limited by row-level security. Service-role and secret keys are never allowed."
+regexes = ['''sb_publishable_[A-Za-z0-9_-]+''']
