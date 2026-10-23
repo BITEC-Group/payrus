@@ -23,6 +23,8 @@ const TITLES: Record<string, string> = {
   "Account restricted": "dbnotif.title.accountRestricted",
   "Added to a workspace": "dbnotif.title.addedToWorkspace",
   "Sensitive data accessed (break-glass)": "dbnotif.title.breakGlass",
+  "Second notice recorded": "dbnotif.title.secondNotice",
+  "Escalation rejected": "dbnotif.title.escalationRejected",
 };
 
 const BODIES: Array<[RegExp, string, (m: RegExpMatchArray) => Record<string, string>]> = [
@@ -32,6 +34,8 @@ const BODIES: Array<[RegExp, string, (m: RegExpMatchArray) => Record<string, str
   [/^Your virtual card ending (\d{4}) is ready\.$/, "dbnotif.body.cardReady", (m) => ({ last4: m[1] })],
   [/^Your ([A-Z]{3}) wallet is ready\. Top it up to start using it\.$/, "dbnotif.body.walletReady", (m) => ({ currency: m[1] })],
   [/^Sending from your wallet is temporarily restricted\.$/, "dbnotif.body.restricted", () => ({})],
+  [/^(INV-[\w-]+) · (.+) is (\d+) days overdue \(([\d.,]+) ([A-Z]{3})\)\.$/, "dbnotif.body.overdue", (m) => ({ ref: m[1], name: m[2], days: m[3], amount: m[4], currency: m[5] })],
+  [/^Your escalation \((.+)\) was rejected: (.+)$/, "dbnotif.body.escalationRejected", (m) => ({ kind: m[1], reason: m[2] })],
   [/^Your test account is ready\. No email confirmation and no two-factor code are needed\. Your starter wallet and virtual card open in ([A-Z]{3})(?: \(([^)]*)\))? with a zero balance: top up to start\. Sample contacts are in your address book to send money to\. Everything here is simulated, so no real money moves\.$/, "dbnotif.body.welcome", (m) => ({ currency: m[1], country: m[2] ? ` (${m[2]})` : "" })],
   [/^Your test account is ready\. No email confirmation and no two-factor code are needed\. Choose a profile to open your starter wallet and virtual card\. Sample contacts are in your address book to send money to\. Everything here is simulated, so no real money moves\.$/, "dbnotif.body.welcomeNoCurrency", () => ({})],
 ];
@@ -44,7 +48,12 @@ export function localizeNotification(n: { title: string; body: string }, t: TFun
   else if (TITLES[n.title]) title = t(TITLES[n.title]);
   for (const [re, key, params] of BODIES) {
     const m = n.body.match(re);
-    if (m) { body = t(key, params(m)); break; }
+    if (m) {
+      const p = params(m);
+      if (p.kind) p.kind = t(`dbnotif.kind.${p.kind}`, { defaultValue: p.kind }); // "other" -> "autre"
+      body = t(key, p);
+      break;
+    }
   }
   return { title, body };
 }

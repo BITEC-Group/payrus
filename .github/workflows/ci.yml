@@ -35,21 +35,34 @@ jobs:
 
   regression:
     # The repo's own spec tests (routes, MFA guards, RLS hides private data from anonymous callers, role/profile
-    # invariants, every table/RPC the apps call exists) run on every push, so they no longer depend on a local run.
-    # Only the publishable URL and anon key are used - the same public values the deployed bundle ships.
+    # invariants, every table the apps call exists) run on every push, so they no longer depend on a local run.
+    # They read both apps side by side (App/ and ops-console/), so the Console is checked out next to the App,
+    # the same layout as the local workspace. Only the publishable URL and anon key are used - the same public
+    # values the deployed bundle ships.
     runs-on: ubuntu-latest
     env:
       VITE_SUPABASE_URL: "https://iqbsxyltixztmysqsbig.supabase.co"
       VITE_SUPABASE_ANON_KEY: "sb_publishable_F5j6JBm34JwQKJjbouvEBg_-KyCxYWv"
+    defaults:
+      run:
+        working-directory: PayRUs/App
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: PayRUs/App
+      - uses: actions/checkout@v4
+        with:
+          repository: BITEC-Group/PayRus-Console
+          path: PayRUs/ops-console
       - uses: pnpm/action-setup@v4
         with:
           version: 12
+          package_json_file: PayRUs/App/package.json
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
+          cache-dependency-path: PayRUs/App/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm regression
       - run: node scripts/spec-tests/static.mjs || true # reports findings; the blocking gate is pnpm regression

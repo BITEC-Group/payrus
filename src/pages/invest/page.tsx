@@ -471,15 +471,15 @@ const LEADERBOARD = [
 ];
 
 // Live activity ticker items
-const TICKER_EVENTS = [
-  "🌿 KivuFarm — 5,000 XAF invested by Diallo K. · just now",
-  "⚡ LumiCongo — Milestone 1 completed ✓ · 2 min ago",
-  "☕ KigaliCaféCo — New backer from Brussels · 5 min ago",
-  "📚 EduBridge Kenya — 87% funded! · 8 min ago",
-  "❄️ FrozenPath — 22,000 XAF invested · 12 min ago",
-  "🏍️ RapidMoto Angola — New pitch live · 15 min ago",
-  "🌿 KivuFarm — 10,000 XAF invested by Nkemdirim A. · 18 min ago",
-  "⚡ LumiCongo — Repayment Aug 2026 received · 21 min ago",
+const TICKER_EVENTS: { key: string; params?: Record<string, string | number>; minutes: number }[] = [
+  { key: "invest.ticker.1", params: { amount: "5,000" }, minutes: 0 },
+  { key: "invest.ticker.2", minutes: 2 },
+  { key: "invest.ticker.3", minutes: 5 },
+  { key: "invest.ticker.4", params: { pct: 87 }, minutes: 8 },
+  { key: "invest.ticker.5", params: { amount: "22,000" }, minutes: 12 },
+  { key: "invest.ticker.6", minutes: 15 },
+  { key: "invest.ticker.7", params: { amount: "10,000" }, minutes: 18 },
+  { key: "invest.ticker.8", minutes: 21 },
 ];
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
@@ -544,7 +544,7 @@ function LiveTicker() {
           className="text-[11px] text-primary font-medium"
         >
           <span className="text-[9px] font-black uppercase tracking-widest text-primary/60 mr-2">{t("invest.live")}</span>
-          {TICKER_EVENTS[idx]}
+          {t(TICKER_EVENTS[idx].key, TICKER_EVENTS[idx].params)} · {TICKER_EVENTS[idx].minutes === 0 ? t("invest.justNow") : t("notifications.timeMinutesAgo", { count: TICKER_EVENTS[idx].minutes })}
         </motion.p>
       </AnimatePresence>
     </div>
